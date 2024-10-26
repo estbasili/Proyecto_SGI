@@ -1,0 +1,5 @@
+Flask==2.3.3pip 
+Flask-Session==0.4.0
+mysql-connector-python==8.0.33
+bcrypt==4.0.1
+Flask-login-0.6.3
