@@ -14,7 +14,7 @@ Se requieren los siguientes programas para la ejecución del proyecto:
 Abrir una terminal y ejecutar el comando:
 
 ```bash
-git clone https://github.com/estbasili/Proyecto_SGI.git
+git clone https://github.com/estbasili/Proyecto_SGI
 ```
 
 ### 2. Navegar al directorio del proyecto
