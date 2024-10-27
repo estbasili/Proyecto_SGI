@@ -10,7 +10,7 @@ class User(UserMixin):
     def get_by_id(user_id):
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT id_usuario, nombre FROM usuarios WHERE id_usuario = %s", (user_id,))
+        cursor.execute("SELECT id_usuario, nombre FROM usuarios WHERE id_usuario = %s", (user_id,))####### modificar aca mañana
         row = cursor.fetchone()
         cursor.close()
         conn.close()

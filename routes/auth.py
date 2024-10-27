@@ -1,14 +1,12 @@
 # routes/auth.py
 from flask import Blueprint, request, render_template, redirect, url_for, flash
 from db.db_config import get_db_connection
-from models.logUsuario import User # Importar la clase User desde models.py
+from models.logUsuario import User 
 from flask_login import login_user, logout_user
 from models.usuario import Usuario
 import bcrypt
 
 auth_bp = Blueprint('auth', __name__)
-
-
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():

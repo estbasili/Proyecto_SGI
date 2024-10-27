@@ -3,13 +3,14 @@
 tu_proyecto/              #Directorio raiz del proyecto
 ├── app.py                #Punto de entrada de la aplicacion Flask
 ├── db/                   #configuracion de la base de datos para la conexion
-│   └── config_db.py
+│   └── config_db.py      #configuracion del conector de la base de datos
 ├── settings/             #Valores para prueba de la DB
 │   └── datos_prueba.sql
 │   └── gestion.sql  
 ├── models/               #Modelos de datos de la aplicacion
 │   └── __init__.py
-│   └── usuario.py
+│   └── logUsuario.py     #me sirve para recuperar el ususario que inicio sesion
+|   └── usuario.py
 ├── static/               #Estilos para las planillas
 │   ├── css/
 │   │   └── styles.css
