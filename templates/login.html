@@ -24,21 +24,22 @@
     </div>
     <div class="card-body">
       <p class="login-box-msg">Inicia sesión para comenzar:</p>
-      <p id="mensaje"></p>
       <form id="loginForm" action="/login" method="POST"  >
         <div>
           {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-              <ul>
+              <div class="container">
                 {% for category, message in messages %}
-                  <li class="alert alert-{{ category }}">{{ message }}</li>
+                  <div  class="alert alert-{{ category }}">
+                    {{ message }}
+                  </div>
                 {% endfor %}
-              </ul>
+                </div>
             {% endif %}
           {% endwith %}
         </div>
         <div class="input-group mb-3">
-          <input type="text" name="nombre"  required class="form-control" placeholder="email" value="">
+          <input type="text" name="email"  required class="form-control" placeholder="email" value="">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-envelope"></span>

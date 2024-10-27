@@ -14,7 +14,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'auth.login' 
 
-# recupero el usuario que inicio sesion
+# Recupero el usuario que inicio sesion
 @login_manager.user_loader
 def load_user(user_id):
      return User.get_by_id(user_id)
@@ -23,11 +23,12 @@ def load_user(user_id):
 @app.route('/')
 def home():
      return redirect (url_for('auth.login'))  
-          
+
+# Muestra mensaje de inicio de sesion, si el usuario salio de Home sin cerrar sesion          
 @login_manager.unauthorized_handler
 def unauthorized():
-    flash('Por favor, inicia sesión para acceder a esta página.', 'secondary')  # Personaliza el mensaje
-    return redirect(url_for('auth.login'))  # Redirigir al login
+    flash('Por favor, inicia sesión para acceder a la página.', 'secondary')                      
+    return redirect(url_for('auth.login'))                                                         
 
 # Asegúrate de que el usuario esté autenticado para acceder a la pagina de la app
 @app.route('/home')

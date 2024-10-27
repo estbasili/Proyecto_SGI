@@ -16,24 +16,28 @@ def require_login():
         return redirect(url_for('auth.login'))  
 
 
+# ruta de login
+
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     
+    # Cierra sesion automaticamente si el usuario ya esta logeado y volvio a la pagina de login con las flechas del navegador
     if current_user.is_authenticated:
-        logout_user()  # Cierra la sesión si el usuario ya está autenticado
+        logout_user() 
         flash('Sesión cerrada automáticamente. Por favor, inicie sesión nuevamente.', 'info')
-        return redirect(url_for('auth.login'))  # Redirige a login después de cerrar la sesión
+        return redirect(url_for('auth.login'))  
     
+    # Abro conexion a la Base de datos para ver si el usuario existe
     if request.method == 'POST':
-        nombre = request.form['nombre']
+        email = request.form['email']
         password = request.form['password']
 
         db = get_db_connection()
-        usuario_data = Usuario.obtener_por_nombre(nombre, db)
+        usuario_data = Usuario.obtener_por_email(email, db)
         db.close()
 
-        if usuario_data and bcrypt.checkpw(password.encode('utf-8'), usuario_data[2].encode('utf-8')):
-            user = User(usuario_data[0], usuario_data[1])  # Crear objeto de usuario
+        if usuario_data and bcrypt.checkpw(password.encode('utf-8'), usuario_data[3].encode('utf-8')):
+            user = User(usuario_data[0], usuario_data[1])  # Crear objeto de usuario logeado
             login_user(user)  # Iniciar sesión
             return redirect(url_for('index'))
         else:
