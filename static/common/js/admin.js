@@ -1,32 +1,110 @@
-function encabezado(nameSection,nameSubSection){
-    let section = document.getElementById("section");
-    section.textContent= nameSection;
-    let subsection = document.getElementById("subSection");
-    subsection.textContent= nameSubSection;
-
+// Función para mostrar encabezados
+function showHeader(nameSection, nameSubSection) {
+  document.getElementById("section").textContent = nameSection;
+  document.getElementById("subSection").textContent = nameSubSection;
 }
 
-// ------ Pantallas Producto
-function showAgregarProducto(){
-      encabezado("Gestor de Productos","Agregar Producto");
-      
-    // seguir codigo
+// Función para limpiar el contenido de showSelect
+function showOut() {
+  const elementoAEliminar = document.getElementById("showSelect");
+  if (elementoAEliminar) {
+      elementoAEliminar.innerHTML = "";
+  }
 }
-function showQuitarProducto(){
-    encabezado("Gestor de Productos","Quitar Producto");
-    
-    // seguir codigo
 
-}
-function showActualizarProducto(){
-    encabezado("Gestor de Productos","Actualizar Producto");
-    
-    // seguir codigo
+// Función para generar formularios dinámicamente
+function formulario(campos, idFormulario,method, botonTexto, botonClase) {
+  let form = `<div class="card-body">
+      <form id="${idFormulario}" action="" method="${method}">`;
 
+  campos.forEach(campo => {
+      form += `<div class="input-group mb-3">
+          <input type="text" name="${campo.nombre}" required class="form-control" placeholder="${campo.placeholder}" value="">
+          <div class="input-group-append">
+              <div class="input-group-text">
+                  <span class="fas fa-align-left"></span>
+              </div>
+          </div>
+      </div>`;
+  });
+
+  form += `
+      <hr>
+      <div class="row">
+          <div class="col-12">
+              <button type="submit" class="btn ${botonClase} btn-block">${botonTexto}</button>
+          </div>
+      </div>
+      </form>
+  </div>`;
+
+  document.getElementById("showSelect").innerHTML = form;
 }
+
+// Función para mostrar pantalla "Agregar Producto"
+function showAgregarProducto() {
+  showHeader("Gestor de Productos", "Agregar Producto");
+  showOut();
+  formulario(
+      [
+          { nombre: "Codigo", placeholder: "codigo" },
+          { nombre: "producto", placeholder: "producto" },
+          { nombre: "descripción", placeholder: "descripción"},
+          { nombre: "precio", placeholder: "precio" },
+          { nombre: "stock", placeholder: "stock" },
+          { nombre: "provedor", placeholder: "provedor"},
+          { nombre: "categoria", placeholder: "categoria"}
+      ],
+      "addProduct",
+      "POST",
+      "Ingresar",
+      "btn-success"
+  );
+}
+
+// Función para mostrar pantalla "Quitar Producto"
+function showQuitarProducto() {
+  showHeader("Gestor de Productos", "Quitar Producto");
+  showOut();
+  formulario(
+      [
+          { nombre: "codigo", placeholder: "codigo"},
+          { nombre: "producto", placeholder: "producto"}
+      ],
+      "quitProduct",
+      "DELETE",
+      "Quitar",
+      "btn-danger"
+  );
+}
+
+// Función para mostrar pantalla "Actualizar Producto"
+function showActualizarProducto() {
+  showHeader("Gestor de Productos", "Actualizar Producto");
+  showOut();
+  formulario(
+      [
+          { nombre: "Codigo", placeholder: "codigo"},
+          { nombre: "producto", placeholder: "producto"},
+          { nombre: "descripción", placeholder: "descripción"},
+          { nombre: "precio", placeholder: "precio"},
+          { nombre: "stock", placeholder: "stock"},
+          { nombre: "provedor", placeholder: "provedor"},
+          { nombre: "categoria", placeholder: "categoria"}
+      ],
+      "updateProduct",
+      "PUT",
+      "Actualizar",
+      "btn-warning"
+  );
+}
+
+
+
+
 function showListarProducto(){
-    encabezado("Gestor de Productos"," Lista Productos");
-
+    showHeader("Gestor de Productos"," Lista Productos");
+    showOut();
     let table = ` <!-- Table -->
                   <div class="card-body table-responsive p-0" style="height: 300px;">
                     <table id="dataTable_products" class="table table-head-fixed text-nowrap">
@@ -74,26 +152,38 @@ function showListarProducto(){
     
   listProducts();
 
-
 }
 
-//----- Pantallas Gestor Categorioa
+//----- Pantallas Gestor Categoria
 
 function showNuevaCategoria(){
-    encabezado("Gestor de Categoria","Agregar Categoria");
+    showHeader("Gestor de Categoria","Agregar Categoria");
+    showOut();
+    formulario(
+      [
+          { nombre: "nuevaCategoria", placeholder: "Nueva Categoria" },
+      ],
+      "addCategory",
+      "POST",
+      "Ingresar",
+      "btn-success"
+  );
     
   // seguir codigo
 }
 
 //---------Pantalla Gestor Stock
 function showActualizarStock(){
-  encabezado("Gestor de Stock","Actualizar Stock");
+  showHeader("Gestor de Stock","Actualizar Stock");
+  showOut();
+  
   
   // seguir codigo
 
 }
 function showListarStock(){
-  encabezado("Gestor de Stock"," Lista Stock");
+  showHeader("Gestor de Stock"," Lista Stock");
+  showOut();
 
   // seguir codigo
 
@@ -101,13 +191,15 @@ function showListarStock(){
 
 //-------- Pantalla Gestor de provedores
 function showAgregarProvedor(){
-    encabezado("Gestor de Provedores","Agregar Provedor");
+    showHeader("Gestor de Provedores","Agregar Provedor");
+    showOut();
     
   // seguir codigo
 }
 
 function showConsultarProvedor(){
-  encabezado("Gestor de Provedor","Lista Provedor");
+  showHeader("Gestor de Provedor","Lista Provedor");
+  showOut();
 
   // seguir codigo
 
@@ -116,13 +208,15 @@ function showConsultarProvedor(){
 //----- Pantalla gestor de compras
 
 function showAgregarCompra(item){
-    encabezado("Gestor de Compras","Agregar Compra");
+    showHeader("Gestor de Compras","Agregar Compra");
+    showOut();
     
   // seguir codigo
 }
 
 function showConsultarCompra(){
-  encabezado("Gestor de Compras","Consultar Compra");
+  showHeader("Gestor de Compras","Consultar Compra");
+  showOut();
 
   // seguir codigo
 
@@ -131,5 +225,6 @@ function showConsultarCompra(){
 //--------- Pantalla de Gestionar usuario
 
 function gestionarUsuario(){
-    encabezado("Gestor de Usuario","Agregar Usuario");
+    showHeader("Gestor de Usuario","Agregar Usuario");
+    showOut();
 }
