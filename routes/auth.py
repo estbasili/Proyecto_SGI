@@ -8,16 +8,20 @@ import bcrypt
 
 auth_bp = Blueprint('auth', __name__)
 
+# ------------------ Para habilitar la Proteccion de las rutas descomentar este bloque  -------
+
 # Protejo a todas las rutas para que solamente se acceda si el usuario está logueado
-@auth_bp.before_request
-def require_login():
-    # Permite el acceso a la ruta de login y logout sin requerir autenticación
-    if request.endpoint in ['auth.login', 'auth.logout']:
-        return  # Permitir acceso sin redirección
+#@auth_bp.before_request
+#def require_login():
+#    # Permite el acceso a la ruta de login y logout sin requerir autenticación
+#    if request.endpoint in ['auth.login', 'auth.logout']:
+#        return  # Permitir acceso sin redirección
 
     # Redirige a la página de inicio de sesión si el usuario no está autenticado
-    if not current_user.is_authenticated:
-        return redirect(url_for('auth.login'))
+#    if not current_user.is_authenticated:
+#        return redirect(url_for('auth.login'))
+
+#----------------------------------------------------------------------------------------------
 
 # Ruta de login
 @auth_bp.route('/login', methods=['GET', 'POST'])
@@ -50,9 +54,19 @@ def login():
     response.headers['Expires'] = '-1'
     return response
 
+
+# Ruta de logout
 @auth_bp.route('/logout')
 def logout():
     logout_user()
     flash('Has cerrado sesión exitosamente', 'success')
     return redirect(url_for('auth.login'))
+
+
+# Ruta de pruebas multiples 
+@auth_bp.route('/prueba')
+def prueba():
+    return render_template('prueba.html')
+
+
 

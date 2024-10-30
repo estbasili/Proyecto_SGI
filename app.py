@@ -26,15 +26,19 @@ def unauthorized():
 def load_user(user_id):
      return User.get_by_id(user_id)
 
+##--------------------------------- Descomentar el if para que se rediriga solo con autenticacion    --------------
+
 @app.route('/')
 def home():
     # Redirige a index si el usuario ya está autenticado
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-    return redirect(url_for('auth.login'))
+#    if current_user.is_authenticated:
+    return redirect(url_for('index'))
+#    return redirect(url_for('auth.login'))
 
+
+##--------------------------------- Descomentar @ login_required para proteger home --------------------------------
 @app.route('/home')
-@login_required
+#@login_required
 def index():
     response = make_response(render_template('index.html'))
     # Desactiva la caché para que el navegador siempre solicite una nueva versión
