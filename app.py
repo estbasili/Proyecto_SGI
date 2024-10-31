@@ -2,12 +2,13 @@ from flask import Flask, redirect, url_for, render_template, make_response,flash
 from flask_login import LoginManager, login_required, current_user
 from routes.auth import auth_bp
 from models.logUsuario import User
-
+from routes.producto import producto_bp
 app = Flask(__name__)
 app.secret_key = 'clave_secreta'
 
 # Registrar el blueprint
 app.register_blueprint(auth_bp)
+app.register_blueprint(producto_bp)
 
 # Inicializar Flask-Login
 login_manager = LoginManager()
