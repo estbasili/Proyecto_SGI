@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gestion de Inventarios</title>
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='common/css/plugins/fontawesome-free/css/all.css') }}">
+  <!-- icheck bootstrap -->
+  <link rel="stylesheet" href="{{ url_for('static', filename= 'common/css/plugins/icheck-bootstrap/icheck-bootstrap.min.css')}}">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{{ url_for ('static', filename = 'common/css/dist/css/adminlte.min.css')}}">
+  <link rel="icon" href="{{ url_for('static', filename='common/assents/favicon.ico') }}" type="image/x-icon" />
+</head>
+<body class="hold-transition login-page">
+<div class="login-box">
+  <!-- /.login-logo -->
+  <img src="{{ url_for ('static', filename = 'common/assents/imagen_login.jpg')}}" alt= "" width="360px" class="card card-outline ">
+  <div class="card card-outline card-primary">
+    <div class="card-header text-center">
+      <p class="h1">Gestor de <b>Inventario</b> </p>
+    </div>
+    <div class="card-body">
+      <p class="login-box-msg">Inicia sesión para comenzar:</p>
+      <form id="loginForm" action="/login" method="POST"  >
+        <div>
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              <div class="container">
+                {% for category, message in messages %}
+                  <div  class="alert alert-{{ category }}">
+                    {{ message }}
+                  </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+          {% endwith %}
+        </div>
+        <div class="input-group mb-3">
+          <input type="text" name="email"  required class="form-control" placeholder="email" value="">
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-envelope"></span>
+            </div>
+          </div>
+        </div>
+        <div class="input-group mb-3">
+          <input type="password" name="password" required class="form-control" placeholder="Password" value="">
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-lock"></span>
+            </div>
+          </div>
+        </div>
+        <hr>
+        <div class="row">
+         <!-- /.col -->
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary btn-block">Ingresar</button>
+          </div>
+          <!-- /.col -->
+        </div>
+      </form>
+   </div>
+    <!-- /.card-body -->
+  </div>
+  <!-- /.card -->
+</div>
+<!-- /.login-box -->
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

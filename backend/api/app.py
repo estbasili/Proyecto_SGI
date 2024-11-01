@@ -4,10 +4,11 @@ from db.db import init_db, get_db_connection
 from models.producto import Producto
 from routes.producto import producto_bp
 from dotenv import load_dotenv
+from flask_cors import CORS #############
 import os
 
 app = Flask(__name__)
-
+CORS(app)  # Esto permite CORS para todas las rutas ##########
 # Carga las variables de entorno desde el archivo .env
 load_dotenv()
 
