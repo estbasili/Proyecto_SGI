@@ -67,32 +67,44 @@ python app.py
 
 ##  Propuesta de Estructura del proyecto
 ```
-tu_proyecto/
+Proyecto_SGI/
 │
-├── app.py                            # Archivo principal que inicia la aplicación Flask
-│
-├── db/
-│   └── db_config.py                  # Configuración de la base de datos y conexión
-│
-├── models/
-│   ├── __init__.py                   # Inicialización de módulo (puede estar vacío o con imports de modelos)
-│   ├── logUsuario.py                 # Modelo relacionado con el inicio de sesión y usuarios logueados
-│   └── usuario.py                    # Modelo relacionado con la entidad Usuario
-│
+├── Backend/
+|     └── api/ 
+|         ├── db/
+|         |   ├── __pycache__
+│         |   └── db_config.py
+|         |
+│         ├── models/
+│         |      ├── __pycache__                   
+│         |      └── producto.py                    
+│         | 
+│         ├── node_modules/
+│         |      └── dotenv
+|         |
+|         ├── routes/
+│         |      ├── __pycache__                  
+│         |      └── producto.py
+|         ├── __init__.py                
+|         └── app.py
+|
+├── setting/
+│   ├── datos_prueba.sql
+│   └── gestin.sql
+│   
 ├── frontend/
-     ├── admin/
-     │   ├── index.html                
-     │   │
-     │   └── js/
-     │        └── script.js 
-     ├── assents/
-     │   ├── favico.ico              
-     │   └── usuario.png 
-     │    
-     ├── common/
-     │   └── js/
-     │       ├──dist/
-     │       │                     
-     │       └── plugins/
-     │                   
-             
+|     ├── admin/
+|     │   ├── index.html                
+|     │   └── js/
+|     │        └── script.js 
+|     ├── assents/
+|     │   ├── favico.ico              
+|     │   └── usuario.png 
+|     │    
+|     ├── common/
+|         └── css/
+|             ├──dist/
+|             └── plugins/
+|     
+├── README.md                 
+└── requirements.txt
