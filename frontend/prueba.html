@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend para API</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Datos de la API</h1>
+    <div id="resultado">Cargando datos...</div>
+    
+    <script>
+        // Realizar una solicitud GET a la API
+        fetch('http://127.0.0.1:5001/productos')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la solicitud');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Manejo de datos recibidos de la API
+                const resultadoDiv = document.getElementById('resultado');
+                // Limpiar el contenido
+                resultadoDiv.innerHTML = '';
+
+                // Acceder a los productos
+                const productos = data.productos; // Aquí accedemos al array 'productos'
+
+                // Mostrar los datos en formato de lista
+                const list = document.createElement('ul');
+                productos.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `ID: ${item[0]} - Nombre: ${item[1]} - Descripción: ${item[2]} - Precio: ${item[3]} - Stock: ${item[4]}`;
+                    list.appendChild(listItem);
+                });
+                resultadoDiv.appendChild(list);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('resultado').innerHTML = 'Error al cargar los datos de la API: ' + error.message;
+            });
+    </script>
+</body>
+</html>
+
