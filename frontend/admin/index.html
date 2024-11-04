@@ -93,7 +93,7 @@
           <img src="../assents/usuario.png" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
-              <h4 style="color: rgb(255, 255, 255);">{{ current_user.nombre }}</h4>
+              <h4 style="color: rgb(255, 255, 255);">Usuario<!--{{ current_user.nombre }}--></h4>
         </div>
       </div>
       <!-- Sidebar Menu -->
@@ -128,12 +128,14 @@
                   <p>Actualizar</p>
                 </a>
               </li>
+              <!--
               <li class="nav-item">
                 <a onclick="showListarProducto()"class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Listar</p>
                 </a>
               </li>
+            -->
             </ul>
           </li>
           <li class="nav-item menu-open">
@@ -150,7 +152,13 @@
                   <i class="far fa-circle nav-icon"></i>
                   <p>Nueva Categoría</p>
                 </a>
-              </li>              
+              </li>  
+              <li class="nav-item">
+                <a onclick="showAsociarProducto()"class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Asociar Producto</p>
+                </a>
+              </li>             
             </ul>
           </li>
           <li class="nav-item menu-open">
@@ -165,13 +173,7 @@
               <li class="nav-item">
                 <a onclick="showActualizarStock()" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>Actualizar</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a onclick="showListarStock()"class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Listar</p>
+                  <p>Actualizar cantidad </p>
                 </a>
               </li>
             </ul>
@@ -214,21 +216,36 @@
                   <p>Agregar</p>
                 </a>
               </li>
+            </ul>
+          </li>
+          <li class="nav-item menu-open">
+            <a href="#" class="nav-link active">
+              <i class=""></i>
+              <p>
+                Gestor de Reportes
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a onclick="showConsultarCompra()" class="nav-link">
+                <a onclick="showProdBS()" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>Consultar Compra</p>
+                  <p>Productos en bajo Stock</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a onclick="showHCompras()" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Historial de Compras</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a onclick="showInventarioActual()" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Inventario Actual</p>
                 </a>
               </li>
             </ul>
-          </li>
-          <li class="nav-item" >
-            <a onclick="gestionarUsuario()" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                Gestionar Usuario
-              </p>
-            </a>
           </li>
         </ul>
       </nav>

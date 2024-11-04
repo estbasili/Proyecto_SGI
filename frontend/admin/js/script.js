@@ -166,7 +166,7 @@ async function updateProduct() {
     }
 }
 
-// Función para Listar Productos
+/* Función para Listar Productos----( para prueba)
 function showListarProducto() {
     showHeader("Gestor de Productos", "Lista de Productos");
     clearContent();
@@ -210,6 +210,7 @@ async function fetchProducts() {
         document.getElementById("tableBody_products").innerHTML = content;
     }
 }
+*/
 
 
 //-- Gestor Categoria ---------------------------------------------------
@@ -235,9 +236,28 @@ async function addCategory() {
     
     const data = await apiRequest("/categoria", 'POST', nuevaCategoria);
     if (data) {
-        alert("Producto agregado correctamente");
+        alert("Categoria agregado correctamente");
         showListarProducto();
     }
+}
+
+function showAsociarProducto(){
+  showHeader("Gestor de Categoria","Asociar Producto");
+  clearContent();
+  generateForm(
+    [
+        { nombre: "proCategoria", placeholder: "Producto a asociar" },
+        { nombre: "catProducto", placeholder: "Categoria" },
+    ],
+    "addProdCategoria",
+    "addProductoCategoria",
+    "Asociar",
+    "btn-success"
+  );
+}
+
+async function addProductoCategoria() {
+
 }
   
 
@@ -251,29 +271,53 @@ async function addCategory() {
     // seguir codigo
   
   }
-  function showListarStock(){
-    showHeader("Gestor de Stock"," Lista Stock");
-    clearContent();
-  
-    // seguir codigo
-  
-  }
-  
+ 
 //-- Gestor de provedores ------------------------------------------------
-  function showAgregarProveedor(){
-      showHeader("Gestor de Proveedores","Agregar Proveedor");
-      clearContent();
-      
-    // seguir codigo
-  }
+    
+// Función para Agregar Producto
+function showAgregarProveedor() {
+  showHeader("Gestor de Proveedores", "Agregar Proveedor");
+  clearContent();
+  generateForm(
+      [
+          { nombre: "nombre", placeholder: "Nombre de proveedor" },
+          { nombre: "direccion", placeholder: "Direccion" },
+          { nombre: "email", placeholder: "email" },
+          { nombre: "telefono", placeholder: "Telefono" },
+          { nombre: "productos", placeholder: "Productos que provee (produto 1, producto 2,...)" }
+      ],
+      "addProveedor",
+      "addProveedor",
+      "Ingresar",
+      "btn-success"
+  );
+}
+
+async function addProveedor() {
+  const nuevoProveedor = {
+      code: document.getElementById("nombre").value,
+      product: document.getElementById("direccion").value,
+      description: document.getElementById("email").value,
+      price: document.getElementById("telefono").value,
+      stock: document.getElementById("productos").value
+     
+  };
   
+  const data = await apiRequest("/proveedor", 'POST', nuevoProveedor);
+  if (data) {
+      alert("Proveedor agregado correctamente");
+      showListarProducto();
+  }
+}
+
   function showConsultarProveedor(){
-    showHeader("Gestor de Proveedores","Lista Proveedor");
+    showHeader("Gestor de Proveedores","Consultar Proveedor");
     clearContent();
   
     // seguir codigo
   
   }
+
   
 //-- Gestor de compras ---------------------------------------------------
   
@@ -284,20 +328,95 @@ async function addCategory() {
     // seguir codigo
   }
   
-  function showConsultarCompra(){
-    showHeader("Gestor de Compras","Consultar Compra");
+  //-- Gestor de Reportes -------------------------------------------------
+
+  // Función para Listar Productos----( hay que listar solo los de bajo stock)
+  function showProdBS() {
+    showHeader("Gestor de Reportes", "Lista de Productos Bajo Stock");
     clearContent();
+    const table = `
+      <div class="card-body table-responsive p-0" style="height: 300px;">
+        <table id="dataTable_products" class="table table-head-fixed text-nowrap">
+          <thead>
+            <tr>
+              <th>Id</th>
+              <th>Nombre</th>
+              <th>Descripcion</th>
+              <th>Precio</th>
+              <th>Stock</th>
+              <th>Categoria</th>
+              <th>Proveedor</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody_products"></tbody>
+        </table>
+      </div>`;
   
-    // seguir codigo
-  
+    document.getElementById("showSelect").innerHTML = table;
+    fetchProducts();
   }
-  
-//-- Gestor usuario ------------------------------------------------------
-  
-  function gestionarUsuario(){
-      showHeader("Gestor de Usuario","Agregar Usuario");
-      clearContent();
+
+  async function fetchProducts() {
+    const data = await apiRequest("/productos");
+    if (data && Array.isArray(data.productos)) {
+        const products = data.productos;
+        const content = products.map(product => `
+          <tr>
+            <td>${product[0]}</td>
+            <td>${product[1]}</td>
+            <td>${product[2]}</td>
+            <td>${product[3]}</td>
+            <td>${product[4]}</td>
+            <td>${product[5]}</td>
+            <td>${product[6]}</td>
+          </tr>
+        `).join("");
+        document.getElementById("tableBody_products").innerHTML = content;
+    }
   }
+
+  // Función para Listar Productos----( hay que listar solo los de bajo stock)
+  function showHCompras() {
+    showHeader("Gestor de Reportes", "Historial de Compras");
+    clearContent();
+    const table = `
+      <div class="card-body table-responsive p-0" style="height: 300px;">
+        <table id="dataTable_products" class="table table-head-fixed text-nowrap">
+          <thead>
+            <tr>
+              <th>Producto Solicitado</th>
+              <th>Cantidad</th>
+              <th>Fecha pedido</th>
+              <th>Fecha recepcion</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody_products"></tbody>
+        </table>
+      </div>`;
+  
+    document.getElementById("showSelect").innerHTML = table;
+    //fetchHCompras();
+  }
+
+  /*async function fetchHCompras() {
+    const data = await apiRequest("/compras ");
+    if (data && Array.isArray(data.compras)) {
+        const shopping = data.compras;
+        const content = shopping.map(buys => `
+          <tr>
+            <td>${buys[0]}</td>
+            <td>${buys[1]}</td>
+            <td>${buys[2]}</td>
+            <td>${buys[3]}</td>
+            <td>${buys[4]}</td>
+          </tr>
+        `).join("");
+        document.getElementById("tableBody_products").innerHTML = content;
+    }
+  }*/
+  
+
 
 
 
