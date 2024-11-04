@@ -1,227 +1,251 @@
-// static/js/script.js
-
-// Validación de formulario de login
-document.addEventListener('DOMContentLoaded', () => {
-    const loginForm = document.querySelector('#loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', function(event) {
-            const email = document.querySelector('#email').value;
-            const password = document.querySelector('#password').value;
-            
-            if (!email || !password) {
-                event.preventDefault();
-                alert('Por favor complete todos los campos.');
-            }
-        });
-    }
-});
+// Funciones para la seccion administrador
 
 
-// Función para mostrar encabezados
+//-- Direccion de la api ----------------------------------------------
+
+const urlAPI = "http://127.0.0.1:5001";
+
+
+//-- Funciones compartidas entre opciones ------------------------------
+
+// Función genérica para mostrar encabezados
 function showHeader(nameSection, nameSubSection) {
-    document.getElementById("section").textContent = nameSection;
-    document.getElementById("subSection").textContent = nameSubSection;
-  }
-  
-  // Función para limpiar el contenido de showSelect
-  function showOut() {
-    const elementoAEliminar = document.getElementById("showSelect");
-    if (elementoAEliminar) {
-        elementoAEliminar.innerHTML = "";
-    }
-  }
-  
-  // Función para generar formularios dinámicamente
-  function formulario(campos, idFormulario,method, botonTexto, botonClase) {
-    let form = `<div class="card-body">
-        <form id="${idFormulario}" action="" method="${method}">`;
-  
-    campos.forEach(campo => {
-        form += `<div class="input-group mb-3">
-            <input type="text" name="${campo.nombre}" required class="form-control" placeholder="${campo.placeholder}" value="">
-            <div class="input-group-append">
-                <div class="input-group-text">
-                    <span class="fas fa-align-left"></span>
-                </div>
-            </div>
-        </div>`;
-    });
-  
-    form += `
+  document.getElementById("section").textContent = nameSection;
+  document.getElementById("subSection").textContent = nameSubSection;
+}
+
+// Función para limpiar el contenido de showSelect
+function clearContent() {
+  document.getElementById("showSelect").innerHTML = "";
+}
+
+// Función para generar formularios dinámicos
+function generateForm(fields, formId, submitCallback, submitText, submitClass) {
+  const form = `
+    <div class="card-body">
+      <form id="${formId}" onsubmit="event.preventDefault(); ${submitCallback}();">
+        ${fields.map(field => `
+          <div class="input-group mb-3">
+              <input type="text" id="${field.nombre}" name="${field.nombre}" required class="form-control" placeholder="${field.placeholder}" value="">
+              <div class="input-group-append">
+                  <div class="input-group-text">
+                      <span class="fas fa-align-left"></span>
+                  </div>
+              </div>
+          </div>
+        `).join('')}
         <hr>
         <div class="row">
             <div class="col-12">
-                <button type="submit" class="btn ${botonClase} btn-block">${botonTexto}</button>
+                <button type="submit" class="btn ${submitClass} btn-block">${submitText}</button>
             </div>
         </div>
-        </form>
+      </form>
     </div>`;
+  document.getElementById("showSelect").innerHTML = form;
+}
+
+// Función genérica para hacer peticiones a la API
+async function apiRequest(endpoint, method = 'GET', data = null) {
+  const options = {
+      method,
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: data ? JSON.stringify(data) : null
+  };
   
-    document.getElementById("showSelect").innerHTML = form;
+  try {
+      const response = await fetch(`${urlAPI}${endpoint}`, options);
+      if (!response.ok) throw new Error("Error en la solicitud");
+      return await response.json();
+  } catch (error) {
+      console.error(`Error en ${method} ${endpoint}:`, error);
+      alert(`Error al procesar la solicitud: ${error.message}`);
   }
-  
-  // Función para mostrar pantalla "Agregar Producto"
-  function showAgregarProducto() {
+}
+
+
+//-- Gestor de Productos -----------------------------------------------
+
+
+// Función para Agregar Producto
+function showAgregarProducto() {
     showHeader("Gestor de Productos", "Agregar Producto");
-    showOut();
-    formulario(
+    clearContent();
+    generateForm(
         [
-            { nombre: "Codigo", placeholder: "codigo" },
-            { nombre: "producto", placeholder: "producto" },
-            { nombre: "descripción", placeholder: "descripción"},
-            { nombre: "precio", placeholder: "precio" },
-            { nombre: "stock", placeholder: "stock" },
-            { nombre: "provedor", placeholder: "provedor"},
-            { nombre: "categoria", placeholder: "categoria"}
+            { nombre: "codigo", placeholder: "Código" },
+            { nombre: "producto", placeholder: "Producto" },
+            { nombre: "descripcion", placeholder: "Descripción" },
+            { nombre: "precio", placeholder: "Precio" },
+            { nombre: "stock", placeholder: "Stock" },
+            { nombre: "proveedor", placeholder: "Proveedor" },
+            { nombre: "categoria", placeholder: "Categoría" }
         ],
         "addProduct",
-        "POST",
+        "addProduct",
         "Ingresar",
         "btn-success"
     );
-  }
-  
-  // Función para mostrar pantalla "Quitar Producto"
-  function showQuitarProducto() {
-    showHeader("Gestor de Productos", "Quitar Producto");
-    showOut();
-    formulario(
-        [
-            { nombre: "codigo", placeholder: "codigo"},
-            { nombre: "producto", placeholder: "producto"}
-        ],
-        "quitProduct",
-        "DELETE",
-        "Quitar",
+}
+
+async function addProduct() {
+    const nuevoProducto = {
+        code: document.getElementById("codigo").value,
+        product: document.getElementById("producto").value,
+        description: document.getElementById("descripcion").value,
+        price: document.getElementById("precio").value,
+        stock: document.getElementById("stock").value,
+        supplier: document.getElementById("proveedor").value,
+        category: document.getElementById("categoria").value
+    };
+    
+    const data = await apiRequest("/producto", 'POST', nuevoProducto);
+    if (data) {
+        alert("Producto agregado correctamente");
+        showListarProducto();
+    }
+}
+
+// Función para Eliminar Producto
+function showQuitarProducto() {
+    showHeader("Gestor de Productos", "Eliminar Producto");
+    clearContent();
+    generateForm(
+        [{ nombre: "codigo", placeholder: "Código del producto a eliminar" }],
+        "deleteProduct",
+        "deleteProduct",
+        "Eliminar",
         "btn-danger"
     );
-  }
-  
-  // Función para mostrar pantalla "Actualizar Producto"
-  function showActualizarProducto() {
+}
+
+async function deleteProduct() {
+    const codigo = document.getElementById("codigo").value;
+    const data = await apiRequest(`/producto/${codigo}`, 'DELETE');
+    if (data) alert("Producto eliminado correctamente");
+}
+
+// Función para Actualizar Producto
+function showActualizarProducto() {
     showHeader("Gestor de Productos", "Actualizar Producto");
-    showOut();
-    formulario(
+    clearContent();
+    generateForm(
         [
-            { nombre: "Codigo", placeholder: "codigo"},
-            { nombre: "producto", placeholder: "producto"},
-            { nombre: "descripción", placeholder: "descripción"},
-            { nombre: "precio", placeholder: "precio"},
-            { nombre: "stock", placeholder: "stock"},
-            { nombre: "provedor", placeholder: "provedor"},
-            { nombre: "categoria", placeholder: "categoria"}
+            { nombre: "codigo", placeholder: "Código" },
+            { nombre: "producto", placeholder: "Producto" },
+            { nombre: "descripcion", placeholder: "Descripción" },
+            { nombre: "precio", placeholder: "Precio" },
+            { nombre: "stock", placeholder: "Stock" },
+            { nombre: "proveedor", placeholder: "Proveedor" },
+            { nombre: "categoria", placeholder: "Categoría" }
         ],
         "updateProduct",
-        "PUT",
+        "updateProduct",
         "Actualizar",
         "btn-warning"
     );
-  }
-  
-      
-  function showListarProducto(){
-      showHeader("Gestor de Productos"," Lista Productos");
-      showOut();
-      let table = ` <!-- Table -->
-                    <div class="card-body table-responsive p-0" style="height: 300px;">
-                      <table id="dataTable_products" class="table table-head-fixed text-nowrap">
-                        <thead>
-                          <tr>
-                            <th>Id</th>
-                            <th>Nombre</th>
-                            <th>Descripcion</th>
-                            <th>Precio</th>
-                            <th>Stock</th>
-                            <th>Categoria</th>
-                            <th>Provedor</th>
-                          </tr>
-                        </thead>
-                        <tbody id="tableBody_products"></tbody>
-                      </table>
-                    </div>
-                    <!--/ Table-->`;  
-      
-      showSelect.innerHTML= table;
-      
-      /*const listProducts = async()=>{
-        try{
-          const response = await fetch("http://127.0.0.1:5001/productos")
-          const products= await response.json();
-          let content = ``; //  en esta variable se guarda el contenido que se va a escribir en la tabla
-          products.forEach((product,index) => {
-            content+= `<tr>
-                          <td>${product.id}</td>
-                          <td>${product.nombre}</td>
-                          <td>${product.descripcion}</td>
-                          <td>${product.precio}</td> 
-                          <td>${product.stock}</td>
-                          <td>${product.categoria}</td> 
-                          <td>${product.provedor}</td> 
-                       </tr>`; 
-                      });
-          tableBody_products.innerHTML = content;
-        
-        }
-        catch(ex) {
-          alert(ex);
-        }
-      };*/
+}
 
-      const listProducts = async () => {
-        try {
-            const response = await fetch("http://127.0.0.1:5001/productos");
-            const data = await response.json();
+async function updateProduct() {
+    const codigo = document.getElementById("codigo").value;
+    const productoActualizado = {
+        product: document.getElementById("producto").value,
+        description: document.getElementById("descripcion").value,
+        price: document.getElementById("precio").value,
+        stock: document.getElementById("stock").value,
+        supplier: document.getElementById("proveedor").value,
+        category: document.getElementById("categoria").value
+    };
     
-            // Asegúrate de que `data.productos` es un arreglo
-            let products = Array.isArray(data.productos) ? data.productos : [];
+    const data = await apiRequest(`/producto/${codigo}`, 'PUT', productoActualizado);
+    if (data) {
+        alert("Producto actualizado correctamente");
+        showListarProducto();
+    }
+}
+
+// Función para Listar Productos
+function showListarProducto() {
+    showHeader("Gestor de Productos", "Lista de Productos");
+    clearContent();
+    const table = `
+      <div class="card-body table-responsive p-0" style="height: 300px;">
+        <table id="dataTable_products" class="table table-head-fixed text-nowrap">
+          <thead>
+            <tr>
+              <th>Id</th>
+              <th>Nombre</th>
+              <th>Descripcion</th>
+              <th>Precio</th>
+              <th>Stock</th>
+              <th>Categoria</th>
+              <th>Proveedor</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody_products"></tbody>
+        </table>
+      </div>`;
     
-            // Genera el contenido de la tabla utilizando los índices de cada subarreglo
-            let content = ""; 
-            products.forEach((product) => {
-                content += `<tr>
-                              <td>${product[0]}</td>
-                              <td>${product[1]}</td>
-                              <td>${product[2]}</td>
-                              <td>${product[3]}</td>
-                              <td>${product[4]}</td>
-                              <td>${product[5]}</td>
-                              <td>${product[6]}</td>
-                            </tr>`;
-            });
-    
-            tableBody_products.innerHTML = content;
-        } catch (ex) {
-            console.error("Error al listar los productos:", ex);
-            alert("Error al obtener la lista de productos. Por favor, intenta de nuevo.");
-        }
-      };  
-      
-    listProducts();
-  
-  }
-  
-  //----- Pantallas Gestor Categoria
-  
-  function showNuevaCategoria(){
+    document.getElementById("showSelect").innerHTML = table;
+    fetchProducts();
+}
+
+async function fetchProducts() {
+    const data = await apiRequest("/productos");
+    if (data && Array.isArray(data.productos)) {
+        const products = data.productos;
+        const content = products.map(product => `
+          <tr>
+            <td>${product[0]}</td>
+            <td>${product[1]}</td>
+            <td>${product[2]}</td>
+            <td>${product[3]}</td>
+            <td>${product[4]}</td>
+            <td>${product[5]}</td>
+            <td>${product[6]}</td>
+          </tr>
+        `).join("");
+        document.getElementById("tableBody_products").innerHTML = content;
+    }
+}
+
+
+//-- Gestor Categoria ---------------------------------------------------
+
+function showNuevaCategoria(){
       showHeader("Gestor de Categoria","Agregar Categoria");
-      showOut();
-      formulario(
+      clearContent();
+      generateForm(
         [
-            { nombre: "nuevaCategoria", placeholder: "Nueva Categoria" },
+            { nombre: "nuevaCategoria", placeholder: "Ingrese nueva Categoría" },
         ],
         "addCategory",
-        "POST",
+        "addCategory",
         "Ingresar",
         "btn-success"
     );
-      
-    // seguir codigo
-  }
+}
+
+async function addCategory() {
+    const nuevaCategoria = {
+        category: document.getElementById("nuevaCategoria").value
+    };
+    
+    const data = await apiRequest("/categoria", 'POST', nuevaCategoria);
+    if (data) {
+        alert("Producto agregado correctamente");
+        showListarProducto();
+    }
+}
   
-  //---------Pantalla Gestor Stock
+
+//-- Gestor Stock -------------------------------------------------------
+
   function showActualizarStock(){
     showHeader("Gestor de Stock","Actualizar Stock");
-    showOut();
+    clearContent();
     
     
     // seguir codigo
@@ -229,49 +253,69 @@ function showHeader(nameSection, nameSubSection) {
   }
   function showListarStock(){
     showHeader("Gestor de Stock"," Lista Stock");
-    showOut();
+    clearContent();
   
     // seguir codigo
   
   }
   
-  //-------- Pantalla Gestor de provedores
-  function showAgregarProvedor(){
-      showHeader("Gestor de Provedores","Agregar Provedor");
-      showOut();
+//-- Gestor de provedores ------------------------------------------------
+  function showAgregarProveedor(){
+      showHeader("Gestor de Proveedores","Agregar Proveedor");
+      clearContent();
       
     // seguir codigo
   }
   
-  function showConsultarProvedor(){
-    showHeader("Gestor de Provedor","Lista Provedor");
-    showOut();
+  function showConsultarProveedor(){
+    showHeader("Gestor de Proveedores","Lista Proveedor");
+    clearContent();
   
     // seguir codigo
   
   }
   
-  //----- Pantalla gestor de compras
+//-- Gestor de compras ---------------------------------------------------
   
   function showAgregarCompra(item){
       showHeader("Gestor de Compras","Agregar Compra");
-      showOut();
+      clearContent();
       
     // seguir codigo
   }
   
   function showConsultarCompra(){
     showHeader("Gestor de Compras","Consultar Compra");
-    showOut();
+    clearContent();
   
     // seguir codigo
   
   }
   
-  //--------- Pantalla de Gestionar usuario
+//-- Gestor usuario ------------------------------------------------------
   
   function gestionarUsuario(){
       showHeader("Gestor de Usuario","Agregar Usuario");
-      showOut();
+      clearContent();
   }
+
+
+
+/*
+// ! Validación de formulario de login--- en revision
+document.addEventListener('DOMContentLoaded', () => {
+  const loginForm = document.querySelector('#loginForm');
+  if (loginForm) {
+      loginForm.addEventListener('submit', function(event) {
+          const email = document.querySelector('#email').value;
+          const password = document.querySelector('#password').value;
+          
+          if (!email || !password) {
+              event.preventDefault();
+              alert('Por favor complete todos los campos.');
+          }
+      });
+  }
+});
+*/
 
