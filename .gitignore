@@ -1,20 +1,45 @@
-
-# Entorno virtual
+# Entornos virtuales
 .venv/
+venv/
+ENV/
+env/
 
-# Archivos de compilación de Python
+# Archivos de entorno
+.env
+.env.*
+
+# Archivos y carpetas de configuración de Python
 __pycache__/
 *.py[cod]
+*.pyo
+*.pyd
 
-# Archivos de configuración de entornos
-.env
-
-# Archivos de logs
+# Archivos de logs y bases de datos locales
 *.log
+*.sqlite3
+*.db
 
-# Archivos temporales de IDEs
+# Configuración de IDEs y editores de código
 .vscode/
+.idea/
+*.swp
 
 # Archivos de sistema
 .DS_Store
 Thumbs.db
+
+# Node.js (si estás trabajando en el frontend)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Archivos de compilación
+dist/
+build/
+*.egg-info/
+
+# Ignorar configuraciones específicas del backend y frontend
+backend/.env
+frontend/.env
+backend/node_modules/
+frontend/node_modules/
