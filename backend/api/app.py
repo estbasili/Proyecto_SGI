@@ -1,40 +1,35 @@
-# backend/app.py
-from flask import Flask
-from db.db import init_db, get_db_connection
-from models.producto import Producto
-from routes.producto import producto_bp
+import logging
+from flask import Flask, jsonify
+from db.db import init_db, get_db_connection, DBError
+from routes.proveedor import proveedor_bp  
 from dotenv import load_dotenv
-from flask_cors import CORS #############
-import os
+from flask_cors import CORS
+
+# Configura la app para capturar logs detallados
+logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
-CORS(app)  # Esto permite CORS para todas las rutas ##########
-# Carga las variables de entorno desde el archivo .env
+CORS(app)
+
+# Cargar las variables de entorno desde el archivo .env
 load_dotenv()
 
-# Inicializa la base de datos
-init_db(app)
+# Inicializa la base de datos (configuración)
+try:
+    init_db(app)
+except Exception as e:
+    app.logger.error(f"Error al inicializar la base de datos: {e}")
 
-# Registra el blueprint de rutas de producto
-app.register_blueprint(producto_bp)
+# Registra los blueprints de rutas
+app.register_blueprint(proveedor_bp)
 
-@app.route('/prueba', methods=['GET'])
-def prueba():
-    return "prueba"
+@app.route('/')
+def test():
+    return jsonify({"message": "test ok"})
 
-@app.route('/productos', methods=['GET'])
-def get_productos():
-    try:
-        # Aquí pasamos 'app' a la función get_db_connection()
-        connection = get_db_connection(app)
-        cursor = connection.cursor()
-        cursor.execute("SELECT * FROM producto")  # Cambia "productos" por tu tabla
-        productos = cursor.fetchall()
-        cursor.close()
-        connection.close()
-        return {'productos': productos}
-    except DBError as e:
-        return {'error': str(e)}, 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    try:
+        app.run(debug=True, port=5001)
+    except Exception as e:
+        app.logger.error(f"Error al iniciar el servidor: {e}")
