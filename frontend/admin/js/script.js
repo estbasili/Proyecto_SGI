@@ -104,7 +104,7 @@ async function addProduct() {
     const data = await apiRequest("/producto", 'POST', nuevoProducto);
     if (data) {
         alert("Producto agregado correctamente");
-        showListarProducto();
+        //showListarProducto();
     }
 }
 
@@ -162,7 +162,7 @@ async function updateProduct() {
     const data = await apiRequest(`/producto/${codigo}`, 'PUT', productoActualizado);
     if (data) {
         alert("Producto actualizado correctamente");
-        showListarProducto();
+        //showListarProducto();
     }
 }
 
@@ -237,7 +237,7 @@ async function addCategory() {
     const data = await apiRequest("/categoria", 'POST', nuevaCategoria);
     if (data) {
         alert("Categoria agregado correctamente");
-        showListarProducto();
+        
     }
 }
 
@@ -306,17 +306,59 @@ async function addProveedor() {
   const data = await apiRequest("/proveedor", 'POST', nuevoProveedor);
   if (data) {
       alert("Proveedor agregado correctamente");
-      showListarProducto();
+      
   }
 }
-
-  function showConsultarProveedor(){
-    showHeader("Gestor de Proveedores","Consultar Proveedor");
+// Función para Listar Proveedores----( para prueba)
+function showConsultarProveedor() {
+    showHeader("Gestor de Proveedores", "Consultar Proveedor");
     clearContent();
-  
-    // seguir codigo
-  
-  }
+    const table = `
+      <div class="card-body table-responsive p-0" style="height: 300px;">
+        <table id="dataTable_products" class="table table-head-fixed text-nowrap">
+          <thead>
+            <tr>
+              <th>idProveedor</th>
+              <th>Nombre</th>
+              <th>Telefono</th>
+              <th>email</th>
+              <th>idUsuario</th>
+              
+            </tr>
+          </thead>
+          <tbody id="tableBody_products"></tbody>
+        </table>
+      </div>`;
+    
+    document.getElementById("showSelect").innerHTML = table;
+    fetchProveedor();
+}
+
+async function fetchProveedor() {
+    const data = await apiRequest("/proveedores");
+    if (data && Array.isArray(data.proveedores)) {
+        const proveedors = data.provedores;
+        const content = proveedors.map(proveedor => `
+          <tr>
+            <td>${proveedor[0]}</td>
+            <td>${proveedor[1]}</td>
+            <td>${proveedor[2]}</td>
+            <td>${proveedor[3]}</td>
+            <td>${proveedor[4]}</td>
+            
+          </tr>
+        `).join("");
+        document.getElementById("tableBody_products").innerHTML = content;
+    }
+}
+
+
+
+
+
+
+
+
 
   
 //-- Gestor de compras ---------------------------------------------------
