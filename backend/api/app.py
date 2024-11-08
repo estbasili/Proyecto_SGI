@@ -1,7 +1,8 @@
 import logging
 from flask import Flask, jsonify
-from db.db import init_db, get_db_connection, DBError
+from db.db import  get_db_connection, DBError
 from routes.proveedor import proveedor_bp  
+from routes.producto import producto_bp
 from dotenv import load_dotenv
 from flask_cors import CORS
 
@@ -14,14 +15,10 @@ CORS(app)
 # Cargar las variables de entorno desde el archivo .env
 load_dotenv()
 
-# Inicializa la base de datos (configuración)
-try:
-    init_db(app)
-except Exception as e:
-    app.logger.error(f"Error al inicializar la base de datos: {e}")
 
 # Registra los blueprints de rutas
 app.register_blueprint(proveedor_bp)
+app.register_blueprint(producto_bp)
 
 @app.route('/')
 def test():

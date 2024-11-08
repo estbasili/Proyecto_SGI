@@ -1,28 +1,23 @@
-# db.py
-import mysql.connector
-from mysql.connector import Error
+from mysql.connector import (connection)
+import os
 
-# Mantén init_db como está
-def init_db(app):
-    app.config['DB_HOST'] = 'localhost'
-    app.config['DB_PORT'] = '3306'
-    app.config['DB_USER'] = 'root'
-    app.config['DB_PASSWORD'] = ''
-    app.config['DB_NAME'] = 'gestion_inventario'
 
-# Cambiar la firma de la función para no requerir el argumento 'app'
 def get_db_connection():
     try:
-        connection = mysql.connector.connect(
-            host='localhost',  # Puedes usar estos valores directamente
-            port='3306',       # Usar el puerto configurado
-            user='root',       # Usuario de la base de datos
-            password='',       # Contraseña de la base de datos
-            database='gestion_inventario'  # Nombre de la base de datos
+        conn = connection.MySQLConnection(
+            host=os.getenv('DB_HOST'),
+            port=os.getenv('DB_PORT'),
+            user=os.getenv('DB_USER'),
+            password=os.getenv('DB_PASSWORD'),
+            database=os.getenv('DB_NAME'),
+            raise_on_warnings=True
         )
-        return connection
-    except Error as e:
-        raise DBError(f"Database connection error: {e}")
+        return conn
+    except Exception as ex:
+        print(ex)
+
 
 class DBError(Exception):
     pass
+
+print(os.getenv('DB_HOST'), os.getenv('DB_PORT'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'))
