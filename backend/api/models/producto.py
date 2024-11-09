@@ -82,7 +82,7 @@ class Producto:
     def get_by_id(cls, id_producto):
         conexion = get_db_connection()
         cursor = conexion.cursor()
-        cursor.execute("SELECT * FROM producto WHERE id = %s", (id_producto,))
+        cursor.execute("SELECT * FROM producto WHERE id_producto = %s", (id_producto,))
         data = cursor.fetchone()
         cursor.close()
         conexion.close()
