@@ -89,7 +89,7 @@ function showAgregarProducto() {
         "btn-success"
     );
 }
-
+/*
 async function addProduct() {
     const nuevoProducto = {
         code: document.getElementById("codigo").value,
@@ -107,7 +107,7 @@ async function addProduct() {
         //showListarProducto();
     }
 }
-
+*/
 // Función para Eliminar Producto
 function showQuitarProducto() {
     showHeader("Gestor de Productos", "Eliminar Producto");
@@ -120,12 +120,13 @@ function showQuitarProducto() {
         "btn-danger"
     );
 }
-
+/*
 async function deleteProduct() {
     const codigo = document.getElementById("codigo").value;
     const data = await apiRequest(`/producto/${codigo}`, 'DELETE');
     if (data) alert("Producto eliminado correctamente");
 }
+*/
 
 // Función para Actualizar Producto
 function showActualizarProducto() {
@@ -147,7 +148,7 @@ function showActualizarProducto() {
         "btn-warning"
     );
 }
-
+/*
 async function updateProduct() {
     const codigo = document.getElementById("codigo").value;
     const productoActualizado = {
@@ -212,7 +213,7 @@ async function fetchProducts() {
 }
 */
 
-
+/*
 //-- Gestor Categoria ---------------------------------------------------
 
 function showNuevaCategoria(){
@@ -309,7 +310,8 @@ async function addProveedor() {
       
   }
 }
-// Función para Listar Proveedores----( para prueba)
+//Función para Listar Proveedores----( para prueba)
+*/
 function showConsultarProveedor() {
     showHeader("Gestor de Proveedores", "Consultar Proveedor");
     clearContent();
@@ -461,6 +463,10 @@ async function fetchProveedor() {
 
 
 
+
+
+
+ /////////////////////////////////////   
 
 /*
 // ! Validación de formulario de login--- en revision
