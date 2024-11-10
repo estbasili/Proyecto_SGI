@@ -54,3 +54,5 @@ def delete_producto(id):
 
     Producto.delete(id)
     return jsonify({'message': 'Producto eliminado'}), 204
+
+

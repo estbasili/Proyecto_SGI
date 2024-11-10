@@ -16,7 +16,7 @@ class Producto:
             return False
         for key in cls.schema:
             if key not in data or type(data[key]) != cls.schema[key]:
-                return False
+                 return False
         return True
 
     def __init__(self, data):
