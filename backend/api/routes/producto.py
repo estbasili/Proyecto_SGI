@@ -40,10 +40,24 @@ def update_producto(id):
         return jsonify({'message': 'Producto no encontrado'}), 404
 
     if not Producto.validar_datos(data):
-        return jsonify({"message": "Datos de producto inválidos"}), 400
+        # Agrega detalles del error en la validación para más claridad
+        return jsonify({"message": "Datos de producto inválidos", "error": "Datos mal formateados o faltantes"}), 400
 
     Producto.update(id, data)
     return jsonify({'message': 'Producto actualizado', 'producto': data}), 200
+
+#@producto_bp.route('/productos/<int:id>', methods=['PUT'])
+#def update_producto(id):
+#    data = request.get_json()
+#    producto = Producto.get_by_id(id)
+#    if producto is None:
+#        return jsonify({'message': 'Producto no encontrado'}), 404
+
+#    if not Producto.validar_datos(data):
+#        return jsonify({"message": "Datos de producto inválidos"}), 400
+
+#    Producto.update(id, data)
+#    return jsonify({'message': 'Producto actualizado', 'producto': data}), 200
 
 
 @producto_bp.route('/productos/<int:id>', methods=['DELETE'])

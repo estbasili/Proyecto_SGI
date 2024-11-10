@@ -105,7 +105,7 @@ class Producto:
         conexion = get_db_connection()
         cursor = conexion.cursor()
         cursor.execute(
-            "UPDATE producto SET nombre = %s, descripcion = %s, precio = %s, stock = %s, id_categoria = %s, id_usuario = %s WHERE id = %s",
+            "UPDATE producto SET nombre = %s, descripcion = %s, precio = %s, stock = %s, id_categoria = %s, id_usuario = %s WHERE id_producto = %s", #############################
             (data['nombre'], data['descripcion'], data['precio'], data['stock'], data['id_categoria'], data['id_usuario'], id_producto)
         )
         conexion.commit()

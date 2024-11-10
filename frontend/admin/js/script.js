@@ -46,7 +46,7 @@ function generateForm(fields, formId, submitCallback, submitText, submitClass) {
 }
 
 // Función genérica para hacer peticiones a la API
-
+// Función genérica para hacer peticiones a la API
 async function apiRequest(endpoint, method = 'GET', data = null) {
   const options = {
       method,
@@ -58,13 +58,23 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
   
   try {
       const response = await fetch(`${urlAPI}${endpoint}`, options);
-      if (!response.ok) throw new Error("Error en la solicitud");
+      
+      // Manejar error 404 de forma específica
+      if (response.status === 404) {
+          throw new Error("Producto no encontrado");
+      }
+
+      if (!response.ok) {
+          throw new Error("Error en la solicitud");
+      }
+
       return await response.json();
   } catch (error) {
       console.error(`Error en ${method} ${endpoint}:`, error);
       alert(`Error al procesar la solicitud: ${error.message}`);
   }
 }
+
 
 
 ////////////////////////////////////////////////////////////-- Gestor de Productos -----------------------------------------------
@@ -91,68 +101,70 @@ function showAgregarProducto() {
 }
 
 async function addProduct() {
-  // Obtener valores de los campos del formulario
   const nombre = document.getElementById("producto").value.trim();
   const descripcion = document.getElementById("descripcion").value.trim();
   const precio = parseFloat(document.getElementById("precio").value);
   const stock = parseInt(document.getElementById("stock").value);
-  const categoriaNombre = document.getElementById("categoria").value.trim(); // Obtener el nombre de la categoría
+  const categoriaNombre = document.getElementById("categoria").value.trim();
   const id_usuario = parseInt(document.getElementById("usuario").value);
   
-  // Verificar que los campos numéricos sean válidos
   if (isNaN(precio) || isNaN(stock) || isNaN(id_usuario)) {
       alert("Por favor, revisa los campos numéricos.");
       return;
   }
 
-  // Verificar que los campos de texto no estén vacíos
   if (!nombre || !descripcion || !categoriaNombre) {
       alert("Por favor, completa todos los campos.");
       return;
   }
 
-  // Consultar las categorías existentes para obtener el id basado en el nombre
   try {
+    // Consultar las categorías existentes
     const categorias = await apiRequest("/categorias", 'GET');
+
+    if (!categorias || categorias.length === 0) {
+        console.error("No se encontraron categorías en la respuesta de la API.");
+        alert("No se encontraron categorías disponibles.");
+        return;
+    }
     
+    // Imprimir las categorías obtenidas para verificar
+    console.log("Categorías obtenidas:", categorias);
+
     // Buscar la categoría con el nombre ingresado
-    const categoria = categorias.find(c => c.nombre.toLowerCase() === categoriaNombre.toLowerCase());
+    const categoria = categorias.find(c => c.nombre && c.nombre.toLowerCase() === categoriaNombre.toLowerCase());
 
     if (!categoria) {
-        alert(`La categoría "${categoriaNombre}" no existe.`);
+        alert(`La categoría "${categoriaNombre}" no existe en el sistema.`);
         return;
     }
 
-    // Crear el objeto nuevoProducto con los datos del formulario, usando el id_categoria obtenido
+    // Crear el objeto nuevoProducto con el id_categoria correcto
     const nuevoProducto = {
         nombre: nombre,
         descripcion: descripcion,
         precio: precio,
         stock: stock,
-        id_categoria: categoria.id,  // Usar el id de la categoría encontrada
+        id_categoria: categoria.id_categoria,  // Usar id_categoria de la API
         id_usuario: id_usuario
     };
 
-    // Consultar los productos existentes
-    const productosExistentes = await apiRequest("/productos", 'GET');
-    
-    // Verificar si el producto ya existe en la lista de productos
-    const productoExistente = productosExistentes.find(producto => producto.nombre.toLowerCase() === nombre.toLowerCase());
-    if (productoExistente) {
-        alert(`El producto "${nombre}" ya está en la lista.`);
-        showAgregarProducto();
-        return;  // Detener la ejecución si el producto ya existe
+    if (nuevoProducto.id_categoria === undefined) {
+        console.error("Error: id_categoria sigue siendo undefined después de la búsqueda.");
+        alert("Error interno: el ID de la categoría no se obtuvo correctamente.");
+        return;
     }
+
+    console.log("Datos a enviar:", nuevoProducto);
 
     // Enviar los datos a la API
     const data = await apiRequest("/productos", 'POST', nuevoProducto);
     if (data) {
         alert("Producto agregado correctamente");
-        
     }
 
   } catch (error) {
-    console.error(error);
+    console.error("Error en el proceso de adición de producto:", error);
     alert("Hubo un problema al verificar las categorías o al agregar el producto.");
   }
 
@@ -199,56 +211,183 @@ async function deleteProduct() {
   }
 }
 
-
 // Función para Actualizar Producto
 function showActualizarProducto() {
   showHeader("Gestor de Productos", "Actualizar Producto");
   clearContent();
+
+  // Crear formulario para ingresar el ID del producto a buscar
   generateForm(
       [
-          { nombre: "codigo", placeholder: "Código", tipo: "number" },  // Código del producto
-          { nombre: "producto", placeholder: "Producto", tipo: "text" },
-          { nombre: "descripcion", placeholder: "Descripción", tipo: "text" },
-          { nombre: "precio", placeholder: "Precio", tipo: "number" },
-          { nombre: "stock", placeholder: "Stock", tipo: "number" },
-          { nombre: "proveedor", placeholder: "Proveedor", tipo: "text" },
-          { nombre: "categoria", placeholder: "Categoría", tipo: "text" }
+          { nombre: "codigo", placeholder: "Código del producto", tipo: "number" }
       ],
-      "updateProduct",  
-      "updateProduct",
-      "Actualizar",
-      "btn-warning"
+      "buscarProducto",  
+      "buscarProducto",
+      "Buscar",
+      "btn-primary"
   );
 }
 
+// Función para buscar el producto por su código
+async function buscarProducto() {
+  const codigo = document.getElementById("codigo").value.trim();
+
+  if (!codigo) {
+      alert("Por favor, ingresa el código del producto.");
+      return;
+  }
+
+  try {
+      // Solicitar los datos del producto a la API
+      const producto = await apiRequest(`/productos/${codigo}`, 'GET');
+
+      if (producto) {
+          clearContent();
+          showHeader("Gestor de Productos", "Actualizar Producto");
+
+          // Generar el formulario para la actualización con los valores recibidos
+          generateUpdateForm(
+              [
+                  { nombre: "codigo", placeholder: "Código", tipo: "number", value: producto.id_producto, readonly: true },
+                  { nombre: "producto", placeholder: "Producto", tipo: "text", value: producto.nombre },
+                  { nombre: "descripcion", placeholder: "Descripción", tipo: "text", value: producto.descripcion },
+                  { nombre: "precio", placeholder: "Precio", tipo: "number", value: producto.precio, step: "any" },
+                  { nombre: "stock", placeholder: "Stock", tipo: "number", value: producto.stock },
+                  { nombre: "categoria", placeholder: "Categoría", tipo: "select", value: producto.id_categoria, opciones: await getCategorias() }
+              ],
+              "updateProduct",
+              "updateProduct",
+              "Actualizar",
+              "btn-warning"
+          );
+      }
+  } catch (error) {
+      if (error.message === 'Producto no encontrado') {
+          alert("El producto con el código especificado no existe.");
+      } else {
+          console.error("Error al buscar el producto:", error);
+          alert("Hubo un problema al buscar el producto.");
+      }
+  }
+}
+
+// Función para obtener las categorías desde la API
+async function getCategorias() {
+  // Obtener categorías desde la API
+  const categorias = await apiRequest('/categorias', 'GET');
+  return categorias.map(categoria => ({
+    value: categoria.id_categoria,
+    text: categoria.nombre
+  }));
+}
+
+// Función para generar el formulario de actualización
+// Función para generar un campo de selección (select)
+function generateSelectField(field) {
+  return `
+    <div class="input-group mb-3">
+      <select id="${field.nombre}" name="${field.nombre}" class="form-control">
+        <option value="">${field.placeholder}</option>
+        ${field.opciones.map(opcion => `
+          <option value="${opcion.value}" ${field.value === opcion.value ? 'selected' : ''}>
+            ${opcion.text}
+          </option>
+        `).join('')}
+      </select>
+    </div>
+  `;
+}
+
+// Función para generar un campo de entrada (input), con soporte para campos de solo lectura
+function generateInputField(field) {
+  const isReadonly = field.nombre === "codigo" ? 'readonly' : '';
+  return `
+    <div class="input-group mb-3">
+      <input type="${field.tipo}" id="${field.nombre}" name="${field.nombre}" ${isReadonly} class="form-control" placeholder="${field.placeholder}" value="${field.value || ''}" step="any">
+      <div class="input-group-append">
+        <div class="input-group-text">
+          <span class="fas fa-align-left"></span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Función principal optimizada para generar el formulario
+function generateUpdateForm(fields, formId, submitCallback, submitText, submitClass) {
+  const formFields = fields.map(field => {
+    if (field.tipo === 'select') {
+      return generateSelectField(field);  // Generar select
+    } else {
+      return generateInputField(field);  // Generar input
+    }
+  }).join('');
+
+  const form = `
+    <div class="card-body">
+      <form id="${formId}" onsubmit="event.preventDefault(); ${submitCallback}();">
+        ${formFields}
+        <hr>
+        <div class="row">
+          <div class="col-12">
+            <button type="submit" class="btn ${submitClass} btn-block">${submitText}</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  `;
+
+  document.getElementById("showSelect").innerHTML = form;
+}
+
+
+
+// Función para actualizar el producto
+// Función para actualizar el producto
+// Función para actualizar el producto
+// Función para actualizar el producto
+// Función para actualizar el producto
 async function updateProduct() {
-  const codigo = document.getElementById("codigo").value.trim();  // Obtener código del producto
+  const codigo = document.getElementById("codigo").value.trim();
+
+  // Verificar si el ID del producto existe
+  if (!codigo) {
+      alert("Por favor, ingresa el código del producto.");
+      return;
+  }
+
+  // Obtener los valores del formulario
   const productoActualizado = {
-      nombre: document.getElementById("producto").value.trim(),
-      descripcion: document.getElementById("descripcion").value.trim(),
-      precio: parseFloat(document.getElementById("precio").value),
-      stock: parseInt(document.getElementById("stock").value),
-      proveedor: document.getElementById("proveedor").value.trim(),
-      categoria: document.getElementById("categoria").value.trim()
+      nombre: document.getElementById("producto") ? document.getElementById("producto").value.trim() : '',
+      descripcion: document.getElementById("descripcion") ? document.getElementById("descripcion").value.trim() : '',
+      // Asegurarse de que el precio sea un número flotante con 2 decimales
+      precio: parseFloat(document.getElementById("precio").value.trim().replace(",", ".")), // Reemplazar coma por punto y convertir a float
+      stock: parseInt(document.getElementById("stock") ? document.getElementById("stock").value : NaN),
+      id_categoria: parseInt(document.getElementById("categoria") ? document.getElementById("categoria").value : NaN),
+      id_usuario: 10  // Este valor debe corresponder al ID del usuario autenticado
   };
-  
-  // Validación de campos
-  if (isNaN(productoActualizado.precio) || isNaN(productoActualizado.stock)) {
+
+  // Verificar si los campos numéricos son válidos
+  if (isNaN(productoActualizado.precio) || isNaN(productoActualizado.stock) || isNaN(productoActualizado.id_categoria) || isNaN(productoActualizado.id_usuario)) {
       alert("Por favor, revisa los campos numéricos.");
       return;
   }
 
-  if (!codigo || !productoActualizado.nombre || !productoActualizado.descripcion || !productoActualizado.proveedor || !productoActualizado.categoria) {
+  // Verificar si los campos requeridos están completos
+  if (!productoActualizado.nombre || !productoActualizado.descripcion || !productoActualizado.id_categoria || !productoActualizado.id_usuario) {
       alert("Por favor, completa todos los campos.");
       return;
   }
+
+  // Ver el contenido de productoActualizado en la consola
+  console.log("Contenido de productoActualizado:", productoActualizado.precio);
 
   try {
       // Enviar los datos a la API para actualizar el producto
       const data = await apiRequest(`/productos/${codigo}`, 'PUT', productoActualizado);
       if (data) {
           alert("Producto actualizado correctamente");
-          // Aquí podrías agregar código para redirigir a la lista de productos o limpiar el formulario
+          // Puedes redirigir a la lista de productos o limpiar el formulario
           // showListarProducto(); // Descomenta si quieres listar productos después de actualizar
       }
   } catch (error) {
@@ -256,6 +395,13 @@ async function updateProduct() {
       alert("Hubo un problema al actualizar el producto.");
   }
 }
+
+
+
+
+
+
+
 
 //-- Gestor Categoria ---------------------------------------------------
 
