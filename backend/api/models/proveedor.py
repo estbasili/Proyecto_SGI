@@ -1,4 +1,5 @@
 from db.db import get_db_connection, DBError
+from models.producto import Producto
 
 class Proveedor:
     schema = {
@@ -118,6 +119,47 @@ class Proveedor:
         except Exception as e:
             conexion.rollback()
             raise Exception(f"Error al eliminar proveedor: {str(e)}")
+        finally:
+            cursor.close()
+            conexion.close()
+
+    @classmethod
+    def asociar_producto(cls, id_proveedor, id_producto):
+        conexion = get_db_connection()
+        cursor = conexion.cursor()
+        try:
+            cursor.execute(
+                'INSERT INTO producto_proveedor (id_proveedor, id_producto) VALUES (%s, %s)',
+                (id_proveedor, id_producto)
+            )
+            conexion.commit()
+            return {"mensaje": "Producto asociado al proveedor exitosamente"}
+        except Exception as e:
+            conexion.rollback()
+            raise Exception(f"Error al asociar producto con proveedor: {str(e)}")
+        finally:
+            cursor.close()
+            conexion.close()
+
+    @classmethod
+    def obtener_productos(cls, id_proveedor):
+        conexion = get_db_connection()
+        cursor = conexion.cursor()
+        try:
+            cursor.execute(
+            '''
+            SELECT p.nombre
+            FROM producto p
+            JOIN producto_proveedor pp ON p.id_producto = pp.id_producto
+            WHERE pp.id_proveedor = %s
+            ''', 
+            (id_proveedor,)
+        )
+        # Obtener solo los nombres de los productos
+            productos = [producto[0] for producto in cursor.fetchall()]
+            return productos
+        except Exception as e:
+            raise Exception(f"Error al obtener productos del proveedor: {str(e)}")
         finally:
             cursor.close()
             conexion.close()
