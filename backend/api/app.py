@@ -4,6 +4,7 @@ from db.db import  get_db_connection, DBError
 from routes.proveedor import proveedor_bp  
 from routes.producto import producto_bp
 from routes.categoria import categoria_bp
+from routes.orden import orden_bp
 from dotenv import load_dotenv
 from flask_cors import CORS
 
@@ -21,6 +22,7 @@ load_dotenv()
 app.register_blueprint(proveedor_bp)
 app.register_blueprint(producto_bp)
 app.register_blueprint(categoria_bp)
+app.register_blueprint(orden_bp)
 
 @app.route('/')
 def test():
