@@ -47,7 +47,7 @@ class Categoria:
     def get_by_id(cls, id_categoria):
         conexion = get_db_connection()
         cursor = conexion.cursor()
-        cursor.execute("SELECT id_categoria, nombre FROM categoria WHERE id_categoria = %s", (id_categoria,))
+        cursor.execute("SELECT id_categoria, nombre FROM categoria WHERE id_categoria = %s", (id_categoria,)) ### saque una coma que detras de id_categoria
         data = cursor.fetchone()
         cursor.close()
         conexion.close()
@@ -88,7 +88,7 @@ class Categoria:
     def delete(cls, id_categoria):
         conexion = get_db_connection()
         cursor = conexion.cursor()
-        cursor.execute("DELETE FROM categoria WHERE id_categoria = %s", (id_categoria,))
+        cursor.execute("DELETE FROM categoria WHERE id_categoria = %s", (id_categoria,)) ### saque una coma que detras de id_categoria
         conexion.commit()
         cursor.close()
         conexion.close()

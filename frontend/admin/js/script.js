@@ -356,7 +356,7 @@ async function updateProduct() {
       precio: parseFloat(document.getElementById("precio").value.trim().replace(",", ".")), // Reemplazar coma por punto y convertir a float
       stock: parseInt(document.getElementById("stock") ? document.getElementById("stock").value : NaN),
       id_categoria: parseInt(document.getElementById("categoria") ? document.getElementById("categoria").value : NaN),
-      id_usuario: 10 //////////////////////////////////// // Este valor debe corresponder al ID del usuario autenticado
+      id_usuario: 10 //////////////////////////////////// // Este valor debe corresponder al ID del usuario autenticado o elejir de una lista desplegable
   };
 
   // Verificar si los campos numéricos son válidos
@@ -389,53 +389,136 @@ async function updateProduct() {
 
 
 ///////////////////////////////////////////////////////////////////-- Gestor Categoria ---------------------------------------------------
-//////// hacer todo
-
-function showNuevaCategoria(){
-      showHeader("Gestor de Categoria","Agregar Categoria");
-      clearContent();
-      generateForm(
-        [
-            { nombre: "nuevaCategoria", placeholder: "Ingrese nueva Categoría" },
-        ],
-        "addCategory",
-        "addCategory",
-        "Ingresar",
-        "btn-success"
-    );
-}
-
-async function addCategory() {
-    const nuevaCategoria = {
-        category: document.getElementById("nuevaCategoria").value
-    };
-    
-    const data = await apiRequest("/categoria", 'POST', nuevaCategoria);
-    if (data) {
-        alert("Categoria agregado correctamente");
-        
-    }
-}
-
-function showAsociarProducto(){
-  showHeader("Gestor de Categoria","Asociar Producto");
+// Agregar nueva categoria (anda)
+// Mostrar el formulario y cargar categorías existentes
+async function showNuevaCategoria() {
+  showHeader("Gestor de Categoría", "Agregar Categoría");
   clearContent();
-  generateForm(
-    [
-        { nombre: "proCategoria", placeholder: "Producto a asociar" },
-        { nombre: "catProducto", placeholder: "Categoria" },
-    ],
-    "addProdCategoria",
-    "addProductoCategoria",
-    "Asociar",
-    "btn-success"
-  );
-}
-
-async function addProductoCategoria() {
-
-}
   
+  // Obtener las categorías y generar el formulario
+  const categorias = await apiRequest("/categorias", "GET");
+  generateForm(
+      [{ nombre: "nuevaCategoria", placeholder: "Ingrese nueva Categoría" }],
+      "addCategory",
+      "addCategory",
+      "Ingresar",
+      "btn-success"
+  );
+  
+  // Almacenar las categorías en un atributo de dataset para la validación
+  document.getElementById("addCategory").dataset.categorias = JSON.stringify(categorias || []);
+}
+
+// Función para agregar categoría, solo si no existe previamente
+async function addCategory() {
+  const inputElement = document.getElementById("nuevaCategoria");
+  const nuevaCategoriaNombre = inputElement.value.trim();
+  const categoriasExistentes = JSON.parse(document.getElementById("addCategory").dataset.categorias);
+
+  // Verificar si la categoría ya existe en la lista cargada
+  if (categoriasExistentes.some(cat => cat.nombre.toLowerCase() === nuevaCategoriaNombre.toLowerCase())) {
+      alert("La categoría ya existe.");
+      inputElement.value = "";  // Limpiar el campo de entrada
+      return;
+  }
+
+  // Hacer la solicitud POST para agregar la categoría
+  const data = await apiRequest("/categorias", 'POST', { nombre: nuevaCategoriaNombre });
+  if (data) {
+      alert("Categoría agregada correctamente");
+      inputElement.value = "";  // Limpiar el campo de entrada después de agregar
+      showNuevaCategoria();  // Recargar el formulario y categorías
+  }
+}
+// fin agregra categoria
+
+// Asociacion de categoria a producto
+// Función para mostrar el formulario de asociación de categoría a producto
+async function showAsociarCategoriaProducto() {
+  try {
+      showHeader("Asociar Categoría a Producto", "Seleccione el producto y la categoría");
+      clearContent();
+
+      // Obtener productos y categorías de la API
+      const [productos, categorias] = await Promise.all([
+          apiRequest("/productos", "GET"),
+          apiRequest("/categorias", "GET")
+      ]);
+
+      if (!productos || !categorias) {
+          throw new Error("Error al cargar productos o categorías.");
+      }
+
+      // Generar el formulario de asociación
+      const form = `
+          <div class="card-body">
+              <form id="associateForm" onsubmit="event.preventDefault(); asociarCategoriaProducto();">
+                  ${createDropdown("productoSelect", "Seleccione un producto:", productos, "id_producto", "nombre", "descripcion")}
+                  ${createDropdown("categoriaSelect", "Seleccione una categoría:", categorias, "id_categoria", "nombre")}
+                  <button type="submit" class="btn btn-success btn-block">Asociar</button>
+              </form>
+          </div>`;
+
+      document.getElementById("showSelect").innerHTML = form;
+  } catch (error) {
+      alert(error.message);
+  }
+}
+
+// Función auxiliar para generar dropdowns
+function createDropdown(id, label, items, valueKey, labelKey, descriptionKey) {
+  return `
+      <div class="form-group">
+          <label for="${id}">${label}</label>
+          <select id="${id}" class="form-control">
+              ${items.map(item => `<option value="${item[valueKey]}">${item[labelKey]}${descriptionKey ? " - " + item[descriptionKey] : ""}</option>`).join('')}
+          </select>
+      </div>`;
+}
+
+// Función para asociar la categoría al producto seleccionado
+async function asociarCategoriaProducto() {
+  try {
+      const productoId = document.getElementById("productoSelect").value;
+      const categoriaId = document.getElementById("categoriaSelect").value;
+
+      // Obtener los detalles del producto seleccionado
+      const producto = await apiRequest(`/productos/${productoId}`, "GET");
+
+      if (!producto) {
+          throw new Error("Producto no encontrado.");
+      }
+
+      // Crear el objeto con los datos del producto y la nueva categoría
+      const nuevaCategoriaProducto = {
+          nombre: producto.nombre,
+          descripcion: producto.descripcion,
+          precio: parseFloat(producto.precio), // Asegurarse de que el precio es un número flotante
+          stock: producto.stock,
+          id_categoria: parseInt(categoriaId, 10),  // Asegurarse de que id_categoria sea un número entero
+          id_usuario: producto.id_usuario  // ID de usuario del producto
+      };
+
+      // Llamar a apiRequest para realizar la actualización
+      const data = await apiRequest(`/productos/${productoId}`, "PUT", nuevaCategoriaProducto);
+
+      if (data) {
+          alert("Producto actualizado correctamente.");
+          document.getElementById("associateForm").reset(); // Limpia el formulario después de asociar
+      } else {
+          throw new Error("Error al actualizar el producto.");
+      }
+  } catch (error) {
+      alert(error.message);
+  }
+}
+
+
+
+
+
+
+
 
 ///////////////////////////////////////////////////////////////////-- Gestor Stock -------------------------------------------------------
 ///////////// hacer todo
