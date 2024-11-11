@@ -6,20 +6,20 @@
 const urlAPI = "http://127.0.0.1:5001";
 
 
-/////////////////////////////////////////////////////////-- Funciones compartidas entre opciones ------------------------------
+///////////////////////////////////////////////////////////////-- Funciones compartidas entre opciones ------------------------------
 
-// Función genérica para mostrar encabezados
+// Función genérica para mostrar encabezados (anda)
 function showHeader(nameSection, nameSubSection) {
   document.getElementById("section").textContent = nameSection;
   document.getElementById("subSection").textContent = nameSubSection;
 }
 
-// Función para limpiar el contenido de showSelect
+// Función para limpiar el contenido de showSelect (anda)
 function clearContent() {
   document.getElementById("showSelect").innerHTML = "";
 }
 
-// Función para generar formularios dinámicos
+// Función para generar formularios dinámicos (anda)
 function generateForm(fields, formId, submitCallback, submitText, submitClass) {
   const form = `
     <div class="card-body">
@@ -45,8 +45,7 @@ function generateForm(fields, formId, submitCallback, submitText, submitClass) {
   document.getElementById("showSelect").innerHTML = form;
 }
 
-// Función genérica para hacer peticiones a la API
-// Función genérica para hacer peticiones a la API
+// Función genérica para hacer peticiones a la API (anda)
 async function apiRequest(endpoint, method = 'GET', data = null) {
   const options = {
       method,
@@ -211,7 +210,7 @@ async function deleteProduct() {
   }
 }
 
-// Función para Actualizar Producto
+// Función para Actualizar Producto (anda)
 function showActualizarProducto() {
   showHeader("Gestor de Productos", "Actualizar Producto");
   clearContent();
@@ -282,7 +281,6 @@ async function getCategorias() {
 }
 
 // Función para generar el formulario de actualización
-// Función para generar un campo de selección (select)
 function generateSelectField(field) {
   return `
     <div class="input-group mb-3">
@@ -340,12 +338,6 @@ function generateUpdateForm(fields, formId, submitCallback, submitText, submitCl
   document.getElementById("showSelect").innerHTML = form;
 }
 
-
-
-// Función para actualizar el producto
-// Función para actualizar el producto
-// Función para actualizar el producto
-// Función para actualizar el producto
 // Función para actualizar el producto
 async function updateProduct() {
   const codigo = document.getElementById("codigo").value.trim();
@@ -360,11 +352,11 @@ async function updateProduct() {
   const productoActualizado = {
       nombre: document.getElementById("producto") ? document.getElementById("producto").value.trim() : '',
       descripcion: document.getElementById("descripcion") ? document.getElementById("descripcion").value.trim() : '',
-      // Asegurarse de que el precio sea un número flotante con 2 decimales
+      // Asegura de que el precio sea un número flotante con 2 decimales
       precio: parseFloat(document.getElementById("precio").value.trim().replace(",", ".")), // Reemplazar coma por punto y convertir a float
       stock: parseInt(document.getElementById("stock") ? document.getElementById("stock").value : NaN),
       id_categoria: parseInt(document.getElementById("categoria") ? document.getElementById("categoria").value : NaN),
-      id_usuario: 10  // Este valor debe corresponder al ID del usuario autenticado
+      id_usuario: 10 //////////////////////////////////// // Este valor debe corresponder al ID del usuario autenticado
   };
 
   // Verificar si los campos numéricos son válidos
@@ -379,31 +371,25 @@ async function updateProduct() {
       return;
   }
 
-  // Ver el contenido de productoActualizado en la consola
-  console.log("Contenido de productoActualizado:", productoActualizado.precio);
+  // Ver el contenido de productoActualizado en la consola para depurar
+  // console.log("Contenido de productoActualizado:", productoActualizado.precio);
 
   try {
       // Enviar los datos a la API para actualizar el producto
       const data = await apiRequest(`/productos/${codigo}`, 'PUT', productoActualizado);
       if (data) {
           alert("Producto actualizado correctamente");
-          // Puedes redirigir a la lista de productos o limpiar el formulario
-          // showListarProducto(); // Descomenta si quieres listar productos después de actualizar
       }
   } catch (error) {
       console.error("Error al actualizar el producto:", error);
       alert("Hubo un problema al actualizar el producto.");
   }
 }
+// fin funcion atualizar producto
 
 
-
-
-
-
-
-
-//-- Gestor Categoria ---------------------------------------------------
+///////////////////////////////////////////////////////////////////-- Gestor Categoria ---------------------------------------------------
+//////// hacer todo
 
 function showNuevaCategoria(){
       showHeader("Gestor de Categoria","Agregar Categoria");
@@ -451,8 +437,8 @@ async function addProductoCategoria() {
 }
   
 
-//-- Gestor Stock -------------------------------------------------------
-
+///////////////////////////////////////////////////////////////////-- Gestor Stock -------------------------------------------------------
+///////////// hacer todo
   function showActualizarStock(){
     showHeader("Gestor de Stock","Actualizar Stock");
     clearContent();
@@ -463,7 +449,7 @@ async function addProductoCategoria() {
   }
  
 //////////////////////////////////////////////////////////////-- Gestor de provedores ------------------------------------------------
-    
+//////////// hacer todo    
 // Función para Agregar Proveedor
 function showAgregarProveedor() {
   showHeader("Gestor de Proveedores", "Agregar Proveedor");
@@ -545,15 +531,9 @@ async function fetchProveedor() {
 
 
 
-
-
-
-
-
-
   
 ////////////////////////////////////////////////////////////////-- Gestor de compras ---------------------------------------------------
-  
+////////// hacer  
   function showAgregarCompra(item){
       showHeader("Gestor de Compras","Agregar Compra");
       clearContent();
@@ -606,7 +586,7 @@ async function fetchProveedor() {
     const stockThreshold = parseInt(document.getElementById("stockThresholdInput").value, 10);
     fetchProducts(stockThreshold);
   }
-  
+  // Peticion a la API
   async function fetchProducts(stockThreshold) {
     const data = await apiRequest("/productos");
     if (data && Array.isArray(data)) {
@@ -626,8 +606,6 @@ async function fetchProveedor() {
     }
   }
   
-
-
 
   // Función para Listar Compras
   /*
