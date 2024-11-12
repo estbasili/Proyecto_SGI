@@ -389,6 +389,8 @@ async function updateProduct() {
 
 
 ///////////////////////////////////////////////////////////////////-- Gestor Categoria ---------------------------------------------------
+
+
 // Agregar nueva categoria (anda)
 // Mostrar el formulario y cargar categorías existentes
 async function showNuevaCategoria() {
@@ -432,7 +434,7 @@ async function addCategory() {
 }
 // fin agregra categoria
 
-// Asociacion de categoria a producto
+// Asociacion de categoria a producto (anda)
 // Función para mostrar el formulario de asociación de categoría a producto
 async function showAsociarCategoriaProducto() {
   try {
@@ -464,7 +466,6 @@ async function showAsociarCategoriaProducto() {
       alert(error.message);
   }
 }
-
 // Función auxiliar para generar dropdowns
 function createDropdown(id, label, items, valueKey, labelKey, descriptionKey) {
   return `
@@ -475,7 +476,6 @@ function createDropdown(id, label, items, valueKey, labelKey, descriptionKey) {
           </select>
       </div>`;
 }
-
 // Función para asociar la categoría al producto seleccionado
 async function asociarCategoriaProducto() {
   try {
@@ -512,16 +512,12 @@ async function asociarCategoriaProducto() {
       alert(error.message);
   }
 }
-
-
-
-
-
-
+// fin de Asociacion
 
 
 ///////////////////////////////////////////////////////////////////-- Gestor Stock -------------------------------------------------------
 ///////////// hacer todo
+
   function showActualizarStock(){
     showHeader("Gestor de Stock","Actualizar Stock");
     clearContent();
@@ -530,9 +526,111 @@ async function asociarCategoriaProducto() {
     // seguir codigo
   
   }
- 
+
+// Agrega notificaciones de producto bajo stock y si genera una lista de los productos bajo stock (anda)
+document.addEventListener("DOMContentLoaded", function () {
+  loadLowStockProducts(4); // Cargar productos de bajo stock en el menú con un límite de 4
+
+  // Función general para cargar productos de bajo stock con un límite opcional
+  async function loadLowStockProducts(limit = null, renderTable = false) {
+    try {
+      // Realizar solicitud a la API usando apiRequest
+      const productos = await apiRequest("/productos");
+
+      // Filtrar productos con stock bajo
+      const productosBajoStock = productos.filter(producto => producto.stock <= 30); // Ajusta el límite de stock según sea necesario
+
+      // Renderizar productos dependiendo de la opción renderTable
+      if (renderTable) {
+        renderLowStockTable(productosBajoStock); // Renderiza todos los productos en una tabla
+      } else {
+        renderLowStockMenuItems(productosBajoStock, limit); // Renderiza los productos en el menú
+      }
+    } catch (error) {
+      console.error("Error al cargar productos con stock mínimo:", error);
+    }
+  }
+
+  // Función para renderizar productos de bajo stock en el menú de notificaciones
+  function renderLowStockMenuItems(productos, limit) {
+    const stockItemsContainer = document.getElementById("low-stock-items");
+    stockItemsContainer.innerHTML = ""; // Limpia el contenido previo
+
+    if (productos.length === 0) {
+      stockItemsContainer.innerHTML = "<p class='dropdown-item text-muted'>No hay productos con stock mínimo.</p>";
+    } else {
+      const productosMostrados = limit ? productos.slice(0, limit) : productos;
+      productosMostrados.forEach((producto) => {
+        const itemHTML = `
+          <a href="#" class="dropdown-item">
+            <i class="fas fa-box mr-2"></i> ${producto.nombre}
+            <span class="float-right text-muted text-sm">Stock: ${producto.stock}</span>
+          </a>
+          <div class="dropdown-divider"></div>
+        `;
+        stockItemsContainer.insertAdjacentHTML("beforeend", itemHTML);
+      });
+
+      // Actualiza el contador de productos en stock mínimo
+      document.getElementById("stock-badge").textContent = productos.length;
+    }
+  }
+
+  // Función para renderizar la tabla completa de productos de bajo stock con DataTables
+  function renderLowStockTable(productos) {
+    const showSelect = document.getElementById("showSelect");
+    showSelect.innerHTML = `
+      <div class="card-body table-responsive p-0" style="height: 300px;">
+        <table id="dataTable_products" class="table table-head-fixed text-nowrap">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              <th>Precio</th>
+              <th>Stock</th>
+              <th>Categoría</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${productos.map(producto => `
+              <tr>
+                <td>${producto.nombre}</td>
+                <td>${producto.descripcion}</td>
+                <td>${producto.precio}</td>
+                <td>${producto.stock}</td>
+                <td>${producto.categoria_nombre}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>`;
+
+    // Inicializar DataTables en la tabla recién creada
+    $('#dataTable_products').DataTable({
+      paging: false,        // Desactiva la paginación
+      info: false,          // Oculta el texto de "showing X to Y of Z entries"
+      searching: false,     // Opcional: desactiva la barra de búsqueda si no la necesitas
+      lengthChange: false   // Oculta el selector de "entries per page"
+    });
+  }
+
+  // Cargar productos al abrir el menú de notificaciones
+  document.querySelector(".nav-item.dropdown > a").addEventListener("click", () => loadLowStockProducts(4));
+
+  // Mostrar todos los productos de bajo stock en la tabla al hacer clic en "See All Notifications"
+  document.getElementById("see-all-notifications").addEventListener("click", (event) => {
+    event.preventDefault(); // Evita el comportamiento por defecto del enlace
+    showHeader("Gestor de Stock","Productos con bajo stock");
+    clearContent();
+    loadLowStockProducts(null, true); // Carga todos los productos de bajo stock sin límite y los renderiza en la tabla
+  });
+});
+// fin de agrega notificaciones de producto bajo stock 
+
+
+
 //////////////////////////////////////////////////////////////-- Gestor de provedores ------------------------------------------------
-//////////// hacer todo    
+ 
 // Función para Agregar Proveedor
 function showAgregarProveedor() {
   showHeader("Gestor de Proveedores", "Agregar Proveedor");
@@ -540,10 +638,10 @@ function showAgregarProveedor() {
   generateForm(
       [
           { nombre: "nombre", placeholder: "Nombre de proveedor" },
-          { nombre: "direccion", placeholder: "Direccion" },
           { nombre: "email", placeholder: "email" },
           { nombre: "telefono", placeholder: "Telefono" },
-          { nombre: "productos", placeholder: "Productos que provee (produto 1, producto 2,...)" }
+          { nombre: "usuario", placeholder: "Usuario" },
+         
       ],
       "addProveedor",
       "addProveedor",
@@ -554,11 +652,10 @@ function showAgregarProveedor() {
 
 async function addProveedor() {
   const nuevoProveedor = {
-      code: document.getElementById("nombre").value,
-      product: document.getElementById("direccion").value,
-      description: document.getElementById("email").value,
-      price: document.getElementById("telefono").value,
-      stock: document.getElementById("productos").value
+      nombre: document.getElementById("nombre").value,
+      email: document.getElementById("email").value,
+      tel: document.getElementById("telefono").value,
+      idUser: document.getElementById("usuario").value
      
   };
   
@@ -688,7 +785,10 @@ async function fetchProveedor() {
       document.getElementById("tableBody_products").innerHTML = content;
     }
   }
-  
+
+
+
+  // fin Listar productos
 
   // Función para Listar Compras
   /*
