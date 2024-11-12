@@ -785,7 +785,7 @@ async function fetchProveedor() {
       document.getElementById("tableBody_products").innerHTML = content;
     }
   }
-
+  // fin de listar productos con limite de stock
 
 
   // fin Listar productos
