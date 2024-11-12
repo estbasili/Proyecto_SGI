@@ -5,6 +5,18 @@ from models.producto import Producto
 
 proveedor_bp = Blueprint('proveedor', __name__)
 
+import logging
+
+@proveedor_bp.route('/listarProveedores', methods=['GET'])
+def get_all_list_proveedores():
+    try:
+        proveedores = Proveedor.get_all_list_proveedor()
+        return jsonify(proveedores), 200
+    except Exception as e:
+        logging.error(f"Error al listar proveedores: {e}")
+        return jsonify({"error": str(e)}), 400
+
+
 @proveedor_bp.route('/proveedores', methods=['GET'])
 def get_all_proveedores():
     try:

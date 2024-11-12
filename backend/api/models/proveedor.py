@@ -38,7 +38,25 @@ class Proveedor:
             "id_usuario": self.id_usuario
         }
 
-    
+    def json_select(self):
+        return {
+            "id_proveedor": self.id_proveedor,
+            "nombre": self.nombre,
+        }
+
+    @classmethod
+    def get_all_list_proveedor(cls):
+        conexion = get_db_connection()
+        cursor = conexion.cursor()
+        cursor.execute('SELECT * FROM proveedor')
+        data = cursor.fetchall()
+        cursor.close()
+        conexion.close()
+
+        proveedores = [Proveedor(proveedor).json_select() for proveedor in data]
+        return proveedores
+
+
     @classmethod
     def get_all_proveedores(cls):
         conexion = get_db_connection()
