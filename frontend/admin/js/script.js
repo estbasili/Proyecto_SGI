@@ -26,7 +26,7 @@ function generateForm(fields, formId, submitCallback, submitText, submitClass) {
       <form id="${formId}" onsubmit="event.preventDefault(); ${submitCallback}();">
         ${fields.map(field => `
           <div class="input-group mb-3">
-              <input type="text" id="${field.nombre}" name="${field.nombre}" required class="form-control" placeholder="${field.placeholder}" value="">
+              <input type="text" id="${field.nombre}" name="${field.nombre}" required class="form-control" placeholder="${field.placeholder}" value="" >
               <div class="input-group-append">
                   <div class="input-group-text">
                       <span class="fas fa-align-left"></span>
@@ -516,20 +516,106 @@ async function asociarCategoriaProducto() {
 
 
 ///////////////////////////////////////////////////////////////////-- Gestor Stock -------------------------------------------------------
-///////////// hacer todo
+///
+// Función principal para mostrar el formulario de actualización de stock (revisar problema si no se encuentra el codigo)
+function showActualizarStock() {
+  showHeader("Gestor de Stock", "Actualizar Stock de Producto");
+  clearContent();
 
-  function showActualizarStock(){
-    showHeader("Gestor de Stock","Actualizar Stock");
-    clearContent();
-    
-    
-    // seguir codigo
-  
+  // Crear formulario para ingresar el ID del producto a buscar
+  generateForm(
+    [{ nombre: "codigo", placeholder: "Código del producto", tipo: "number" }],
+    "buscarProducto",  
+    "buscarProducto",
+    "Buscar",
+    "btn-primary"
+  );
+}
+
+// Función para buscar el producto y mostrar solo el campo de stock
+async function buscarProducto() {
+  const codigo = document.getElementById("codigo").value.trim();
+
+  if (!codigo) {
+    alert("Por favor, ingresa el código del producto.");
+    return;
   }
 
-// Agrega notificaciones de producto bajo stock y si genera una lista de los productos bajo stock (anda)
+  try {
+    // Solicitar los datos del producto a la API
+    const producto = await apiRequest(`/productos/${codigo}`, 'GET');
+
+    if (!producto) {
+      alert("Producto no encontrado.");
+      return;
+    }
+
+    // Almacena los datos del producto
+    productoActual = { ...producto, precio: parseFloat(producto.precio) };
+    mostrarFormularioActualizarStock(productoActual);
+
+  } catch (error) {
+    console.error("Error al buscar el producto:", error);
+
+    // Verificar si el error es un 404
+    if (error.response && error.response.status === 404) {
+      alert("Producto no encontrado.");
+    } else {
+      alert("Hubo un problema al buscar el producto.");
+    }
+  }
+}
+
+// Función para mostrar el formulario de actualización de stock
+function mostrarFormularioActualizarStock(producto) {
+  clearContent();
+  showHeader("Gestor de Stock", "Actualizar Stock");
+
+  generateUpdateForm(
+    [
+      { nombre: "codigo", placeholder: "Código", tipo: "number", value: producto.id_producto, readonly: true },
+      { nombre: "nombre", placeholder: "Nombre", tipo: "text", value: producto.nombre, readonly: true },
+      { nombre: "stock", placeholder: "Cantidad en Stock", tipo: "number", value: producto.stock }
+    ],
+    "updateStock",
+    "updateStock",
+    "Actualizar Stock",
+    "btn-warning"
+  );
+}
+
+// Función para actualizar el stock, enviando todos los datos del producto
+async function updateStock() {
+  const stock = parseInt(document.getElementById("stock").value.trim());
+
+  if (isNaN(stock)) {
+    alert("Por favor, ingresa una cantidad de stock válida.");
+    return;
+  }
+
+  productoActual.stock = stock; // Actualizar el stock en el objeto completo del producto
+
+  try {
+    const data = await apiRequest(`/productos/${productoActual.id_producto}`, 'PUT', productoActual);
+    if (data) {
+      alert("Stock actualizado correctamente");
+      showActualizarStock();
+    }
+  } catch (error) {
+    console.error("Error en PUT /productos:", error);
+    alert("Hubo un problema al actualizar el producto.");
+  }
+}
+// fin de gestir actualizacion stock
+
+// Notificaciones de producto bajo stock y si genera una lista de los productos bajo stock (anda)
 document.addEventListener("DOMContentLoaded", function () {
-  loadLowStockProducts(4); // Cargar productos de bajo stock en el menú con un límite de 4
+  loadLowStockProducts(4); // Carga productos de bajo stock en el menú con un límite de 4
+
+  // Establece un intervalo de una hora para actualizar
+  setInterval(() => {
+    loadLowStockProducts(4);
+  }, 3600000);
 
   // Función general para cargar productos de bajo stock con un límite opcional
   async function loadLowStockProducts(limit = null, renderTable = false) {
@@ -538,7 +624,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const productos = await apiRequest("/productos");
 
       // Filtrar productos con stock bajo
-      const productosBajoStock = productos.filter(producto => producto.stock <= 30); // Ajusta el límite de stock según sea necesario
+      const productosBajoStock = productos.filter(producto => producto.stock <= 30); //  límite de stock según sea necesario
 
       // Renderizar productos dependiendo de la opción renderTable
       if (renderTable) {
@@ -562,7 +648,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const productosMostrados = limit ? productos.slice(0, limit) : productos;
       productosMostrados.forEach((producto) => {
         const itemHTML = `
-          <a href="#" class="dropdown-item">
+          <a href=# class="dropdown-item">
             <i class="fas fa-box mr-2"></i> ${producto.nombre}
             <span class="float-right text-muted text-sm">Stock: ${producto.stock}</span>
           </a>
@@ -631,7 +717,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 //////////////////////////////////////////////////////////////-- Gestor de provedores ------------------------------------------------
  
-// Función para Agregar Proveedor
+// Función para Agregar Proveedor ( no esta hecha)
 function showAgregarProveedor() {
   showHeader("Gestor de Proveedores", "Agregar Proveedor");
   clearContent();
@@ -665,7 +751,7 @@ async function addProveedor() {
       
   }
 }
-//Función para Listar Proveedores----( para prueba)
+//Función para Listar Proveedores----( no esta hecha)
 
 function showConsultarProveedor() {
     showHeader("Gestor de Proveedores", "Consultar Proveedor");
@@ -760,7 +846,6 @@ async function fetchProveedor() {
     const initialStockThreshold = parseInt(document.getElementById("stockThresholdInput").value, 10);
     fetchProducts(initialStockThreshold);
   }
-  
   // Función que se llama al hacer clic en el botón "Aplicar"
   function establecerStock() {
     const stockThreshold = parseInt(document.getElementById("stockThresholdInput").value, 10);
@@ -786,55 +871,6 @@ async function fetchProveedor() {
     }
   }
   // fin de listar productos con limite de stock
-
-
-  // fin Listar productos
-
-  // Función para Listar Compras
-  /*
-  function showHCompras() {
-    showHeader("Gestor de Reportes", "Historial de Compras");
-    clearContent();
-    const table = `
-      <div class="card-body table-responsive p-0" style="height: 300px;">
-        <table id="dataTable_products" class="table table-head-fixed text-nowrap">
-          <thead>
-            <tr>
-              <th>Producto Solicitado</th>
-              <th>Cantidad</th>
-              <th>Fecha pedido</th>
-              <th>Fecha recepcion</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody_products"></tbody>
-        </table>
-      </div>`;
-  
-    document.getElementById("showSelect").innerHTML = table;
-    //fetchHCompras();
-  }
-
-  async function fetchHCompras() {
-    const data = await apiRequest("/compras ");
-    if (data && Array.isArray(data.compras)) {
-        const shopping = data.compras;
-        const content = shopping.map(buys => `
-          <tr>
-            <td>${buys[0]}</td>
-            <td>${buys[1]}</td>
-            <td>${buys[2]}</td>
-            <td>${buys[3]}</td>
-            <td>${buys[4]}</td>
-          </tr>
-        `).join("");
-        document.getElementById("tableBody_products").innerHTML = content;
-    }
-  }
-  */
-  
-
-
 
 
 
