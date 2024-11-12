@@ -800,12 +800,84 @@ async function fetchProveedor() {
   
 ////////////////////////////////////////////////////////////////-- Gestor de compras ---------------------------------------------------
 ////////// hacer  
-  function showAgregarCompra(item){
-      showHeader("Gestor de Compras","Agregar Compra");
-      clearContent();
+
+function generarFormOrdenCompra(){
+  const form = `
+    <div class="card-body">
+      <form id="form_orden_compra" onsubmit="event.preventDefault();">
+        <div class="row">
+          <div class="col-12">
+            <!-- Label para el select -->
+            <label for="proveedor">Seleccionar Proveedor:</label>
+            <select id="proveedores" name="proveedor" class="form-control">
+              <option value="">Cargando proveedores...</option> <!-- Opción por defecto mientras carga -->
+            </select>
+          </div>
+          <div class="col-12">
+            <!-- Botón de submit -->
+            <button type="submit" class="btn btn-primary btn-block">Enviar</button>
+          </div>
+        </div>
+      </form>
+    </div>`;
+  document.getElementById("showSelect").innerHTML = form;
+
+  // Llamamos a la función para cargar los proveedores después de generar el formulario
+  loadProveedoresSelect();
+}
+
+function loadProveedoresSelect(){
+  // Función para cargar los proveedores desde la API
+  fetch('http://127.0.0.1:5001/listarProveedores')
+    .then(response => response.json())  // Convertir la respuesta en JSON
+    .then(data => {
+      const selectElement = document.getElementById('proveedores');
       
-    // seguir codigo
-  }
+      // Limpiar la opción predeterminada mientras se cargan los proveedores
+      selectElement.innerHTML = '';
+
+      // Crear la opción predeterminada
+      const defaultOption = document.createElement('option');
+      defaultOption.value = '';
+      defaultOption.textContent = 'Selecciona un proveedor';
+      selectElement.appendChild(defaultOption);
+
+      // Recorrer los proveedores y agregar opciones al select
+      data.forEach(proveedor => {
+        const option = document.createElement('option');
+        option.id = proveedor.id_proveedor;  // Usamos el id_proveedor como id
+        option.value = proveedor.id_proveedor;  // El primer valor es el ID del proveedor
+        option.textContent = proveedor.nombre;  // El segundo valor es el nombre del proveedor
+        selectElement.appendChild(option);  // Agregar la opción al select
+      });
+
+      // Agregar el evento change para obtener el ID del proveedor seleccionado
+      selectElement.addEventListener('change', function() {
+        const selectedId = selectElement.value; // El valor del select es el ID del proveedor
+        console.log('Proveedor seleccionado ID:', selectedId);
+        // Aquí puedes usar el ID seleccionado, como enviarlo a un servidor o hacer algo más
+      });
+    })
+    .catch(error => {
+      console.error('Error al cargar los proveedores:', error);
+      // Manejo de error: en caso de que no se carguen los proveedores
+      const selectElement = document.getElementById('proveedores');
+      selectElement.innerHTML = '';
+      const errorOption = document.createElement('option');
+      errorOption.value = '';
+      errorOption.textContent = 'Error al cargar los proveedores';
+      selectElement.appendChild(errorOption);
+    });
+}
+
+
+// Esta función se llamará al mostrar el formulario para agregar una compra
+function showAgregarCompra(item){
+  showHeader("Gestor de Compras","Agregar Compra");
+  clearContent();
+  generarFormOrdenCompra(); // Llama a la función para generar el formulario y cargar proveedores
+}
+
   
   /////////////////////////////////////////////////////////////-- Gestor de Reportes -------------------------------------------------
 
