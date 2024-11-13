@@ -227,6 +227,7 @@ function showActualizarProducto() {
   );
 }
 
+
 // Función para buscar el producto por su código
 async function buscarProducto() {
   const codigo = document.getElementById("codigo").value.trim();
@@ -526,14 +527,14 @@ function showActualizarStock() {
   generateForm(
     [{ nombre: "codigo", placeholder: "Código del producto", tipo: "number" }],
     "buscarProducto",  
-    "buscarProducto",
+    "buscarProducto1",
     "Buscar",
     "btn-primary"
   );
 }
 
 // Función para buscar el producto y mostrar solo el campo de stock
-async function buscarProducto() {
+async function buscarProducto1() {
   const codigo = document.getElementById("codigo").value.trim();
 
   if (!codigo) {
