@@ -38,7 +38,25 @@ class Proveedor:
             "id_usuario": self.id_usuario
         }
 
-    
+    def json_select(self):
+        return {
+            "id_proveedor": self.id_proveedor,
+            "nombre": self.nombre,
+        }
+
+    @classmethod
+    def get_all_list_proveedor(cls):
+        conexion = get_db_connection()
+        cursor = conexion.cursor()
+        cursor.execute('SELECT * FROM proveedor')
+        data = cursor.fetchall()
+        cursor.close()
+        conexion.close()
+
+        proveedores = [Proveedor(proveedor).json_select() for proveedor in data]
+        return proveedores
+
+
     @classmethod
     def get_all_proveedores(cls):
         conexion = get_db_connection()
@@ -148,15 +166,21 @@ class Proveedor:
         try:
             cursor.execute(
             '''
-            SELECT p.nombre
-            FROM producto p
-            JOIN producto_proveedor pp ON p.id_producto = pp.id_producto
-            WHERE pp.id_proveedor = %s
+            SELECT 
+            producto.id_producto as idProducto ,
+            producto.nombre as nombre_producto
+            FROM proveedor
+            INNER JOIN producto_proveedor 
+            on proveedor.id_proveedor = producto_proveedor.id_proveedor
+            INNER JOIN producto 
+            on producto_proveedor.id_producto = producto.id_producto 
+            Where proveedor.id_proveedor = %s 
             ''', 
             (id_proveedor,)
         )
+        
         # Obtener solo los nombres de los productos
-            productos = [producto[0] for producto in cursor.fetchall()]
+            productos = [(producto[0], producto[1]) for producto in cursor.fetchall()]
             return productos
         except Exception as e:
             raise Exception(f"Error al obtener productos del proveedor: {str(e)}")
