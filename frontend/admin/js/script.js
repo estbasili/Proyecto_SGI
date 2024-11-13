@@ -19,7 +19,7 @@ function clearContent() {
   document.getElementById("showSelect").innerHTML = "";
 }
 
-// Función para generar formularios dinámicos (anda)
+/*// Función para generar formularios dinámicos (anda)
 function generateForm(fields, formId, submitCallback, submitText, submitClass) {
   const form = `
     <div class="card-body">
@@ -43,6 +43,98 @@ function generateForm(fields, formId, submitCallback, submitText, submitClass) {
       </form>
     </div>`;
   document.getElementById("showSelect").innerHTML = form;
+}*/
+// Modificación de generateForm para manejar campos tipo select#####################################
+function generateForm(fields, formId, submitCallback, submitText, submitClass) {
+  const formFields = fields.map(field => {
+    if (field.tipo === 'select') {
+      return generateSelectField(field);  // Generar select
+    } else {
+      return generateInputField(field);  // Generar input
+    }
+  }).join('');
+
+  const form = `
+    <div class="card-body">
+      <form id="${formId}" onsubmit="event.preventDefault(); ${submitCallback}();">
+        ${formFields}
+        <hr>
+        <div class="row">
+          <div class="col-12">
+            <button type="submit" class="btn ${submitClass} btn-block">${submitText}</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  `;
+
+  document.getElementById("showSelect").innerHTML = form;
+}
+
+// Función principal optimizada para generar el formulario
+function generateUpdateForm(fields, formId, submitCallback, submitText, submitClass) {
+  const formFields = fields.map(field => {
+    if (field.tipo === 'select') {
+      return generateSelectField(field);  // Generar select
+    } else {
+      return generateInputField(field);  // Generar input
+    }
+  }).join('');
+
+  const form = `
+    <div class="card-body">
+      <form id="${formId}" onsubmit="event.preventDefault(); ${submitCallback}();">
+        ${formFields}
+        <hr>
+        <div class="row">
+          <div class="col-12">
+            <button type="submit" class="btn ${submitClass} btn-block">${submitText}</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  `;
+
+  document.getElementById("showSelect").innerHTML = form;
+}
+// Función para generar los campos editables
+function generateInputField(field) {
+  // Aplica el atributo readonly si field.readonly es verdadero
+  const isReadonly = field.readonly ? 'readonly' : '';
+  return `
+    <div class="input-group mb-3">
+      <input 
+        type="${field.tipo}" 
+        id="${field.nombre}" 
+        name="${field.nombre}" 
+        ${isReadonly} 
+        class="form-control" 
+        placeholder="${field.placeholder}" 
+        value="${field.value || ''}" 
+        step="${field.step || ''}">
+      <div class="input-group-append">
+        <div class="input-group-text">
+          <span class="fas fa-align-left"></span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Generar el campo select basado en opciones ######################################################
+function generateSelectField(field) {
+  const optionsHTML = field.opciones.map(option => 
+    `<option value="${option.value}">${option.text}</option>`
+  ).join('');
+
+  return `
+    <div class="input-group mb-3">
+      <select id="${field.nombre}" name="${field.nombre}" class="form-control">
+        <option value="">Seleccione ${field.placeholder}</option>
+        ${optionsHTML}
+      </select>
+    </div>
+  `;
 }
 
 // Función genérica para hacer peticiones a la API (anda)
@@ -280,7 +372,7 @@ async function getCategorias() {
     text: categoria.nombre
   }));
 }
-
+/*
 // Función para generar el formulario de actualización
 function generateSelectField(field) {
   return `
@@ -296,49 +388,7 @@ function generateSelectField(field) {
     </div>
   `;
 }
-
-// Función para generar un campo de entrada (input), con soporte para campos de solo lectura
-function generateInputField(field) {
-  const isReadonly = field.nombre === "codigo" ? 'readonly' : '';
-  return `
-    <div class="input-group mb-3">
-      <input type="${field.tipo}" id="${field.nombre}" name="${field.nombre}" ${isReadonly} class="form-control" placeholder="${field.placeholder}" value="${field.value || ''}" step="any">
-      <div class="input-group-append">
-        <div class="input-group-text">
-          <span class="fas fa-align-left"></span>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-// Función principal optimizada para generar el formulario
-function generateUpdateForm(fields, formId, submitCallback, submitText, submitClass) {
-  const formFields = fields.map(field => {
-    if (field.tipo === 'select') {
-      return generateSelectField(field);  // Generar select
-    } else {
-      return generateInputField(field);  // Generar input
-    }
-  }).join('');
-
-  const form = `
-    <div class="card-body">
-      <form id="${formId}" onsubmit="event.preventDefault(); ${submitCallback}();">
-        ${formFields}
-        <hr>
-        <div class="row">
-          <div class="col-12">
-            <button type="submit" class="btn ${submitClass} btn-block">${submitText}</button>
-          </div>
-        </div>
-      </form>
-    </div>
-  `;
-
-  document.getElementById("showSelect").innerHTML = form;
-}
-
+*/
 // Función para actualizar el producto
 async function updateProduct() {
   const codigo = document.getElementById("codigo").value.trim();
@@ -575,7 +625,7 @@ function mostrarFormularioActualizarStock(producto) {
   generateUpdateForm(
     [
       { nombre: "codigo", placeholder: "Código", tipo: "number", value: producto.id_producto, readonly: true },
-      { nombre: "nombre", placeholder: "Nombre", tipo: "text", value: producto.nombre, readonly: true },
+      { nombre: "producto", placeholder: "Producto", tipo: "text", value: producto.nombre, readonly: true },
       { nombre: "stock", placeholder: "Cantidad en Stock", tipo: "number", value: producto.stock }
     ],
     "updateStock",
@@ -718,17 +768,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
 //////////////////////////////////////////////////////////////-- Gestor de provedores ------------------------------------------------
  
-// Función para Agregar Proveedor ( no esta hecha)
-function showAgregarProveedor() {
+// Función para Agregar Proveedor (anda)
+async function showAgregarProveedor() {
   showHeader("Gestor de Proveedores", "Agregar Proveedor");
   clearContent();
+  const usuarios = await getUsuarios(); // Obtener los usuarios para el campo select
+
   generateForm(
       [
           { nombre: "nombre", placeholder: "Nombre de proveedor" },
-          { nombre: "email", placeholder: "email" },
-          { nombre: "telefono", placeholder: "Telefono" },
-          { nombre: "usuario", placeholder: "Usuario" },
-         
+          { nombre: "email", placeholder: "Email" },
+          { nombre: "telefono", placeholder: "Teléfono" },
+          { nombre: "usuario", placeholder: "Usuario", tipo: "select", opciones: usuarios }, // Campo select para usuario
       ],
       "addProveedor",
       "addProveedor",
@@ -737,21 +788,41 @@ function showAgregarProveedor() {
   );
 }
 
+// Función para obtener las categorías desde la API
+async function getUsuarios() {
+  // Obtener categorías desde la API
+  const usuarios = await apiRequest('/usuarios', 'GET');
+  return usuarios.map(usuario => ({
+    value: usuario.id_usuario,
+    text: usuario.nombre
+  }));
+}
+
 async function addProveedor() {
   const nuevoProveedor = {
       nombre: document.getElementById("nombre").value,
       email: document.getElementById("email").value,
-      tel: document.getElementById("telefono").value,
-      idUser: document.getElementById("usuario").value
-     
+      telefono: document.getElementById("telefono").value,
+      id_usuario: parseInt(document.getElementById("usuario").value, 10)
   };
-  
-  const data = await apiRequest("/proveedor", 'POST', nuevoProveedor);
-  if (data) {
-      alert("Proveedor agregado correctamente");
-      
+
+  if (isNaN(nuevoProveedor.id_usuario)) {
+    alert("Por favor, selecciona un usuario válido.");
+    return;
+  }
+
+  try {
+    const data = await apiRequest("/proveedores", 'POST', nuevoProveedor);
+    if (data) {
+        alert("Proveedor agregado correctamente");
+    }
+  } catch (error) {
+    console.error("Error en POST /proveedores:", error);
+    alert("Hubo un problema al agregar el proveedor.");
   }
 }
+// fin para Agregar proveeedor
+
 //Función para Listar Proveedores----( no esta hecha)
 
 function showConsultarProveedor() {

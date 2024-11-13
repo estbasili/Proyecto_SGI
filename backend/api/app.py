@@ -5,6 +5,7 @@ from routes.proveedor import proveedor_bp
 from routes.producto import producto_bp
 from routes.categoria import categoria_bp
 from routes.orden import orden_bp
+from routes.usuario import usuario_bp 
 from dotenv import load_dotenv
 from flask_cors import CORS
 
@@ -23,6 +24,7 @@ app.register_blueprint(proveedor_bp)
 app.register_blueprint(producto_bp)
 app.register_blueprint(categoria_bp)
 app.register_blueprint(orden_bp)
+app.register_blueprint(usuario_bp) ######################################
 
 @app.route('/')
 def test():
