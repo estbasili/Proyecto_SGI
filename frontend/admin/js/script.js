@@ -1,12 +1,23 @@
 // Funciones para la seccion administrador
 
+//-- fecha y hora ----------------------------------------------------
+function actualizarFecha() {
+  const fecha = new Date();
+  const opciones = { weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
+  const fechaFormateada = fecha.toLocaleDateString('es-ES', opciones);   
+
+  document.getElementById('fecha').textContent = fechaFormateada;
+}
+
+actualizarFecha(); // Llama a la función al cargar la página
+setInterval(actualizarFecha, 1000); // Actualiza cada segundo
 
 //-- Direccion de la api ----------------------------------------------
 
 const urlAPI = "http://127.0.0.1:5001";
 
 
-///////////////////////////////////////////////////////////////-- Funciones compartidas entre opciones ------------------------------
+//-- Funciones compartidas entre opciones ------------------------------
 
 // Función genérica para mostrar encabezados (anda)
 function showHeader(nameSection, nameSubSection) {
@@ -153,13 +164,19 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
       // Manejar error 404 de forma específica
       if (response.status === 404) {
           throw new Error("Producto no encontrado");
-      }
-
+      }  
+      // Manejo respuesta no exitosa
       if (!response.ok) {
-          throw new Error("Error en la solicitud");
+          throw new Error("Error en la solicitud: ${response.status}");
       }
-
+      // Manejo si el codigo de estado es 204 (sin contenido)
+      if(response.status === 204) {
+        return{};
+      }
+      
+      // si hay contenido en la rspuesta, devuelvo JSON
       return await response.json();
+      
   } catch (error) {
       console.error(`Error en ${method} ${endpoint}:`, error);
       alert(`Error al procesar la solicitud: ${error.message}`);
@@ -277,7 +294,7 @@ function showQuitarProducto() {
 
 async function deleteProduct() {
   const codigo = document.getElementById("idProduct").value.trim();  // Obtener el ID del producto
-   
+  
 
   // Verificar si el producto existe antes de intentar eliminarlo
   try {
@@ -286,12 +303,11 @@ async function deleteProduct() {
           alert(`No se encontró un producto con el ID ${codigo}.`);
           return;  // Detener si el producto no existe
       }
-
+      console.log(codigo); 
       // Si el producto existe, realizar la eliminación
       const data = await apiRequest(`/productos/${codigo}`, 'DELETE');
       if (data) {
          alert("Producto eliminado correctamente");
-         console.log(data);
          showQuitarProducto();
          
       }
@@ -932,7 +948,7 @@ async function asociarProductosAlProveedor(idProveedor) {
 
 
 
-//Función para consultar los provedores asociados a productos especificos
+//Función para consultar los provedores asociados a productos especificos 
 
 function showConsultarProveedor() {
     showHeader("Gestor de Proveedores", "Consultar Proveedor");

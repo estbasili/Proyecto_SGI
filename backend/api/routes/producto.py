@@ -62,6 +62,7 @@ def update_producto(id):
 
 @producto_bp.route('/productos/<int:id>', methods=['DELETE'])
 def delete_producto(id):
+    #print(type(id))
     producto = Producto.get_by_id(id)
     if producto is None:
         return jsonify({'message': 'Producto no encontrado'}), 404

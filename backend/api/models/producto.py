@@ -116,7 +116,7 @@ class Producto:
     def delete(cls, id_producto):
         conexion = get_db_connection()
         cursor = conexion.cursor()
-        cursor.execute("DELETE FROM producto WHERE id = %s", (id_producto,))
+        cursor.execute("DELETE FROM producto WHERE id_producto = %s", (id_producto,))##########################################correccion de id_producto
         conexion.commit()
         cursor.close()
         conexion.close()
