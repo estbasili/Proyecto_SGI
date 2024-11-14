@@ -74,23 +74,7 @@ def delete_proveedor(id):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
     
-
-# Asociar un producto a un proveedor
-
-#@proveedor_bp.route('/proveedores/<int:id_proveedor>/productos', methods=['POST'])
-#def asociar_producto_a_proveedor(id_proveedor):
-#    try:
-#        data = request.get_json()
-#        id_producto = data.get("id_producto")
-#        if not id_producto:
-#            return jsonify({"error": "ID de producto es necesario"}), 400
-#        resultado = Proveedor.asociar_producto(id_proveedor, id_producto)
-#        return jsonify(resultado), 201
-#    except Exception as e:
-#        return jsonify({"error": str(e)}), 400
-    
-########################  modificacion para asociar varios productos #####################
-
+  
 
 @proveedor_bp.route('/proveedores/<int:id_proveedor>/productos', methods=['POST'])
 def asociar_producto_a_proveedor(id_proveedor):
@@ -105,6 +89,7 @@ def asociar_producto_a_proveedor(id_proveedor):
         logging.error(f"Error al asociar producto a proveedor: {e}")
         return jsonify({"error": str(e)}), 400
 
+########################  modificacion para asociar varios productos #####################
 
 @proveedor_bp.route('/proveedores/<int:id_proveedor>/productos/varios', methods=['POST'])
 def asociar_varios_productos_a_proveedor(id_proveedor):
@@ -118,9 +103,8 @@ def asociar_varios_productos_a_proveedor(id_proveedor):
     except Exception as e:
         logging.error(f"Error al asociar varios productos a proveedor: {e}")
         return jsonify({"error": str(e)}), 400
-#############################################################################
-
-
+    
+##########################################################################################
 
     
 # Obtener productos de un proveedor

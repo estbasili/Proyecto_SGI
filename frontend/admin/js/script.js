@@ -44,7 +44,7 @@ function generateForm(fields, formId, submitCallback, submitText, submitClass) {
     </div>`;
   document.getElementById("showSelect").innerHTML = form;
 }*/
-// Modificación de generateForm para manejar campos tipo select#####################################
+// Modificación de generateForm para manejar campos tipo select
 function generateForm(fields, formId, submitCallback, submitText, submitClass) {
   const formFields = fields.map(field => {
     if (field.tipo === 'select') {
@@ -121,7 +121,7 @@ function generateInputField(field) {
   `;
 }
 
-// Generar el campo select basado en opciones ######################################################
+// Generar el campo select basado en opciones 
 function generateSelectField(field) {
   const optionsHTML = field.opciones.map(option => 
     `<option value="${option.value}">${option.text}</option>`
@@ -318,7 +318,6 @@ function showActualizarProducto() {
       "btn-primary"
   );
 }
-
 
 // Función para buscar el producto por su código
 async function buscarProducto() {
@@ -567,7 +566,7 @@ async function asociarCategoriaProducto() {
 
 
 ///////////////////////////////////////////////////////////////////-- Gestor Stock -------------------------------------------------------
-///
+
 // Función principal para mostrar el formulario de actualización de stock (revisar problema si no se encuentra el codigo)
 function showActualizarStock() {
   showHeader("Gestor de Stock", "Actualizar Stock de Producto");
@@ -768,9 +767,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 //////////////////////////////////////////////////////////////-- Gestor de proveedores ------------------------------------------------
  
-// Función para Agregar Proveedor (anda)
+// Función para Agregar Proveedor (anda falta validar campo telefono para que sea un numero que luego se combierta en str)
 async function showAgregarProveedor() {
-  showHeader("Gestor de Proveedores", "Agregar Proveedor");
+  showHeader("Gestor de Proveedores", "Agregar Proveedor y Asociar productos");
   clearContent();
   const usuarios = await getUsuarios(); // Obtener los usuarios para el campo select
 
@@ -929,18 +928,11 @@ async function asociarProductosAlProveedor(idProveedor) {
     alert("Hubo un error al asociar los productos al proveedor.");
   }
 }
-
 // fin para Agregar proveeedor
 
 
 
-
-
-
-
-
-
-//Función para Listar Proveedores----( no esta hecha)
+//Función para consultar los provedores asociados a productos especificos
 
 function showConsultarProveedor() {
     showHeader("Gestor de Proveedores", "Consultar Proveedor");
