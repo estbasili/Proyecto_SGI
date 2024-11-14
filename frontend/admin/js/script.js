@@ -766,7 +766,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-//////////////////////////////////////////////////////////////-- Gestor de provedores ------------------------------------------------
+//////////////////////////////////////////////////////////////-- Gestor de proveedores ------------------------------------------------
  
 // Función para Agregar Proveedor (anda)
 async function showAgregarProveedor() {
@@ -811,17 +811,134 @@ async function addProveedor() {
     return;
   }
 
-  try {
-    const data = await apiRequest("/proveedores", 'POST', nuevoProveedor);
-    if (data) {
-        alert("Proveedor agregado correctamente");
-    }
-  } catch (error) {
-    console.error("Error en POST /proveedores:", error);
-    alert("Hubo un problema al agregar el proveedor.");
+  const data = await apiRequest("/proveedores", 'POST', nuevoProveedor);
+  if (data) {
+      alert("Proveedor agregado correctamente");
+      console.log(data[0].id_proveedor);
+        // Ahora que el proveedor ha sido creado, mostrar la tabla para asociar productos
+      await showAsociarProductos(data[0].id_proveedor); // Mostrar productos para asociar
   }
 }
+
+// muestra la table para selleccionar los productoa asociados al proveedor
+async function showAsociarProductos(idProveedor) {
+  clearContent();
+  const productos = await apiRequest("/productos", 'GET');  // Obtener productos disponibles
+  
+  // Selecciona el contenedor con id="showSelect"
+  const container = document.getElementById("showSelect");
+
+  // Limpia el contenido previo en el contenedor
+  container.innerHTML = "";
+
+  // Crear una tabla con DataTables
+  const table = document.createElement("table");
+  table.setAttribute("id", "productosTable");
+  table.classList.add("display", "table", "table-striped", "table-bordered");  // Clases para estilo Bootstrap
+
+  // Crear el encabezado de la tabla
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th><input type="checkbox" id="selectAll"></th>
+        <th>Nombre del Producto</th>
+        <th>Descripción</th>
+        <th>Stock</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  `;
+  container.appendChild(table);
+
+  // Insertar productos en las filas de la tabla
+  const tbody = table.querySelector("tbody");
+  productos.forEach(producto => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td><input type="checkbox" class="producto-checkbox" value="${producto.id_producto}"></td>
+      <td>${producto.nombre}</td>
+      <td>${producto.descripcion}</td>
+      <td>${producto.stock}</td>
+    `;
+    tbody.appendChild(row);
+  });
+
+  // Botón para asociar productos
+  const button = document.createElement("button");
+  button.textContent = "Asociar Productos";
+  button.type = "button";
+  button.classList.add("btn", "btn-success", "mt-3");
+  button.onclick = () => asociarProductosAlProveedor(idProveedor);
+  container.appendChild(button);
+
+  $(document).ready(function() {
+    $('#productosTable').DataTable({
+       paging: true,
+       searching: true,
+       info: true,
+       responsive: true,
+       language: {
+          search: "Buscar ",
+          lengthMenu: "Mostrar _MENU_ registros por página",
+          zeroRecords: "No se encontraron resultados",
+          info: "Mostrando página _PAGE_ de _PAGES_",
+          infoEmpty: "No hay registros disponibles",
+          infoFiltered: "(filtrado de _MAX_ registros totales)",
+          paginate: {
+             first: "Primero",
+             last: "Último",
+             next: "Siguiente",
+             previous: "Anterior"
+          }
+       },
+       dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+            "<'row'<'col-sm-12'tr>>" +
+            "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+       pagingType: "simple_numbers",
+       
+    
+    });
+ });
+ 
+
+  // Event listener para seleccionar o deseleccionar todos los checkboxes
+  document.getElementById("selectAll").addEventListener("change", function() {
+    const checkboxes = document.querySelectorAll(".producto-checkbox");
+    checkboxes.forEach(checkbox => {
+      checkbox.checked = this.checked;
+    });
+  });
+}
+
+// Función para asociar los productos seleccionados a un proveedor
+async function asociarProductosAlProveedor(idProveedor) {
+  const selectedProductos = Array.from(document.querySelectorAll('.producto-checkbox:checked'))
+                                  .map(checkbox => parseInt(checkbox.value, 10));
+
+  if (selectedProductos.length === 0) {
+    alert("Por favor, selecciona al menos un producto.");
+    return;
+  }
+
+  // Enviar los productos seleccionados a la API para asociarlos con el proveedor
+  const data = await apiRequest(`/proveedores/${idProveedor}/productos/varios`, 'POST', { productos: selectedProductos });
+
+  if (data) {
+    alert("Productos asociados al proveedor correctamente");
+  } else {
+    alert("Hubo un error al asociar los productos al proveedor.");
+  }
+}
+
 // fin para Agregar proveeedor
+
+
+
+
+
+
+
+
 
 //Función para Listar Proveedores----( no esta hecha)
 

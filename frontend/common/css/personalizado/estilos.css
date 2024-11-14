@@ -1,0 +1,21 @@
+/* Estilo para los botones de paginación redondeados */
+.dt-paging-button {
+    border-radius: 10px !important;
+    padding: 6px 12px !important; /* Ajustar tamaño */
+    margin: 0 2px; /* Espaciado entre botones */
+    background-color: #f8f9fa !important; /* Fondo */
+    color: #007bff !important; /* Color de texto */
+    border: 1px solid #007bff !important; /* Borde */
+}
+
+/* Estilo al pasar el mouse sobre los botones */
+.dt-paging-button:hover {
+    background-color: #007bff77 !important; /* Color de fondo */
+    color: #fff !important; /* Color de texto */
+    border-color: #007bff !important; /* Borde */
+}
+
+.dt-search input{
+    border-radius: 5px !important;
+    margin: 0 5px; /* Espaciado entre botones */
+}

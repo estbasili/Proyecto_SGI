@@ -76,6 +76,22 @@ def delete_proveedor(id):
     
 
 # Asociar un producto a un proveedor
+
+#@proveedor_bp.route('/proveedores/<int:id_proveedor>/productos', methods=['POST'])
+#def asociar_producto_a_proveedor(id_proveedor):
+#    try:
+#        data = request.get_json()
+#        id_producto = data.get("id_producto")
+#        if not id_producto:
+#            return jsonify({"error": "ID de producto es necesario"}), 400
+#        resultado = Proveedor.asociar_producto(id_proveedor, id_producto)
+#        return jsonify(resultado), 201
+#    except Exception as e:
+#        return jsonify({"error": str(e)}), 400
+    
+########################  modificacion para asociar varios productos #####################
+
+
 @proveedor_bp.route('/proveedores/<int:id_proveedor>/productos', methods=['POST'])
 def asociar_producto_a_proveedor(id_proveedor):
     try:
@@ -86,7 +102,26 @@ def asociar_producto_a_proveedor(id_proveedor):
         resultado = Proveedor.asociar_producto(id_proveedor, id_producto)
         return jsonify(resultado), 201
     except Exception as e:
+        logging.error(f"Error al asociar producto a proveedor: {e}")
         return jsonify({"error": str(e)}), 400
+
+
+@proveedor_bp.route('/proveedores/<int:id_proveedor>/productos/varios', methods=['POST'])
+def asociar_varios_productos_a_proveedor(id_proveedor):
+    try:
+        data = request.get_json()
+        productos = data.get("productos", [])
+        if not productos:
+            return jsonify({"error": "Lista de productos es necesaria"}), 400
+        resultado = Proveedor.asociar_varios_productos(id_proveedor, productos)
+        return jsonify(resultado), 201
+    except Exception as e:
+        logging.error(f"Error al asociar varios productos a proveedor: {e}")
+        return jsonify({"error": str(e)}), 400
+#############################################################################
+
+
+
     
 # Obtener productos de un proveedor
 @proveedor_bp.route('/proveedores/<int:id_proveedor>/productos', methods=['GET'])
@@ -96,3 +131,5 @@ def obtener_productos_de_proveedor(id_proveedor):
         return jsonify(productos), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+    
+

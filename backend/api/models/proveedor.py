@@ -1,5 +1,9 @@
 from db.db import get_db_connection, DBError
 from models.producto import Producto
+import logging #########################################################################################
+
+# Configuración de logging
+logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')############
 
 class Proveedor:
     schema = {
@@ -96,7 +100,9 @@ class Proveedor:
                 (data['nombre'], data['telefono'], data['email'], data['id_usuario'])
             )
             conexion.commit()
-            return {"mensaje": "Proveedor creado exitosamente"}, 201
+             # Obtener el ID del proveedor recién creado
+            id_proveedor = cursor.lastrowid
+            return {"mensaje": "Proveedor creado exitosamente","id_proveedor":id_proveedor}, 201 ##################################
         except Exception as e:
             conexion.rollback()
             raise Exception(f"Error al crear proveedor: {str(e)}")
@@ -142,23 +148,24 @@ class Proveedor:
             conexion.close()
 
     @classmethod
-    def asociar_producto(cls, id_proveedor, id_producto):
-        conexion = get_db_connection()
-        cursor = conexion.cursor()
-        try:
-            cursor.execute(
-                'INSERT INTO producto_proveedor (id_proveedor, id_producto) VALUES (%s, %s)',
-                (id_proveedor, id_producto)
-            )
-            conexion.commit()
-            return {"mensaje": "Producto asociado al proveedor exitosamente"}
-        except Exception as e:
-            conexion.rollback()
-            raise Exception(f"Error al asociar producto con proveedor: {str(e)}")
-        finally:
-            cursor.close()
-            conexion.close()
+    #def asociar_producto(cls, id_proveedor, id_producto):
+    #    conexion = get_db_connection()
+    #    cursor = conexion.cursor()
+    #    try:
+    #        cursor.execute(
+    #            'INSERT INTO producto_proveedor (id_proveedor, id_producto) VALUES (%s, %s)',
+    #            (id_proveedor, id_producto)
+    #        )
+    #        conexion.commit()
+    #        return {"mensaje": "Producto asociado al proveedor exitosamente"}
+    #    except Exception as e:
+    #        conexion.rollback()
+    #        raise Exception(f"Error al asociar producto con proveedor: {str(e)}")
+    #    finally:
+    #        cursor.close()
+    #        conexion.close()
 
+    
     @classmethod
     def obtener_productos(cls, id_proveedor):
         conexion = get_db_connection()
@@ -187,3 +194,32 @@ class Proveedor:
         finally:
             cursor.close()
             conexion.close()
+
+
+    @classmethod
+    def asociar_producto(cls, id_proveedor, id_producto):
+        conexion = get_db_connection()
+        cursor = conexion.cursor()
+        try:
+            # Inserción en la tabla intermedia proveedor_producto
+            cursor.execute("INSERT INTO producto_proveedor (id_proveedor, id_producto) VALUES (%s, %s)", (id_proveedor, id_producto))
+            conexion.commit()
+            return {"id_proveedor": id_proveedor, "id_producto": id_producto, "estado": "asociado"}
+        except Exception as e:
+            logging.error(f"Error al asociar producto: {e}")
+            return {"error": str(e)}
+        finally:
+            cursor.close()
+            conexion.close()
+
+
+
+    @classmethod
+    def asociar_varios_productos(cls, id_proveedor, productos):
+        try:
+            for id_producto in productos:
+                cls.asociar_producto(id_proveedor, id_producto)
+            return {"mensaje": "Productos asociados correctamente"}
+        except Exception as e:
+            logging.error(f"Error al asociar varios productos: {e}")
+            return {"error": str(e)}
