@@ -120,3 +120,36 @@ class Producto:
         conexion.commit()
         cursor.close()
         conexion.close()
+
+    @classmethod
+    def get_proveedores(cls, id_producto):
+        conexion = get_db_connection()
+        cursor = conexion.cursor()
+        try:
+            cursor.execute(
+            '''
+            SELECT 
+                proveedor.id_proveedor,
+                proveedor.nombre AS nombre_proveedor
+            FROM 
+                producto
+            INNER JOIN 
+                producto_proveedor ON producto.id_producto = producto_proveedor.id_producto
+            INNER JOIN 
+                proveedor ON producto_proveedor.id_proveedor = proveedor.id_proveedor
+            WHERE 
+                producto.id_producto = %s
+            ''',
+            (id_producto,)
+           )
+            proveedores = [
+                {"id_proveedor": row[0], "nombre_proveedor": row[1]}
+                for row in cursor.fetchall()
+            ]
+            return proveedores
+        finally:
+            cursor.close()
+            conexion.close()
+
+
+   

@@ -179,7 +179,7 @@ class Proveedor:
             (id_proveedor,)
         )
         
-        # Obtener solo los nombres de los productos
+        # Obtengo el nombre y el id del producto
             productos = [(producto[0], producto[1]) for producto in cursor.fetchall()]
             return productos
         except Exception as e:

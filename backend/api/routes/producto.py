@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from models.producto import Producto
+from models.proveedor import Proveedor
 
 producto_bp = Blueprint('producto_bp', __name__)
 
@@ -69,4 +70,9 @@ def delete_producto(id):
     Producto.delete(id)
     return jsonify({'message': 'Producto eliminado'}), 204
 
-
+@producto_bp.route('/productos/<int:id>/proveedores', methods=['GET'])
+def get_proveedores_por_producto(id):
+    proveedores = Producto.get_proveedores(id)
+    if not proveedores:
+        return jsonify({"message": "No se encontraron proveedores para este producto"}), 404
+    return jsonify(proveedores), 200
