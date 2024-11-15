@@ -72,39 +72,55 @@ Proyecto_SGI/
 ├── Backend/
 |     └── api/ 
 |         ├── db/
-|         |   ├── __pycache__
+|         |   ├── __pycache__/
 │         |   └── db_config.py
 |         |
 │         ├── models/
-│         |      ├── __pycache__                   
+│         |      ├── __pycache__/
+│         |      ├── categoria.py
+│         |      ├── orden.py
+│         |      ├── proveedor.py
+│         |      ├── usuario.py                        
 │         |      └── producto.py                    
 │         | 
 │         ├── node_modules/
 │         |      └── dotenv
 |         |
 |         ├── routes/
-│         |      ├── __pycache__                  
-│         |      └── producto.py
+│         |      ├── __pycache__/
+│         |      ├── categoria.py
+│         |      ├── orden.py
+│         |      ├── proveedor.py
+│         |      ├── usuario.py                        
+│         |      └── producto.py 
 |         ├── __init__.py                
 |         └── app.py
 |
 ├── setting/
-│   ├── datos_prueba.sql
-│   └── gestin.sql
+│       ├── creacion_user.sql
+│       ├── datos_prueba.sql
+│       └── gestin.sql
 │   
 ├── frontend/
-|     ├── admin/
-|     │   ├── index.html                
-|     │   └── js/
-|     │        └── script.js 
+|     ├── css/
+|     |    ├── dist/
+|     |    ├── personalizado/
+|     |    |        └── estilos.css 
+|     |    └── plugins/
+|     | 
 |     ├── assents/
-|     │   ├── favico.ico              
+|     │   ├── favico.ico
+|     │   ├── imagen_login.jpg              
 |     │   └── usuario.png 
 |     │    
-|     ├── common/
-|         └── css/
-|             ├──dist/
-|             └── plugins/
-|     
+|     ├── js/
+|     |    └── admin/
+|     |    |    └── script.js
+|     |    └── user/
+|     |         └── login_register.js
+|     |
+|     ├── index.html                 
+|     └── login-register.html
+|
 ├── README.md                 
 └── requirements.txt
