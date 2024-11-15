@@ -20,13 +20,7 @@
     margin: 0 5px; /* Espaciado entre botones */
 }
 
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing:border-box;
-    text-decoration: none;
-    font-family: sans-serif ;
-}
+
 
 .login-page {
     background-image: url('../../assents/imagen_login.jpg');
