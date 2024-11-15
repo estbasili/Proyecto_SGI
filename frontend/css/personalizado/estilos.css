@@ -29,7 +29,7 @@
 }
 
 .login-page {
-    background-image: url();
+    background-image: url('../../assents/imagen_login.jpg');
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
