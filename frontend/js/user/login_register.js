@@ -57,3 +57,6 @@ function register(){
         caja_trasera_login.style.opacity = "1";
     }
 }
+
+
+/* logica de Carlos */

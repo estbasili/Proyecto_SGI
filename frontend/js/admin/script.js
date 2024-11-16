@@ -1,11 +1,11 @@
 // Funciones para la seccion administrador
 
 //-- fecha y hora ----------------------------------------------------
+
 function actualizarFecha() {
   const fecha = new Date();
   const opciones = { weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
   const fechaFormateada = fecha.toLocaleDateString('es-ES', opciones);   
-
   document.getElementById('fecha').textContent = fechaFormateada;
 }
 
@@ -14,10 +14,12 @@ setInterval(actualizarFecha, 1000); // Actualiza cada segundo
 
 //-- Direccion de la api ----------------------------------------------
 
+
 const urlAPI = "http://127.0.0.1:5001";
 
 
 //-- Funciones compartidas entre opciones ------------------------------
+
 
 // Función genérica para mostrar encabezados (anda)
 function showHeader(nameSection, nameSubSection) {
@@ -30,31 +32,6 @@ function clearContent() {
   document.getElementById("showSelect").innerHTML = "";
 }
 
-/*// Función para generar formularios dinámicos (anda)
-function generateForm(fields, formId, submitCallback, submitText, submitClass) {
-  const form = `
-    <div class="card-body">
-      <form id="${formId}" onsubmit="event.preventDefault(); ${submitCallback}();">
-        ${fields.map(field => `
-          <div class="input-group mb-3">
-              <input type="text" id="${field.nombre}" name="${field.nombre}" required class="form-control" placeholder="${field.placeholder}" value="" >
-              <div class="input-group-append">
-                  <div class="input-group-text">
-                      <span class="fas fa-align-left"></span>
-                  </div>
-              </div>
-          </div>
-        `).join('')}
-        <hr>
-        <div class="row">
-            <div class="col-12">
-                <button type="submit" class="btn ${submitClass} btn-block">${submitText}</button>
-            </div>
-        </div>
-      </form>
-    </div>`;
-  document.getElementById("showSelect").innerHTML = form;
-}*/
 // Modificación de generateForm para manejar campos tipo select
 function generateForm(fields, formId, submitCallback, submitText, submitClass) {
   const formFields = fields.map(field => {
@@ -163,7 +140,7 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
       
       // Manejar error 404 de forma específica
       if (response.status === 404) {
-          throw new Error("Producto no encontrado");
+          throw new Error("No encontrado");
       }  
       // Manejo respuesta no exitosa
       if (!response.ok) {
@@ -387,23 +364,7 @@ async function getCategorias() {
     text: categoria.nombre
   }));
 }
-/*
-// Función para generar el formulario de actualización
-function generateSelectField(field) {
-  return `
-    <div class="input-group mb-3">
-      <select id="${field.nombre}" name="${field.nombre}" class="form-control">
-        <option value="">${field.placeholder}</option>
-        ${field.opciones.map(opcion => `
-          <option value="${opcion.value}" ${field.value === opcion.value ? 'selected' : ''}>
-            ${opcion.text}
-          </option>
-        `).join('')}
-      </select>
-    </div>
-  `;
-}
-*/
+
 // Función para actualizar el producto
 async function updateProduct() {
   const codigo = document.getElementById("codigo").value.trim();
@@ -946,51 +907,99 @@ async function asociarProductosAlProveedor(idProveedor) {
 }
 // fin para Agregar proveeedor
 
-
-
-//Función para consultar los provedores asociados a productos especificos 
+//Función para consultar los provedores asociados a productos especificos  (anda)
 
 function showConsultarProveedor() {
-    showHeader("Gestor de Proveedores", "Consultar Proveedor");
+    showHeader("Gestor de Proveedores", "Proveedores asociados al producto");
     clearContent();
-    const table = `
-      <div class="card-body table-responsive p-0" style="height: 300px;">
-        <table id="dataTable_products" class="table table-head-fixed text-nowrap">
-          <thead>
-            <tr>
-              <th>idProveedor</th>
-              <th>Nombre</th>
-              <th>Telefono</th>
-              <th>email</th>
-              <th>idUsuario</th>
-              
-            </tr>
-          </thead>
-          <tbody id="tableBody_products"></tbody>
-        </table>
-      </div>`;
+    // Crear formulario para ingresar el ID del producto a buscar
+    generateForm(
+      [
+        { nombre: "codigo", placeholder: "Código del producto", tipo: "number" }
+      ],
+      "buscarProducto",  
+      "buscarProducto3",
+      "Buscar",
+       "btn-primary"
+    );
     
-    document.getElementById("showSelect").innerHTML = table;
-    fetchProveedor();
 }
 
-async function fetchProveedor() {
-    const data = await apiRequest("/proveedores");
-    if (data && Array.isArray(data.proveedores)) {
-        const proveedors = data.provedores;
-        const content = proveedors.map(proveedor => `
-          <tr>
-            <td>${proveedor[0]}</td>
-            <td>${proveedor[1]}</td>
-            <td>${proveedor[2]}</td>
-            <td>${proveedor[3]}</td>
-            <td>${proveedor[4]}</td>
-            
-          </tr>
-        `).join("");
-        document.getElementById("tableBody_products").innerHTML = content;
+// Función para buscar el producto por su código
+async function buscarProducto3() {
+  const codigo = document.getElementById("codigo").value.trim();
+  
+  if (!codigo) {
+    alert("Por favor, ingresa el código del producto.");
+    return;
+  }
+
+  // Solicitar los datos del producto a la API
+  const producto = await apiRequest(`/productos/${codigo}`, 'GET');
+
+  if (producto) {
+      clearContent();
+      showHeader("Gestor de Proveedores", " Proveedores asociados al producto");
+
+     const div = `
+                  <div class="card-body bg-dark rounded p-3 shadow-sm">
+                    <h4>Producto</h4>
+                    <p>Código: ${producto.id_producto}</p>
+                    <p>Nombre: ${producto.nombre}</p>
+                  <div class="card-body bg-dark  p-1 text-center">
+                    <h4>Proveedores</h4>
+                  </div>
+                  </div>
+                 
+                 `;
+
+      document.getElementById("showSelect").innerHTML = div; 
+      proveedoresAsociados(producto.id_producto);  
     }
+} 
+
+ async function proveedoresAsociados(id_producto) {
+      const data = await apiRequest(`/productos/${id_producto}/proveedores`, 'GET');
+      if (data && Array.isArray(data)) {
+        // Generar la tabla
+        const table = `
+          <div class="card-body table-responsive p-0" style="height: 300px;">
+            <table id="dataTable_products" class="table table-head-fixed text-nowrap">
+              <thead>
+                <tr>
+                  <th>Id</th>
+                  <th>Nombre</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody_products">
+                <!-- Las filas se generarán aquí dinámicamente -->
+              </tbody>
+            </table>
+          </div>`;
+        
+        // Obtener el segundo hijo div de "showSelect"
+        const firstChildDiv = document.querySelector("#showSelect > div");
+       
+  
+           // Insertar la tabla después del primer hijo div
+           firstChildDiv.insertAdjacentHTML('afterend', table);
+  
+          // Generar las filas para cada proveedor
+          const rows = data.map(proveedor => `
+            <tr>
+              <td>${proveedor.id_proveedor}</td>
+              <td>${proveedor.nombre_proveedor}</td>
+            </tr>
+          `).join(""); // Unir todas las filas en un solo string
+          // Insertar las filas en el cuerpo de la tabla
+          document.getElementById("tableBody_products").innerHTML = rows;
+      } else {
+        // Manejar el caso en que no hay proveedores
+        console.warn("No se encontraron proveedores asociados.");
+      }
+   
 }
+// fin funcion Consultar proveedres de un producto  
 
 
 
@@ -1260,15 +1269,15 @@ function showAgregarCompra(item){
   
     // Límite de stock inicial
     const initialStockThreshold = parseInt(document.getElementById("stockThresholdInput").value, 10);
-    fetchProducts(initialStockThreshold);
+    Products(initialStockThreshold);
   }
   // Función que se llama al hacer clic en el botón "Aplicar"
   function establecerStock() {
     const stockThreshold = parseInt(document.getElementById("stockThresholdInput").value, 10);
-    fetchProducts(stockThreshold);
+    Products(stockThreshold);
   }
   // Peticion a la API
-  async function fetchProducts(stockThreshold) {
+  async function Products(stockThreshold) {
     const data = await apiRequest("/productos");
     if (data && Array.isArray(data)) {
       // Filtrar productos con stock por debajo del límite
