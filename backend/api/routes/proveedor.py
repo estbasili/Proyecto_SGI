@@ -21,7 +21,8 @@ def get_all_list_proveedores():
 def get_all_proveedores():
     try:
         proveedores = Proveedor.get_all_proveedores()
-        return jsonify(proveedores), 200
+        if proveedores:
+            return jsonify(proveedores), 200
         #return jsonify({"mensaje": "Prueba exitosa"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
@@ -33,7 +34,7 @@ def get_proveedor(id):
         proveedor = Proveedor.get_proveedor_by_id(id)
         if proveedor:
             return jsonify(proveedor), 200
-        return jsonify({"mensaje": "Proveedor no encontrado"}), 404
+        #return jsonify({"mensaje": "Proveedor no encontrado"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 400
     
