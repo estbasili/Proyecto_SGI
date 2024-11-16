@@ -15,10 +15,10 @@
     font-size: 15px; /* Tamaño del texto */
         
   }
+
   .nav-icon {
     font-size: 15px!important; /* Cambia el tamaño de los iconos */
   }
-  
   
   .content {
     background-image: url('../../assents/imagen_fondo_aplicacion.png');
@@ -29,7 +29,8 @@
     
   }
  
-/* Estilo para los botones de paginación redondeados */
+/*-------------------------------------- Estilo para los botones de paginación redondeados --------------------------------------------- */
+
 .dt-paging-button {
     border-radius: 10px !important;
     padding: 6px 12px !important; /* Ajustar tamaño */
@@ -39,7 +40,7 @@
     border: 1px solid #007bff !important; /* Borde */
 }
 
-/* Estilo al pasar el mouse sobre los botones */
+/*-------------------------------------- Estilo al pasar el mouse sobre los botones -----------------------------------------------------*/
 .dt-paging-button:hover {
     background-color: #007bff77 !important; /* Color de fondo */
     color: #fff !important; /* Color de texto */
@@ -51,7 +52,7 @@
     margin: 0 5px; /* Espaciado entre botones */
 }
 
-/*para el login-register*/
+/*----------------------------------------------para el login-register--------------------------------------------------------------------*/
 
 .login-page {
     background-image: url('../../assents/imagen_login.jpg');
@@ -83,16 +84,19 @@ main{
     backdrop-filter: blur(10px);
     background-color: rgba(0,128,255,0.5);
 }
+
 .caja_trasera div{
     margin: 100px 40px;
     color:white;
     transition: all 500ms;
 }
+
 .caja_trasera div p,
 .caja_trasera div button {
     margin-top: 30px;
 
 }
+
 .caja_trasera div h3{
     font-weight: 400;
     font-size: 26px;
@@ -122,6 +126,7 @@ main{
 .caja_trasera_register {
     padding-left: 30px;
 }
+
 /* estilo para el formulario de login-regiter*/
 
 .contenedor_login-register {
@@ -152,6 +157,7 @@ main{
     color:blue;
 
 }
+
 .contenedor_login-register form input{
     width: 100%;
     margin-top: 20px;
@@ -162,6 +168,7 @@ main{
     outline: none;
 
 }
+
 .contenedor_login-register form button{
     padding: 10px 40px;
     margin-top: 40px;
@@ -181,7 +188,6 @@ main{
 .formulario_register{
     display: none;
 }
-
 
 @media screen and (max-width: 850px){
     main{
@@ -205,12 +211,9 @@ main{
         left: -5px;
         margin: auto;
     }
-
     .contenedor_login-register form{
         position: relative;
     }
-    
-    
 }
 
 

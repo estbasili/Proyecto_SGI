@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %
 class Proveedor:
     schema = {
         "nombre": str,
-        "telefono": str,
+        "telefono": str, 
         "email": str,
         "id_usuario": int,
     }

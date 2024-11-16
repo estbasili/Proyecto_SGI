@@ -6,7 +6,6 @@ function actualizarFecha() {
   const fecha = new Date();
   const opciones = { weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
   const fechaFormateada = fecha.toLocaleDateString('es-ES', opciones);   
-
   document.getElementById('fecha').textContent = fechaFormateada;
 }
 
@@ -15,25 +14,23 @@ setInterval(actualizarFecha, 1000); // Actualiza cada segundo
 
 //-- Direccion de la api ----------------------------------------------
 
+
 const urlAPI = "http://127.0.0.1:5001";
 
 
 //-- Funciones compartidas entre opciones ------------------------------
 
+
 // Función genérica para mostrar encabezados (anda)
 function showHeader(nameSection, nameSubSection) {
-  
   document.getElementById("section").textContent = nameSection;
   document.getElementById("subSection").textContent = nameSubSection;
-
-
 }
 
 // Función para limpiar el contenido de showSelect (anda)
 function clearContent() {
   document.getElementById("showSelect").innerHTML = "";
 }
-
 
 // Modificación de generateForm para manejar campos tipo select
 function generateForm(fields, formId, submitCallback, submitText, submitClass) {
@@ -143,7 +140,7 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
       
       // Manejar error 404 de forma específica
       if (response.status === 404) {
-          throw new Error("Producto no encontrado");
+          throw new Error("No encontrado");
       }  
       // Manejo respuesta no exitosa
       if (!response.ok) {
@@ -910,7 +907,7 @@ async function asociarProductosAlProveedor(idProveedor) {
 }
 // fin para Agregar proveeedor
 
-//Función para consultar los provedores asociados a productos especificos 
+//Función para consultar los provedores asociados a productos especificos  (anda)
 
 function showConsultarProveedor() {
     showHeader("Gestor de Proveedores", "Proveedores asociados al producto");
@@ -961,7 +958,7 @@ async function buscarProducto3() {
     }
 } 
 
-  async function proveedoresAsociados(id_producto) {
+ async function proveedoresAsociados(id_producto) {
       const data = await apiRequest(`/productos/${id_producto}/proveedores`, 'GET');
       if (data && Array.isArray(data)) {
         // Generar la tabla
@@ -1002,7 +999,7 @@ async function buscarProducto3() {
       }
    
 }
-  
+// fin funcion Consultar proveedres de un producto  
 
 
 
