@@ -941,12 +941,15 @@ async function buscarProducto3() {
       showHeader("Gestor de Proveedores", " Proveedores asociados al producto");
 
      const div = `
-                  <div class="card-body">
-                    <h4>Producto:</h4>
+                  <div class="card-body bg-dark rounded p-3 shadow-sm">
+                    <h4>Producto</h4>
                     <p>Código: ${producto.id_producto}</p>
                     <p>Nombre: ${producto.nombre}</p>
-                    <h4>Proveedores:</h4>
+                  <div class="card-body bg-dark  p-1 text-center">
+                    <h4>Proveedores</h4>
                   </div>
+                  </div>
+                 
                  `;
 
       document.getElementById("showSelect").innerHTML = div; 
@@ -973,8 +976,9 @@ async function buscarProducto3() {
             </table>
           </div>`;
         
-        // Obtener el primer hijo div de "showSelect"
+        // Obtener el segundo hijo div de "showSelect"
         const firstChildDiv = document.querySelector("#showSelect > div");
+       
   
            // Insertar la tabla después del primer hijo div
            firstChildDiv.insertAdjacentHTML('afterend', table);
