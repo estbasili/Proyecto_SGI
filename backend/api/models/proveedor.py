@@ -1,5 +1,6 @@
 from db.db import get_db_connection, DBError
 from models.producto import Producto
+from contextlib import closing
 import logging #########################################################################################
 
 # Configuración de logging
@@ -251,4 +252,39 @@ class Proveedor:
         finally:
             cursor.close()
             conexion.close()
-
+    
+    @classmethod
+    def obtener_productos_con_proveedor(cls, id_proveedor):
+        conexion = get_db_connection()
+        cursor = conexion.cursor()
+        # Verificar si el proveedor existe
+        cursor.execute("SELECT * FROM proveedor WHERE id_proveedor = %s", (id_proveedor,))
+        if cursor.fetchone() is None:
+            raise DBError(f"No existe el recurso solicitado: Proveedor con ID {id_proveedor}")
+        try:
+            cursor.execute(
+            '''
+            SELECT 
+            producto.id_producto as idProducto ,
+            producto.nombre as nombre_producto
+            FROM proveedor
+            INNER JOIN producto_proveedor 
+            on proveedor.id_proveedor = producto_proveedor.id_proveedor
+            INNER JOIN producto 
+            on producto_proveedor.id_producto = producto.id_producto 
+            Where proveedor.id_proveedor = %s 
+            ''', 
+            (id_proveedor,)
+        )
+                
+            data = cursor.fetchall()
+            if not data:  # Si no hay productos asociados
+                raise DBError("No existen productos asociados al proveedor solicitado.")
+            
+            # Mapear los productos a JSON utilizando Producto
+            productos = [{"idProducto": row[0], "nombre_producto": row[1]} for row in data]
+            return productos
+        except Exception as e:
+            raise Exception(f"Error al obtener productos del proveedor: {str(e)}")
+        finally:
+            conexion.close()

@@ -100,6 +100,12 @@ class Producto:
         cursor.close()
         conexion.close()
 
+    def json_select(self):
+        return {
+            "id_producto": self.id_producto,
+            "nombre": self.nombre,
+        }
+
     @classmethod
     def update(cls, id_producto, data):
         conexion = get_db_connection()

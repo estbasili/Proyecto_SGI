@@ -1001,16 +1001,27 @@ async function fetchProveedor() {
 function generarFormOrdenCompra(){
   const form = `
     <div class="card-body">
-      <form id="form_orden_compra" onsubmit="event.preventDefault();">
+      <form id="form_orden_compra" onsubmit="enviarOrdenCompra(event);">
         <div class="row">
           <div class="col-12">
             <!-- Label para el select -->
             <label for="proveedor">Seleccionar Proveedor:</label>
             <select id="proveedores" name="proveedor" class="form-control">
-              <option value="">Cargando proveedores...</option> <!-- Opción por defecto mientras carga -->
+              <option value="">Cargando proveedores...</option>
             </select>
+            <input type="hidden" id="proveedor_seleccionado" />
+            <br>
           </div>
           <div class="col-12">
+            <!-- Contenedor para las filas de productos -->
+            <label>Productos:</label>
+            <div id="productos-container">
+              <!-- Aquí se insertarán las filas dinámicamente -->
+            </div>
+            <!-- Botón para agregar más filas -->
+            <button type="button" id="add-product-row" class="btn btn-success btn-sm">+ Agregar Producto</button>
+          </div>
+          <div class="col-12 mt-4">
             <!-- Botón de submit -->
             <button type="submit" class="btn btn-primary btn-block">Enviar</button>
           </div>
@@ -1019,8 +1030,143 @@ function generarFormOrdenCompra(){
     </div>`;
   document.getElementById("showSelect").innerHTML = form;
 
-  // Llamamos a la función para cargar los proveedores después de generar el formulario
+  // Cargar proveedores y configurar el formulario
   loadProveedoresSelect();
+  cargarMultipleInput();
+}
+
+
+function enviarOrdenCompra(event) {
+  event.preventDefault(); // Evitar recarga de la página
+
+  // Capturar el ID del proveedor seleccionado
+  const proveedorId = document.getElementById("proveedor_seleccionado").value;
+
+  // Capturar los productos y cantidades
+  const productos = [];
+  const productRows = document.querySelectorAll("#productos-container .product-row");
+
+  productRows.forEach(row => {
+    const productoId = row.querySelector(".producto-select").value;
+    const cantidad = row.querySelector("input[name='cantidad[]']").value;
+
+    if (productoId && cantidad) {
+      productos.push({ id_producto: productoId, cantidad: parseInt(cantidad) });
+    }
+  });
+  console.log(productos);
+  // Crear el payload para enviar
+  const payload = {
+    proveedor_id: proveedorId,
+    productos: productos,
+  };
+
+  // Enviar los datos a través de la API
+  /* fetch('http://127.0.0.1:5001/ordenes-compra', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  })
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error('Error al enviar la orden de compra');
+      }
+    })
+    .then(data => {
+      // Procesar la respuesta de la API
+      console.log('Orden de compra enviada con éxito:', data);
+      alert('Orden de compra enviada con éxito');
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Hubo un error al enviar la orden de compra.');
+    }); */
+}
+
+function loadProductos(selectElement,idProveedor) {
+  
+    fetch(`http://127.0.0.1:5001/proveedores/${idProveedor}/productos`)
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+      // Limpiar el select antes de llenarlo
+      selectElement.innerHTML = '';
+
+      // Opción por defecto
+      const defaultOption = document.createElement('option');
+      defaultOption.value = '';
+      defaultOption.textContent = 'Selecciona un producto';
+      selectElement.appendChild(defaultOption);
+
+      // Agregar las opciones de productos
+      data.forEach(producto => {
+        const option = document.createElement('option');
+        option.value = producto.id_producto; // ID del producto
+        option.textContent = producto.nombre; // Nombre del producto
+        selectElement.appendChild(option);
+      });
+    })
+    .catch(error => {
+      console.error('Error al cargar los productos:', error);
+      selectElement.innerHTML = '<option value="">Error al cargar productos</option>';
+    });
+}
+
+function cargarMultipleInput() {
+  const productosContainer = document.getElementById("productos-container");
+  const addProductRowButton = document.getElementById("add-product-row");
+  const proveedorSelect = document.getElementById('proveedor_seleccionado');
+
+  // Evento para agregar nuevas filas
+  addProductRowButton.addEventListener("click", () => {
+    // Validar si hay un proveedor seleccionado
+    if (!proveedorSelect.value || proveedorSelect.value === "") {
+      alert("Por favor, selecciona un proveedor antes de agregar productos.");
+      return; // Salir de la función si no hay proveedor seleccionado
+    }
+
+    // Crear nueva fila
+    const newRow = document.createElement("div");
+    newRow.classList.add("row", "mb-3", "align-items-center", "product-row");
+
+    newRow.innerHTML = `
+      <div class="col-md-8">
+        <select name="producto[]" class="form-control producto-select">
+          <option value="">Cargando productos...</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <input type="number" name="cantidad[]" class="form-control" placeholder="Cantidad" min="1" />
+      </div>
+      <div class="col-md-1">
+        <button type="button" class="btn btn-danger btn-sm remove-row">-</button>
+      </div>
+    `;
+
+    productosContainer.appendChild(newRow);
+
+    // Seleccionar el nuevo select de productos
+    const newSelect = newRow.querySelector(".producto-select");
+
+    // Cargar productos en el nuevo select
+    loadProductos(newSelect,proveedorSelect.value);
+
+    // Evento para eliminar una fila
+    newRow.querySelector(".remove-row").addEventListener("click", () => {
+      newRow.remove();
+    });
+  });
+
+  // Evento inicial para eliminar la fila existente
+  productosContainer.addEventListener("click", (event) => {
+    if (event.target.classList.contains("remove-row")) {
+      event.target.closest(".product-row").remove();
+    }
+  });
 }
 
 function loadProveedoresSelect(){
@@ -1052,6 +1198,7 @@ function loadProveedoresSelect(){
       selectElement.addEventListener('change', function() {
         const selectedId = selectElement.value; // El valor del select es el ID del proveedor
         console.log('Proveedor seleccionado ID:', selectedId);
+        document.getElementById('proveedor_seleccionado').value = selectedId;
         // Aquí puedes usar el ID seleccionado, como enviarlo a un servidor o hacer algo más
       });
     })

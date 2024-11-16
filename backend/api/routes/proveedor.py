@@ -109,12 +109,13 @@ def asociar_varios_productos_a_proveedor(id_proveedor):
 
     
 # Obtener productos de un proveedor
+
 @proveedor_bp.route('/proveedores/<int:id_proveedor>/productos', methods=['GET'])
 def obtener_productos_de_proveedor(id_proveedor):
     try:
-        productos = Proveedor.obtener_productos(id_proveedor)
+        productos = Proveedor.obtener_productos_con_proveedor(id_proveedor)  # Corregido el nombre del método
         return jsonify(productos), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 400
-    
+        return jsonify({"error": f"Error interno: {str(e)}"}), 500  # Error interno del servidor
+
 
