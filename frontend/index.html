@@ -94,16 +94,15 @@
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
           <!-- menu de gestion -->
-
-          <li class="nav-item menu-open">
-            <a class="nav-link active">
-              <i class=""></i>
+          <li class="nav-item">
+            <a class="nav-link collapsed" data-bs-toggle="collapse" href="#menuProductos" role="button" aria-expanded="false" aria-controls="menuProductos">
+             <i class=""></i>
               <p>
                 Gestor de Productos
                 <i class="right fas fa-angle-left"></i>
               </p>
             </a>
-            <ul class="nav nav-treeview">
+            <ul class="nav nav-treeview collapse" id="menuProductos">
               <li class="nav-item">
                 <a onclick="showAgregarProducto()" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
@@ -122,25 +121,17 @@
                   <p>Actualizar</p>
                 </a>
               </li>
-              <!--
-              <li class="nav-item">
-                <a onclick="showListarProducto()"class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Listar</p>
-                </a>
-              </li>
-            -->
             </ul>
           </li>
-          <li class="nav-item menu-open">
-            <a class="nav-link active">
+          <li class="nav-item">
+            <a class="nav-link collapsed" data-bs-toggle="collapse" href="#menuCategoria" role="button" aria-expanded="false" aria-controls="menuCategoria">
               <i class=""></i>
               <p>
                 Gestor Categoría
                 <i class="right fas fa-angle-left"></i>
               </p>
             </a>
-            <ul class="nav nav-treeview">
+            <ul class="nav nav-treeview collapse" id="menuCategoria">
               <li class="nav-item">
                 <a onclick="showNuevaCategoria()"class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
@@ -155,15 +146,15 @@
               </li>             
             </ul>
           </li>
-          <li class="nav-item menu-open">
-            <a href="#" class="nav-link active">
+          <li class="nav-item">
+            <a class="nav-link collapsed" data-bs-toggle="collapse" href="#menuStock" role="button" aria-expanded="false" aria-controls="menuStock">
               <i class=""></i>
               <p>
                 Gestor de Stock
                 <i class="right fas fa-angle-left"></i>
               </p>
             </a>
-            <ul class="nav nav-treeview">
+            <ul class="nav nav-treeview collapse" id="menuStock">
               <li class="nav-item">
                 <a onclick="showActualizarStock()" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
@@ -172,15 +163,15 @@
               </li>
             </ul>
           </li>
-          <li class="nav-item menu-open">
-            <a href="#" class="nav-link active">
-              <i class=" "></i>
+          <li class="nav-item">
+            <a class="nav-link collapsed" data-bs-toggle="collapse" href="#menuProveedores" role="button" aria-expanded="false" aria-controls="menuProveedores">
+              <i class=""></i>
               <p>
                 Gestor de Proveedores
                 <i class="right fas fa-angle-left"></i>
               </p>
             </a>
-            <ul class="nav nav-treeview">
+            <ul class="nav nav-treeview collapse" id="menuProveedores">
               <li class="nav-item">
                 <a onclick="showAgregarProveedor()" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
@@ -195,15 +186,15 @@
               </li>
             </ul>
           </li>
-          <li class="nav-item menu-open">
-            <a href="#" class="nav-link active">
+          <li class="nav-item">
+            <a class="nav-link collapsed" data-bs-toggle="collapse" href="#menuCompras" role="button" aria-expanded="false" aria-controls="menuCompras">
               <i class=""></i>
               <p>
                 Gestor de Compra
                 <i class="right fas fa-angle-left"></i>
               </p>
             </a>
-            <ul class="nav nav-treeview">
+            <ul class="nav nav-treeview collapse" id="menuCompras">
               <li class="nav-item">
                 <a onclick="showAgregarCompra()" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
@@ -212,15 +203,15 @@
               </li>
             </ul>
           </li>
-          <li class="nav-item menu-open">
-            <a href="#" class="nav-link active">
+          <li class="nav-item">
+            <a class="nav-link collapsed" data-bs-toggle="collapse" href="#menuReportes" role="button" aria-expanded="false" aria-controls="menuReportes">
               <i class=""></i>
               <p>
                 Gestor de Reportes
                 <i class="right fas fa-angle-left"></i>
               </p>
             </a>
-            <ul class="nav nav-treeview">
+            <ul class="nav nav-treeview collapse" id="menuReportes">
               <li class="nav-item">
                 <a onclick="showProdBS()" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
@@ -268,6 +259,7 @@
     <!-- Main content -->
     <div class="content">
       <div id = "showSelect" class="container-fluid">
+       
 
         
 

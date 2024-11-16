@@ -1,6 +1,7 @@
 // Funciones para la seccion administrador
 
 //-- fecha y hora ----------------------------------------------------
+
 function actualizarFecha() {
   const fecha = new Date();
   const opciones = { weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
@@ -21,8 +22,11 @@ const urlAPI = "http://127.0.0.1:5001";
 
 // Función genérica para mostrar encabezados (anda)
 function showHeader(nameSection, nameSubSection) {
+  
   document.getElementById("section").textContent = nameSection;
   document.getElementById("subSection").textContent = nameSubSection;
+
+
 }
 
 // Función para limpiar el contenido de showSelect (anda)

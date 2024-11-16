@@ -1,3 +1,34 @@
+/* estilos para botones del menu de gestion */
+
+ .nav-link.collapsed {
+    background-color: #6e25f5; /* Color de fondo (ajústalo según tu preferencia) */
+    color: white !important; /* Color del texto */
+    transition: background-color 0.3s ease; /* Efecto suave */
+  }
+
+  .nav-link.collapsed:hover {
+    background-color: #e9ecef; /* Color de fondo al pasar el cursor */
+    color: #000; /* Color del texto al pasar el cursor */
+  }
+  
+  .nav-treeview {
+    font-size: 15px; /* Tamaño del texto */
+        
+  }
+  .nav-icon {
+    font-size: 15px!important; /* Cambia el tamaño de los iconos */
+  }
+  
+  
+  .content {
+    background-image: url('../../assents/imagen_fondo_aplicacion.png');
+    background-size: cover;  /* Hace que la imagen cubra el contenedor */
+    background-position: center;  /* Centra la imagen */
+    height:700px;
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+    
+  }
+ 
 /* Estilo para los botones de paginación redondeados */
 .dt-paging-button {
     border-radius: 10px !important;
