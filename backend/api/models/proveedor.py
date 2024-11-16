@@ -56,22 +56,24 @@ class Proveedor:
         data = cursor.fetchall()
         cursor.close()
         conexion.close()
-
-        proveedores = [Proveedor(proveedor).json_select() for proveedor in data]
-        return proveedores
-
-
+        if len(data)>0:
+            proveedores = [Proveedor(proveedor).json_select() for proveedor in data]
+            return proveedores
+        raise DBError("No existe el recurso solicitado")
+    
+    
     @classmethod
     def get_all_proveedores(cls):
         conexion = get_db_connection()
         cursor = conexion.cursor()
         cursor.execute('SELECT * FROM proveedor')
-        data = cursor.fetchall()
+        data = cursor.fetchall() #Cada elemento de data es una tupla con los valores de una fila de la tabla proveedor
         cursor.close()
         conexion.close()
-
-        proveedores = [Proveedor(proveedor).a_json() for proveedor in data]
-        return proveedores
+        if data is not None:
+            proveedores = [Proveedor(proveedor).a_json() for proveedor in data]
+            return proveedores
+        raise DBError("No existe el recurso solicitado")
 
     @classmethod
     def get_proveedor_by_id(cls, id):
@@ -80,9 +82,9 @@ class Proveedor:
         try:
             cursor.execute('SELECT * FROM proveedor WHERE id_proveedor = %s', (id,))
             data = cursor.fetchone()
-            if data:
+            if data is not None:
                 return Proveedor(data).a_json()
-            return None
+            raise DBError('No existe el recurso solicitado')
         except Exception as e:
             raise Exception(f"Error al obtener proveedor: {str(e)}")
         finally:
@@ -92,6 +94,8 @@ class Proveedor:
     #chequear lo de id_usuario
     @classmethod
     def create_proveedor(cls, data):
+        if not cls.validar_datos(data):
+            raise DBError("Campos/valores inválidos")
         conexion = get_db_connection()
         cursor = conexion.cursor()
         try:
@@ -112,8 +116,16 @@ class Proveedor:
     
     @classmethod
     def update_proveedor(cls, id, data):
+        if not cls.validar_datos(data):
+            raise DBError("Campos/valores inválidos")
         conexion = get_db_connection()
         cursor = conexion.cursor()
+        # Control si existe el recurso
+        cursor.execute('SELECT * FROM proveedor WHERE id_proveedor = %s', (id,))
+        row = cursor.fetchone()
+
+        if row is None:
+            raise DBError("No existe el recurso solicitado")
         try:
             cursor.execute(
                 'UPDATE proveedor SET nombre = %s, telefono = %s, email = %s, id_usuario = %s WHERE id_proveedor = %s',
@@ -134,6 +146,12 @@ class Proveedor:
     def delete_proveedor(cls, id):
         conexion = get_db_connection()
         cursor = conexion.cursor()
+        # Control si existe el recurso
+        cursor.execute('SELECT * FROM proveedor WHERE id_proveedor = %s', (id,))
+        row = cursor.fetchone()
+
+        if row is None:
+            raise DBError("No existe el recurso solicitado")
         try:
             cursor.execute('DELETE FROM proveedor WHERE id_proveedor = %s', (id,))
             conexion.commit()
@@ -170,6 +188,15 @@ class Proveedor:
     def asociar_producto(cls, id_proveedor, id_producto):
         conexion = get_db_connection()
         cursor = conexion.cursor()
+        # Verificar si el proveedor existe
+        cursor.execute("SELECT * FROM proveedor WHERE id_proveedor = %s", (id_proveedor,))
+        if cursor.fetchone() is None:
+            raise DBError(f"No existe el recurso solicitado: Proveedor con ID {id_proveedor}")
+        
+        # Verificar si el producto existe
+        cursor.execute("SELECT * FROM producto WHERE id_producto = %s", (id_producto,))
+        if cursor.fetchone() is None:
+            raise DBError(f"No existe el recurso solicitado: Producto con ID {id_producto}")
         try:
             # Inserción en la tabla intermedia proveedor_producto
             cursor.execute("INSERT INTO producto_proveedor (id_proveedor, id_producto) VALUES (%s, %s)", (id_proveedor, id_producto))
@@ -196,6 +223,10 @@ class Proveedor:
     def obtener_productos(cls, id_proveedor):
         conexion = get_db_connection()
         cursor = conexion.cursor()
+         # Verificar si el proveedor existe
+        cursor.execute("SELECT * FROM proveedor WHERE id_proveedor = %s", (id_proveedor,))
+        if cursor.fetchone() is None:
+            raise DBError(f"No existe el recurso solicitado: Proveedor con ID {id_proveedor}")
         try:
             cursor.execute(
             '''
