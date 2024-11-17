@@ -1,10 +1,9 @@
 from db.db import get_db_connection, DBError
 from models.producto import Producto
 from contextlib import closing
-import logging #########################################################################################
-
+import logging
 # Configuración de logging
-logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')############
+logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class Proveedor:
     schema = {
