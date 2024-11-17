@@ -1114,8 +1114,8 @@ function loadProductos(selectElement,idProveedor) {
       // Agregar las opciones de productos
       data.forEach(producto => {
         const option = document.createElement('option');
-        option.value = producto.id_producto; // ID del producto
-        option.textContent = producto.nombre; // Nombre del producto
+        option.value = producto.idProducto; // ID del producto
+        option.textContent = producto.nombre_producto; // Nombre del producto
         selectElement.appendChild(option);
       });
     })
