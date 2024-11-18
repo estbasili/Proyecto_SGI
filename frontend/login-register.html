@@ -33,20 +33,23 @@
       </div>
       <!-- Fromularios para logeo y registracion-->
       <div class="contenedor_login-register">
-        <form action="" class="formulario_login">
+        <form class="formulario_login">
           <h2>Iniciar  sesión</h2>
-          <input type="text" placeholder="email">
-          <input type="text" placeholder="password">
-          <button>Entrar</button>
+          <input type="text"  id="email_login" placeholder="email" required>
+          <input type="text" id="password_login" placeholder="password" required>
+          <button type="button" id="login-btn" onclick="userLogin()">Entrar</button>
+          <p id="message_login"></p>
         </form>
-
-        <form action="" class="formulario_register">
+        
+        <form class="formulario_register">
           <h2>Regístrate</h2>
-          <input type="text" placeholder="Nombre">
-          <input type="text" placeholder="email">
-          <input type="text" placeholder="password">
-          <button>Regístrarse</button>
+          <input type="text" id="nombre_register" placeholder="Nombre" required>
+          <input type="text" id="email_register" placeholder="email" required>
+          <input type="text" id="password_register" placeholder="password" required>
+          <button type="button" id="register-btn" onclick="userRegister()">Regístrarse</button>
+          <p id="message_register"></p>
         </form>
+        
       </div>
       <!-- fin de formularios-->
     </div>
@@ -54,6 +57,6 @@
 
   <!--login_register.js -->
 <script src="./js/user/login_register.js"></script> 
-
+<script src="js/common/common.js"></script>
 </body>
 </html>
