@@ -1021,6 +1021,30 @@ function generarFormOrdenCompra(){
             <input type="hidden" id="proveedor_seleccionado" />
             <br>
           </div>
+
+          <!-- Fecha de Pedido -->
+          <div class="col-6">
+            <label for="fecha_pedido">Fecha de Pedido:</label>
+            <input type="date" id="fecha_pedido" name="fecha_pedido" class="form-control" required>
+          </div>
+
+          <!-- Fecha de Recepción -->
+          <div class="col-6">
+            <label for="fecha_recepcion">Fecha de Recepción:</label>
+            <input type="date" id="fecha_recepcion" name="fecha_recepcion" class="form-control">
+          </div>
+
+          <!-- Estado -->
+          <div class="col-12">
+            <label for="estado">Estado:</label>
+            <select id="estado" name="estado" class="form-control" required>
+              <option value="Pendiente">Pendiente</option>
+              <option value="Procesando">Procesando</option>
+              <option value="Completado">Completado</option>
+              <option value="Cancelado">Cancelado</option>
+            </select>
+          </div>
+
           <div class="col-12">
             <!-- Contenedor para las filas de productos -->
             <label>Productos:</label>
@@ -1041,9 +1065,22 @@ function generarFormOrdenCompra(){
 
   // Cargar proveedores y configurar el formulario
   loadProveedoresSelect();
+  setFechaPedido();
   cargarMultipleInput();
 }
 
+function setFechaPedido() {
+  const fechaPedidoInput = document.getElementById("fecha_pedido");
+
+  // Obtener la fecha actual
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0'); // Meses empiezan desde 0
+  const dd = String(today.getDate()).padStart(2, '0');
+
+  const formattedDate = `${yyyy}-${mm}-${dd}`;
+  fechaPedidoInput.value = formattedDate;
+}
 
 function enviarOrdenCompra(event) {
   event.preventDefault(); // Evitar recarga de la página
@@ -1054,46 +1091,27 @@ function enviarOrdenCompra(event) {
   // Capturar los productos y cantidades
   const productos = [];
   const productRows = document.querySelectorAll("#productos-container .product-row");
+  const fecha_pedido = document.getElementById("fecha_pedido");
+  const fecha_recepcion = document.getElementById("fecha_recepcion");
+  const estado = document.getElementById("estado");
 
   productRows.forEach(row => {
     const productoId = row.querySelector(".producto-select").value;
     const cantidad = row.querySelector("input[name='cantidad[]']").value;
-
+    const fecha_pedido = document.getElementById("fecha_pedido").value;
+    const fecha_recepcion = document.getElementById("fecha_recepcion").value;
+    const estado = document.getElementById("estado").value;
     if (productoId && cantidad) {
-      productos.push({ id_producto: productoId, cantidad: parseInt(cantidad) });
+      productos.push({ id_producto: productoId, 
+        cantidad: parseInt(cantidad) ,
+        fecha_pedido:fecha_pedido,
+        fecha_recepcion:fecha_recepcion,
+        estado:estado
+      });
     }
   });
+  
   console.log(productos);
-  // Crear el payload para enviar
-  const payload = {
-    proveedor_id: proveedorId,
-    productos: productos,
-  };
-
-  // Enviar los datos a través de la API
-  /* fetch('http://127.0.0.1:5001/ordenes-compra', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  })
-    .then(response => {
-      if (response.ok) {
-        return response.json();
-      } else {
-        throw new Error('Error al enviar la orden de compra');
-      }
-    })
-    .then(data => {
-      // Procesar la respuesta de la API
-      console.log('Orden de compra enviada con éxito:', data);
-      alert('Orden de compra enviada con éxito');
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('Hubo un error al enviar la orden de compra.');
-    }); */
 }
 
 function loadProductos(selectElement,idProveedor) {
