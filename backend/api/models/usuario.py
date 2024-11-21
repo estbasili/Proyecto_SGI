@@ -1,4 +1,4 @@
-from db.db import get_db_connection, DBError
+from api.db.db import get_db_connection, DBError
 from werkzeug.security import generate_password_hash, check_password_hash # para manejer el hasheo
 import jwt
 import datetime

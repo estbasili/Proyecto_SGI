@@ -1,11 +1,11 @@
-from flask import Blueprint, request, jsonify
-from db.db import DBError
-from models.proveedor import Proveedor
-from models.producto import Producto
+from api import app
+from flask import request, jsonify
+from api.db.db import DBError
+from api.models.proveedor import Proveedor
+from api.models.producto import Producto
 
-proveedor_bp = Blueprint('proveedor', __name__)
 
-@proveedor_bp.route('/listarProveedores', methods=['GET'])
+@app.route('/listarProveedores', methods=['GET'])
 def get_all_list_proveedores():
     try:
         proveedores = Proveedor.get_all_list_proveedor()
@@ -14,7 +14,7 @@ def get_all_list_proveedores():
         return jsonify({"message": str(e)}), 400
 
 
-@proveedor_bp.route('/proveedores', methods=['GET'])
+@app.route('/proveedores', methods=['GET'])
 def get_all_proveedores():
     try:
         proveedores = Proveedor.get_all_proveedores()
@@ -24,7 +24,7 @@ def get_all_proveedores():
         return jsonify({"message": str(e)}), 400
 
 # Obtener un proveedor por ID
-@proveedor_bp.route('/proveedores/<int:id>', methods=['GET'])
+@app.route('/proveedores/<int:id>', methods=['GET'])
 def get_proveedor(id):
     try:
         proveedor = Proveedor.get_proveedor_by_id(id)
@@ -34,7 +34,7 @@ def get_proveedor(id):
         return jsonify({"message": str(e)}), 400
     
 # Crear un nuevo proveedor
-@proveedor_bp.route('/proveedores', methods=['POST'])
+@app.route('/proveedores', methods=['POST'])
 def create_proveedor():
     try:
         data = request.get_json()
@@ -44,7 +44,7 @@ def create_proveedor():
         return jsonify({"message": str(e)}), 400
     
 # Actualizar un proveedor por ID
-@proveedor_bp.route('/proveedores/<int:id>', methods=['PUT'])
+@app.route('/proveedores/<int:id>', methods=['PUT'])
 def update_proveedor(id):
     try:
         data = request.get_json()
@@ -55,7 +55,7 @@ def update_proveedor(id):
         return jsonify({"message": str(e)}), 400
 
 # Eliminar un proveedor por ID
-@proveedor_bp.route('/proveedores/<int:id>', methods=['DELETE'])
+@app.route('/proveedores/<int:id>', methods=['DELETE'])
 def delete_proveedor(id):
     try:
         proveedor = Proveedor.delete_proveedor(id)
@@ -65,7 +65,7 @@ def delete_proveedor(id):
     except Exception as e:
         return jsonify({"message": str(e)}), 500
 
-@proveedor_bp.route('/proveedores/<int:id_proveedor>/productos', methods=['POST'])
+@app.route('/proveedores/<int:id_proveedor>/productos', methods=['POST'])
 def asociar_producto_a_proveedor(id_proveedor):
     try:
         data = request.get_json()
@@ -78,7 +78,7 @@ def asociar_producto_a_proveedor(id_proveedor):
         return jsonify({"message": str(e)}), 400
 
 # Modificación para asociar varios productos
-@proveedor_bp.route('/proveedores/<int:id_proveedor>/productos/varios', methods=['POST'])
+@app.route('/proveedores/<int:id_proveedor>/productos/varios', methods=['POST'])
 def asociar_varios_productos_a_proveedor(id_proveedor):
     try:
         data = request.get_json()
@@ -91,7 +91,7 @@ def asociar_varios_productos_a_proveedor(id_proveedor):
         return jsonify({"message": str(e)}), 400
 
 # Obtener productos de un proveedor
-@proveedor_bp.route('/proveedores/<int:id_proveedor>/productos', methods=['GET'])
+@app.route('/proveedores/<int:id_proveedor>/productos', methods=['GET'])
 def obtener_productos_de_proveedor(id_proveedor):
     try:
         productos = Proveedor.obtener_productos_con_proveedor(id_proveedor)

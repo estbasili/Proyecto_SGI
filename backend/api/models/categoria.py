@@ -1,5 +1,5 @@
 # models/categoria.py
-from db.db import get_db_connection, DBError
+from api.db.db import get_db_connection, DBError
 
 class Categoria:
     schema = {

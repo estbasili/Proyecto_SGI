@@ -1,5 +1,5 @@
-from db.db import get_db_connection, DBError
-from models.producto import Producto
+from api.db.db import get_db_connection, DBError
+from api.models.producto import Producto
 from contextlib import closing
 import logging
 # Configuración de logging

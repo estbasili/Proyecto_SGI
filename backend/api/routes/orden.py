@@ -1,10 +1,9 @@
+from api import app
 from flask import Blueprint, request, jsonify
-from models.orden import Orden
-
-orden_bp = Blueprint('orden', __name__)
+from api.models.orden import Orden
 
 # Obtener todas las órdenes
-@orden_bp.route('/ordenes', methods=['GET'])
+@app.route('/ordenes', methods=['GET'])
 def get_all_ordenes():
     try:
         ordenes = Orden.get_all_ordenes()
@@ -14,7 +13,7 @@ def get_all_ordenes():
     
 
 # Obtener una orden por ID
-@orden_bp.route('/ordenes/<int:id>', methods=['GET'])
+@app.route('/ordenes/<int:id>', methods=['GET'])
 def get_orden_by_id(id):
     try:
         orden = Orden.get_orden_by_id(id)
@@ -25,7 +24,7 @@ def get_orden_by_id(id):
         return jsonify({"error": str(e)}), 400
     
 # Crear una nueva orden
-@orden_bp.route('/ordenes', methods=['POST'])
+@app.route('/ordenes', methods=['POST'])
 def create_orden():
     try:
         data = request.get_json()
@@ -38,7 +37,7 @@ def create_orden():
     
 
 # Actualizar una orden existente
-@orden_bp.route('/ordenes/<int:id>', methods=['PUT'])
+@app.route('/ordenes/<int:id>', methods=['PUT'])
 def update_orden_by_id(id):
     try:
         data = request.get_json()
@@ -53,7 +52,7 @@ def update_orden_by_id(id):
 
 
 # Eliminar una orden
-@orden_bp.route('/ordenes/<int:id>', methods=['DELETE'])
+@app.route('/ordenes/<int:id>', methods=['DELETE'])
 def delete_orden_by_id(id):
     try:
         result = Orden.delete_orden_by_id(id)

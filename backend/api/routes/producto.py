@@ -1,15 +1,15 @@
-from flask import Blueprint, request, jsonify
-from models.producto import Producto
-from models.proveedor import Proveedor
+from api import app
+from flask import request, jsonify
+from api.models.producto import Producto
+from api.models.proveedor import Proveedor
 
-producto_bp = Blueprint('producto_bp', __name__)
 
-@producto_bp.route('/pruebita', methods=['GET'])
+@app.route('/pruebita', methods=['GET'])
 def pruebita():
     return jsonify({"message": "Esto es una prueba"})
 
 
-@producto_bp.route('/productos', methods=['POST'])
+@app.route('/productos', methods=['POST'])
 def create_producto():
     data = request.get_json()
     if not Producto.validar_datos(data):
@@ -19,13 +19,13 @@ def create_producto():
     return jsonify({'message': 'Producto creado', 'producto': data}), 201
 
 
-@producto_bp.route('/productos', methods=['GET'])
+@app.route('/productos', methods=['GET'])
 def get_productos():
     productos = Producto.get_all()
     return jsonify(productos), 200
 
 
-@producto_bp.route('/productos/<int:id>', methods=['GET'])
+@app.route('/productos/<int:id>', methods=['GET'])
 def get_producto(id):
     producto = Producto.get_by_id(id)
     if producto is None:
@@ -33,7 +33,7 @@ def get_producto(id):
     return jsonify(producto.a_json()), 200
 
 
-@producto_bp.route('/productos/<int:id>', methods=['PUT'])
+@app.route('/productos/<int:id>', methods=['PUT'])
 def update_producto(id):
     data = request.get_json()
     producto = Producto.get_by_id(id)
@@ -47,7 +47,7 @@ def update_producto(id):
     Producto.update(id, data)
     return jsonify({'message': 'Producto actualizado', 'producto': data}), 200
 
-#@producto_bp.route('/productos/<int:id>', methods=['PUT'])
+#@app.route('/productos/<int:id>', methods=['PUT'])
 #def update_producto(id):
 #    data = request.get_json()
 #    producto = Producto.get_by_id(id)
@@ -61,7 +61,7 @@ def update_producto(id):
 #    return jsonify({'message': 'Producto actualizado', 'producto': data}), 200
 
 
-@producto_bp.route('/productos/<int:id>', methods=['DELETE'])
+@app.route('/productos/<int:id>', methods=['DELETE'])
 def delete_producto(id):
     #print(type(id))
     producto = Producto.get_by_id(id)
@@ -71,7 +71,7 @@ def delete_producto(id):
     Producto.delete(id)
     return jsonify({'message': 'Producto eliminado'}), 204
 
-@producto_bp.route('/productos/<int:id>/proveedores', methods=['GET'])
+@app.route('/productos/<int:id>/proveedores', methods=['GET'])
 def get_proveedores_por_producto(id):
     proveedores = Producto.get_proveedores(id)
     if not proveedores:

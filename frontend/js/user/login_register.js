@@ -159,7 +159,7 @@ function userRegister(){
    const nombre = document.getElementById('nombre_register').value;
    const email = document.getElementById('email_register').value;
    const contraseña = document.getElementById('password_register').value;
-   const id_rol = 5 /////////////////////////////////////////////////////////////////cambiar por el id_rol que tengan en la tabla  yo tengo 4,5,6
+   const id_rol = 1 /////////////////////////////////////////////////////////////////cambiar por el id_rol que tengan en la tabla  yo tengo 4,5,6
 
     // Elemento para mostrar mensajes al usuario
     const messageElement = document.getElementById("message_register");
