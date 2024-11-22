@@ -20,7 +20,7 @@ setInterval(actualizarFecha, 1000); // Actualiza cada segundo
 // Recuperar los datos del usuario logeado
 const token = localStorage.getItem("token");
 const email = localStorage.getItem("email");
-const id_usuario_session = localStorage.getItem("id");
+const id_usuario_session = parseInt(localStorage.getItem("id"),10);
 
 // Mostrar los datos en la consola para verificarlos 
 // console.log("Token:", token);
@@ -776,15 +776,14 @@ document.addEventListener("DOMContentLoaded", function () {
 async function showAgregarProveedor() {
   showHeader("Gestor de Proveedores", "Agregar Proveedor y Asociar productos");
   clearContent();
-  const usuarios = await getUsuarios(); // Obtener los usuarios para el campo select
+  
 
   generateForm(
       [
           { nombre: "nombre", placeholder: "Nombre de proveedor" },
           { nombre: "email", placeholder: "Email" },
           { nombre: "telefono", placeholder: "Teléfono" },
-          { nombre: "usuario", placeholder: "Usuario", tipo: "select", opciones: usuarios }, // Campo select para usuario
-      ],
+     ],
       "addProveedor",
       "addProveedor",
       "Ingresar",
@@ -807,13 +806,8 @@ async function addProveedor() {
       nombre: document.getElementById("nombre").value,
       email: document.getElementById("email").value,
       telefono: document.getElementById("telefono").value,
-      id_usuario: parseInt(document.getElementById("usuario").value, 10)
+      id_usuario: id_usuario_session
   };
-
-  if (isNaN(nuevoProveedor.id_usuario)) {
-    alert("Por favor, selecciona un usuario válido.");
-    return;
-  }
 
   const data = await apiRequest("/proveedores", 'POST', nuevoProveedor);
   if (data) {
