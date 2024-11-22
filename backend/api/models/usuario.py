@@ -104,34 +104,34 @@ class Usuario:
     ############################################################################ para realzar el logeo
 
     @classmethod
-    def login(cls, auth): # auth como abreviatura de autorizacion que es el espacio donde se guarda, el nombre y pass va a venir en una cabezera especial aut
-        
-        if not auth or not auth.email or not auth.password:
+    def login(cls, auth): 
+        # auth es un diccionario con 'email' y 'password'
+        if not auth or 'email' not in auth or 'password' not in auth:
             raise DBError({"message": "No autorizado", "code": 401})
-
+ 
+        email = auth['email']
+        password = auth['password']
 
         connection = get_db_connection()
         cursor = connection.cursor()
-        # Buscar el usuario por nombre de usuario
-        cursor.execute('SELECT id_usuario, email, password FROM usuario WHERE email = %s', (auth.email,))# buscamos donde cohincide el nombre de usuario
+
+    # Buscar el usuario por email
+        cursor.execute('SELECT id_usuario, email, contraseña FROM usuario WHERE email = %s', (email,))
         row = cursor.fetchone()
 
-
-        # row[2] contiene el hash de la contraseña para saber si la contraseña coincie con la transformacion de la contraseña que estamos recibiendo desde el front
-        if not row or not check_password_hash(row[2], auth.password): 
+    # Validar contraseña
+        if not row or not check_password_hash(row[2], password): 
             raise DBError({"message": "No autorizado", "code": 401})
 
-
-        # Obtener la hora actual en UTC y convertirla a un timestamp
-        exp_timestamp = (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=1)).timestamp()# define cuanto tiempo es valido ese token, en este caso es 1 minuto
-        
-        # Generar token JWT se devuelve si el usuario que inicio el login es verdadero 
+    # Generar el token JWT
+        exp_timestamp = (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=15)).timestamp()
         token = jwt.encode({
-            'email': auth.email,
-            'id_usuario': row[0],
-            'exp': exp_timestamp
-        }, app.config['SECRET_KEY'], algorithm = "HS256")
-        return {"token": token, "email": auth.email, "id_usuario": row[0]}
+        'email': email,
+        'id_usuario': row[0],
+        'exp': exp_timestamp
+    }, app.config['SECRET_KEY'], algorithm="HS256")
+
+        return {"token": token, "email": email, "id_usuario": row[0]}
 
 
 ############################################################ otras funciones 

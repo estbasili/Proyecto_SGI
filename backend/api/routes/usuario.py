@@ -2,6 +2,7 @@ from api import app
 from api.db.db import DBError
 from flask import request, jsonify
 from api.models.usuario import Usuario
+from base64 import b64decode
 
 # Obtener todos los usuarios
 @app.route('/usuarios', methods=['GET'])
@@ -38,12 +39,41 @@ def register():
             info = e.args[0]
             return jsonify(info), info["code"]
         return jsonify( {"message": e.args[0]} ), 400
-    
 
+@app.route('/login', methods=['POST'])
+def login():
+    print("Encabezados recibidos:", request.headers)
+
+    auth_header = request.headers.get('Authorization')  # Obtén el encabezado Authorization
+    if auth_header and auth_header.startswith('Basic '):
+        try:
+            # Decodifica el contenido del encabezado Authorization
+            auth_decoded = b64decode(auth_header.split(' ')[1]).decode('utf-8')
+            email, password = auth_decoded.split(':')
+            print(f"Email recibido: {email}, Contraseña recibida: {password}")
+        except Exception as e:
+            return jsonify({"message": "Error al procesar las credenciales"}), 400
+    else:
+        return jsonify({"message": "No autorizado"}), 401
+
+    try:
+        # Llama al método login de Usuario con los datos decodificados
+        usuario = Usuario.login({"email": email, "password": password})
+        return jsonify(usuario), 200
+    except Exception as e:
+        if isinstance(e, DBError):
+            info = e.args[0]
+            return jsonify(info), info["code"]
+        return jsonify({"message": str(e)}), 400
+"""
 # agregacion de loggin
 @app.route('/login', methods=['POST'])
 def login():
+     # Imprimir todos los encabezados de la solicitud para verificar si llega el Authorization
+    print("------------------Encabezados recibidos:", request.headers)
+    
     auth = request.authorization
+    print("Authorization:", auth)  # Esto mostrará el contenido del objeto auth
     try:
         usuario = Usuario.login(auth)
         return jsonify( usuario ), 200
@@ -52,43 +82,5 @@ def login():
             info = e.args[0]
             return jsonify(info), info["code"]
         return jsonify( {"message": e.args[0]} ), 400
+        """
 
-
-
-
-# Crear un nuevo usuario--------------No puedo hacer que ande cuando id_rol es una cadena vacia
-#@app.route('/usuarios', methods=['POST'])
-#def create_usuario():
-    try:
-        data = request.json
-        response = Usuario.create(data)
-        return jsonify(response), 201
-    except DBError as e:
-        return jsonify({"message": str(e)}), 400
-    except Exception as e:
-        return jsonify({"message": "Error inesperado: " + str(e)}), 500
-
-
-# Actualizar un usuario
-#@app.route('/usuarios/<int:id_usuario>', methods=['PUT'])
-#def update_usuario(id_usuario):
-    try:
-        data = request.json
-        response = Usuario.update(id_usuario, data)  
-        return jsonify(response), 200
-    except DBError as e:
-        return jsonify({"message": str(e)}), 404
-    except Exception as e:
-        return jsonify({"message": "Error inesperado: " + str(e)}), 500
-
-
-# Eliminar un usuario
-#@app.route('/usuarios/<int:id_usuario>', methods=['DELETE'])
-#def delete_usuario(id_usuario):
-    try:
-        response = Usuario.delete(id_usuario)
-        return jsonify(response), 200
-    except DBError as e:
-        return jsonify({"message": str(e)}), 404
-    except Exception as e:
-        return jsonify({"message": str(e)}), 400

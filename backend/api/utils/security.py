@@ -2,7 +2,7 @@ from flask import request, jsonify
 import jwt
 from functools import wraps
 from api import app
-from db.db import get_db_connection, DBError
+from api.db.db import get_db_connection, DBError
 
 
 def token_required(func):
