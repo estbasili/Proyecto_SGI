@@ -1,5 +1,5 @@
 from api import app
-from flask import Blueprint, request, jsonify
+from flask import request, jsonify
 from api.models.orden import Orden
 
 # Obtener todas las órdenes
@@ -22,18 +22,31 @@ def get_orden_by_id(id):
         return jsonify({"mensaje": "Orden no encontrada"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-    
-# Crear una nueva orden
+
 @app.route('/ordenes', methods=['POST'])
 def create_orden():
     try:
-        data = request.get_json()
-        if not Orden.validar_datos(data):
-            return jsonify({"error": "Datos inválidos"}), 400
+        data = request.get_json()  # Captura el JSON enviado
+        print("Datos recibidos en el servidor:", data)  # Log para depuración
+
+        # Validar los datos (simulación de función de validación)
+        # if not Orden.validar_datos(data):
+        #     raise ValueError("Datos inválidos")
+
+        # Eliminar la clave 'productos' si existe
+        data.pop('productos', None)
+        print("Después de sacar productos:", data)  # Log para depuración
+
+        # Crear la orden
         orden = Orden.create_orden(data)
+        print("Orden creada:", orden)
+
         return jsonify(orden), 201
+
     except Exception as e:
+        print("Error al procesar la solicitud:", e)  # Log para depuración
         return jsonify({"error": str(e)}), 400
+
     
 
 # Actualizar una orden existente

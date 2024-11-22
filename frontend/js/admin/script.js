@@ -125,6 +125,10 @@ function generateSelectField(field) {
   `;
 }
 
+
+
+
+
 // Función genérica para hacer peticiones a la API (anda)
 async function apiRequest(endpoint, method = 'GET', data = null) {
   const options = {
@@ -137,7 +141,7 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
   
   try {
       const response = await fetch(`${urlAPI}${endpoint}`, options);
-      
+      console.log(`${urlAPI}${endpoint}`);
       // Manejar error 404 de forma específica
       if (response.status === 404) {
           throw new Error("No encontrado");
@@ -1061,6 +1065,7 @@ function generarFormOrdenCompra(){
         </div>
       </form>
     </div>`;
+  
   document.getElementById("showSelect").innerHTML = form;
 
   // Cargar proveedores y configurar el formulario
@@ -1082,37 +1087,72 @@ function setFechaPedido() {
   fechaPedidoInput.value = formattedDate;
 }
 
-function enviarOrdenCompra(event) {
-  event.preventDefault(); // Evitar recarga de la página
+function capturarProductos() {
+  const ordenCompra = {
+    fecha_pedido: document.getElementById("fecha_pedido").value,
+    fecha_recepcion: document.getElementById("fecha_recepcion").value,
+    estado: document.getElementById("estado").value,
+    id_proveedor: parseInt(document.getElementById("proveedor_seleccionado").value),
+    id_usuario: 1, // Cambiar según sea necesario
+    productos: [] // Lista para almacenar productos
+  };
 
-  // Capturar el ID del proveedor seleccionado
-  const proveedorId = document.getElementById("proveedor_seleccionado").value;
-
-  // Capturar los productos y cantidades
-  const productos = [];
   const productRows = document.querySelectorAll("#productos-container .product-row");
-  const fecha_pedido = document.getElementById("fecha_pedido");
-  const fecha_recepcion = document.getElementById("fecha_recepcion");
-  const estado = document.getElementById("estado");
 
   productRows.forEach(row => {
     const productoId = row.querySelector(".producto-select").value;
     const cantidad = row.querySelector("input[name='cantidad[]']").value;
-    const fecha_pedido = document.getElementById("fecha_pedido").value;
-    const fecha_recepcion = document.getElementById("fecha_recepcion").value;
-    const estado = document.getElementById("estado").value;
+
     if (productoId && cantidad) {
-      productos.push({ id_producto: productoId, 
-        cantidad: parseInt(cantidad) ,
-        fecha_pedido:fecha_pedido,
-        fecha_recepcion:fecha_recepcion,
-        estado:estado
+      ordenCompra.productos.push({
+        id_producto: productoId,
+        cantidad: parseInt(cantidad, 10) // Convertir cantidad a entero
       });
     }
   });
-  
-  console.log(productos);
+
+  console.log(ordenCompra); // Para verificar el resultado en la consola
+  return ordenCompra;
 }
+
+
+async function guardarOrdenCompra(ordenCompra) {
+      console.log("Datos enviados a la API:", ordenCompra); // Log de los datos enviados
+
+      // Realizar la solicitud a la API
+      const data = await apiRequest("/ordenes", 'POST', ordenCompra);
+
+      if(data){
+        console.log(data);
+      }
+      
+} 
+
+function enviarOrdenCompra(event) {
+  event.preventDefault(); // Prevenir la acción por defecto del formulario
+
+  // Validar campos obligatorios
+  const proveedorId = document.getElementById("proveedor_seleccionado").value;
+  const fecha_pedido = document.getElementById("fecha_pedido").value;
+  const fecha_recepcion = document.getElementById("fecha_recepcion").value;
+  const estado = document.getElementById("estado").value;
+  const proveedor =document.getElementById('proveedor_seleccionado').value
+  if (!proveedorId || !fecha_pedido || !fecha_recepcion || !estado || !proveedor) {
+    alert("Por favor, complete todos los campos obligatorios.");
+    return;
+  }
+
+  // Capturar productos
+  const ordenCompra = capturarProductos();
+
+  if (ordenCompra.length === 0) {
+    alert("Debe agregar al menos un producto.");
+    return;
+  }
+
+  guardarOrdenCompra(ordenCompra); // Llamar a la función para guardar la orden
+}
+
 
 function loadProductos(selectElement,idProveedor) {
   

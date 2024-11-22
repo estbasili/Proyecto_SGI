@@ -10,38 +10,55 @@ class Orden:
         "id_usuario": int
     }
 
+
     @classmethod
     def validar_datos(cls, data):
         if data is None or not isinstance(data, dict):
+            print("Error: Los datos no son un diccionario o son None.")
             return False
+
         for key in cls.schema:
             if key not in data:
+                print(f"Error: Falta el campo '{key}' en los datos proporcionados.")
                 return False
-            # Verificamos que el valor del campo coincida con el tipo esperado
+
             expected_types = cls.schema[key]
+
+            # Validar tipo de dato
             if not isinstance(data[key], expected_types):
+                print(f"Error: El campo '{key}' tiene un valor de tipo inválido. Esperado: {expected_types}, Recibido: {type(data[key])}. Valor: {data[key]}")
                 return False
+
+            # Validar formato de las fechas
+            if key in ["fecha_pedido", "fecha_recepcion"] and data[key] is not None:
+                try:
+                    datetime.strptime(data[key], '%Y-%m-%d')  # Verifica el formato
+                except ValueError:
+                    print(f"Error: El campo '{key}' tiene un formato de fecha inválido. Valor recibido: {data[key]}")
+                    return False
+
+        print("Validación exitosa. Todos los datos son válidos.")
         return True
+
 
 
     def __init__(self, data):
         self.id_orden = data[0]
-        self.fecha_pedido = data[1]
-        self.fecha_recepcion = data[2]
+        self.fecha_pedido = datetime.strptime(data[1], '%Y-%m-%d') if data[1] else None
+        self.fecha_recepcion = datetime.strptime(data[2], '%Y-%m-%d') if data[2] else None
         self.estado = data[3]
         self.id_proveedor = data[4]
         self.id_usuario = data[5]
-
     
     def a_json(self):
         return {
-            "id_orden": self.id_orden,
-            "fecha_pedido": self.fecha_pedido.strftime('%Y-%m-%d') if self.fecha_pedido else None,
-            "fecha_recepcion": self.fecha_recepcion.strftime('%Y-%m-%d') if self.fecha_recepcion else None,
-            "estado": self.estado,
-            "id_proveedor": self.id_proveedor,
-            "id_usuario": self.id_usuario
-        }
+        "id_orden": self.id_orden,
+        "fecha_pedido": self.fecha_pedido.strftime('%Y-%m-%d') if self.fecha_pedido else None,
+        "fecha_recepcion": self.fecha_recepcion.strftime('%Y-%m-%d') if self.fecha_recepcion else None,
+        "estado": self.estado,
+        "id_proveedor": self.id_proveedor,
+        "id_usuario": self.id_usuario
+    }
 
     @classmethod
     def get_all_ordenes(cls):
@@ -62,31 +79,31 @@ class Orden:
         cursor.close()
         conexion.close()
         return Orden(data).a_json() if data else None
-    
-
+        
     @classmethod
-    def create_orden(cls,data):
+    def create_orden(cls, data):
+        print(data['fecha_pedido'])
+        if not cls.validar_datos(data):
+            raise ValueError("Datos inválidos")
+
         conexion = get_db_connection()
         cursor = conexion.cursor()
         try:
-             # Si 'fecha_recepcion' no está presente o es una cadena vacía, asignamos None
-            fecha_recepcion = data.get('fecha_recepcion')
-            if fecha_recepcion in [None, "", "-"]:  # Manejar None, cadena vacía y "-"
-              fecha_recepcion = None
-
             cursor.execute(
-                 'INSERT INTO orden_compra (fecha_pedido, fecha_recepcion, estado, id_proveedor, id_usuario) VALUES (%s, %s, %s, %s, %s)',
-            (data['fecha_pedido'], fecha_recepcion, data['estado'], data['id_proveedor'], data['id_usuario'])
+                '''
+                INSERT INTO orden_compra (fecha_pedido, fecha_recepcion, estado, id_proveedor, id_usuario)
+                VALUES (%s, %s, %s, %s, %s)
+                ''',
+                (data['fecha_pedido'], data['fecha_recepcion'], data['estado'], data['id_proveedor'], data['id_usuario'])
             )
             conexion.commit()
-            return {"message": "orden de compra creada exitosamente"}, 201
+            return {"mensaje": "Orden creada exitosamente", "id_orden": cursor.lastrowid, "error": False}
         except Exception as e:
             conexion.rollback()
-            raise Exception(f'Error al crear orden: {str(e)}')
+            raise Exception(f"Error al crear orden: {str(e)}")
         finally:
             cursor.close()
             conexion.close()
-
 
     @classmethod
     def update_orden_by_id(cls, id, data):
