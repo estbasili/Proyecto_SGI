@@ -1,3 +1,12 @@
+/*ajuste del nombre del usuario*/
+.info h4 {
+    color: rgb(162, 161, 165)!important; 
+    word-wrap: break-word;     
+    overflow: hidden;          
+    text-overflow: ellipsis;   
+    white-space: normal;       
+}
+
 /* estilos para botones del menu de gestion */
 
  .nav-link.collapsed {

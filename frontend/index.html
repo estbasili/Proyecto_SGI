@@ -62,7 +62,7 @@
         </a>
       </li>
       <li class="nav-item">
-         <a class="btn btn-secondary" href="#" >Cerrar Sesión</a>
+         <a class="btn btn-secondary"  onclick="logout()" >Cerrar Sesión</a>
       </li>
     </ul>
   </nav>
@@ -83,7 +83,7 @@
           <img src="./assents/usuario.png" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
-              <h4 style="color: rgb(255, 255, 255);">Usuario<!--{{ current_user.nombre }}--></h4>
+              <h4 id="user-info" style="color: rgb(255, 255, 255);"> </h4>
         </div>
       </div>
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
@@ -302,10 +302,9 @@
 <script src="./css/dist/js/adminlte.min.js"></script> 
 <!-- Custom js -->
 <script src="./js/admin/script.js"></script> 
+<script scr= "./js/user/login_register.js"></script>
 <!-- DataTable-->
 <script src = "https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
 <script src ="./css/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
-
-
 </body>
 </html>

@@ -124,9 +124,10 @@ function userLogin(){
         .then(response => {
             if (response.token) {
                 // Almacenar los datos de sesión en localStorage
+                
                 localStorage.setItem("token", response.token);
                 localStorage.setItem("email", response.email);
-                localStorage.setItem("id", response.id);
+                localStorage.setItem("id", response.id_usuario);
 
                 // Redirigir al usuario al dashboard
                 window.location.href = "index.html";

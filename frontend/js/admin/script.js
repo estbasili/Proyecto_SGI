@@ -1,6 +1,9 @@
 // Funciones para la seccion administrador
+//-- Direccion de la api ----------------------------------------------
 
-//-- fecha y hora ----------------------------------------------------
+const urlAPI = "http://127.0.0.1:5001";
+
+//-- Manejo de la fecha y hora ----------------------------------------------------
 
 function actualizarFecha() {
   const fecha = new Date();
@@ -12,10 +15,34 @@ function actualizarFecha() {
 actualizarFecha(); // Llama a la función al cargar la página
 setInterval(actualizarFecha, 1000); // Actualiza cada segundo
 
-//-- Direccion de la api ----------------------------------------------
+//-- Manejo del Usuario que inicio sesion ------------------------------------------
 
+// Recuperar los datos del usuario logeado
+const token = localStorage.getItem("token");
+const email = localStorage.getItem("email");
+const id_usuario_session = localStorage.getItem("id");
 
-const urlAPI = "http://127.0.0.1:5001";
+// Mostrar los datos en la consola para verificarlos 
+// console.log("Token:", token);
+// console.log("Email:", email);
+// console.log("ID", id_usuario_sesion);
+
+// Agrega el email al contenido al <h4>
+const userInfoElement = document.getElementById("user-info");
+userInfoElement.textContent = email;
+
+// Función para cerrar sesión
+function logout() {
+  // Validar si hay una sesión activa
+  if (!localStorage.getItem("token")) {
+   // Redirigir al login si no hay token
+    window.location.href = "login_register.html";
+  }
+  localStorage.removeItem("token");
+  localStorage.removeItem("email");
+  localStorage.removeItem("id");
+  window.location.href = "login-register.html"; // Redirigir al login/registro
+}
 
 
 //-- Funciones compartidas entre opciones ------------------------------
@@ -126,9 +153,6 @@ function generateSelectField(field) {
 }
 
 
-
-
-
 // Función genérica para hacer peticiones a la API (anda)
 async function apiRequest(endpoint, method = 'GET', data = null) {
   const options = {
@@ -166,7 +190,7 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
 
 
 
-////////////////////////////////////////////////////////////-- Gestor de Productos -----------------------------------------------
+// -- Gestor de Productos ----------------------------------------------------
 
 
 // Función para Agregar Producto (anda)
@@ -179,8 +203,8 @@ function showAgregarProducto() {
             { nombre: "descripcion", placeholder: "Descripción" },
             { nombre: "precio", placeholder: "Precio" },
             { nombre: "stock", placeholder: "Stock" },
-            { nombre: "categoria", placeholder: "Categoría" },
-            { nombre: "usuario", placeholder: "ID Usuario" } 
+            { nombre: "categoria", placeholder: "Categoría" }
+            
         ],
         "addProduct",
         "addProduct",
@@ -195,7 +219,7 @@ async function addProduct() {
   const precio = parseFloat(document.getElementById("precio").value);
   const stock = parseInt(document.getElementById("stock").value);
   const categoriaNombre = document.getElementById("categoria").value.trim();
-  const id_usuario = parseInt(document.getElementById("usuario").value);
+  const id_usuario = id_usuario_session ;
   
   if (isNaN(precio) || isNaN(stock) || isNaN(id_usuario)) {
       alert("Por favor, revisa los campos numéricos.");
@@ -387,7 +411,7 @@ async function updateProduct() {
       precio: parseFloat(document.getElementById("precio").value.trim().replace(",", ".")), // Reemplazar coma por punto y convertir a float
       stock: parseInt(document.getElementById("stock") ? document.getElementById("stock").value : NaN),
       id_categoria: parseInt(document.getElementById("categoria") ? document.getElementById("categoria").value : NaN),
-      id_usuario: 10 //////////////////////////////////// // Este valor debe corresponder al ID del usuario autenticado o elejir de una lista desplegable
+      id_usuario: id_usuario_session //////////////////////////////////// // Este valor debe corresponder al ID del usuario autenticado 
   };
 
   // Verificar si los campos numéricos son válidos
