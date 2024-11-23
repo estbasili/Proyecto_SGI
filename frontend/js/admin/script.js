@@ -1374,8 +1374,8 @@ function showAgregarCompra(item){
   // fin de listar productos con limite de stock
 
 
-  // Funcion para el historial de orden de compra
 
+  // Funcion para el historial de orden de compra
   function showHCompras() {
     showHeader("Gestor de Reportes", "Historial de Compras");
     clearContent();
@@ -1407,9 +1407,8 @@ function showAgregarCompra(item){
     // Cargar los datos
     compras();
 }
-
 // Petición a la API
-async function compras() {
+  async function compras() {
     const data = await apiRequest("/ordenes");
     if (data && Array.isArray(data)) {
         // Generar contenido de la tabla
@@ -1422,7 +1421,7 @@ async function compras() {
                 <td>${orden.id_proveedor}</td>
                 <td>${orden.id_usuario}</td>
                 <td>
-                    <button class="btn btn-info btn-sm" onclick="detalleProductos(${orden.id_orden}, ${orden.id_usuario})">
+                    <button class="btn btn-info btn-sm" onclick="detalleProductos(${orden.id_orden}, ${orden.id_usuario},${orden.id_proveedor})">
                         Ver Detalle
                     </button>
                 </td>
@@ -1456,9 +1455,16 @@ async function compras() {
 }
 
 // Función para manejar el botón de detalle
-function detalleProductos(idOrden, idOperador) {
-    console.log(`Detalles de la orden ID: ${idOrden}, Operador ID: ${idOperador}`);
-    // Implementar lógica personalizada aquí
+async function detalleProductos(idOrden, idUsuario, idProveedor) {
+    showHeader("Gestor de Reportes", "Historial de Compras/Detalle de orden");
+    clearContent();
+    
+    
+    const content = `<h4> id de orden: ${idOrden}    id de usuario: ${idUsuario} id de proveedor: ${idProveedor}</h4>`;
+    document.getElementById("showSelect").innerHTML = content
+
+    console.log(`Detalles de la orden ID: ${idOrden}, Operador ID: ${idUsuario}`);
+   
 }
 
 
