@@ -50,7 +50,7 @@ def login():
             # Decodifica el contenido del encabezado Authorization
             auth_decoded = b64decode(auth_header.split(' ')[1]).decode('utf-8')
             email, password = auth_decoded.split(':')
-            print(f"Email recibido: {email}, Contraseña recibida: {password}")
+            #print(f"Email recibido: {email}, Contraseña recibida: {password}")
         except Exception as e:
             return jsonify({"message": "Error al procesar las credenciales"}), 400
     else:

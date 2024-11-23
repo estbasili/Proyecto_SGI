@@ -83,12 +83,25 @@ def asociar_varios_productos_a_proveedor(id_proveedor):
     try:
         data = request.get_json()
         productos = data.get("productos", [])
+        
         if not productos:
             return jsonify({"message": "Lista de productos es necesaria"}), 400
-        resultado = Proveedor.asociar_varios_productos(id_proveedor, productos)
-        return jsonify(resultado), 201
+        
+        resultados = [] # lista para almacenar el resultado de las asociaciones
+        for id_producto in productos:
+            try:
+                resultado = Proveedor.asociar_producto(id_proveedor,id_producto)
+                resultados.append(resultado) 
+            except Exception as e:
+                #captura error especifico para un producto
+                resultados.append({"id_producto":id_producto,
+                                   "error": str(e)})
+                
+        return jsonify({"id_producto": id_producto,
+                        "resultados":resultados}), 201
     except Exception as e:
-        return jsonify({"message": str(e)}), 400
+        return jsonify({"message":str(e)}),400
+  
 
 # Obtener productos de un proveedor
 @app.route('/proveedores/<int:id_proveedor>/productos', methods=['GET'])
