@@ -1382,7 +1382,8 @@ function showAgregarCompra(item){
 
     // Crear estructura inicial de la tabla
     const table = `
-        <div class="card-body table-responsive p-0" style="height: 400px;">
+     
+        <div class="card-body table-responsive p-0 style="height: 100%; width: 100%;" >
             <table id="dataTable_compras" class="table table-head-fixed text-nowrap">
                 <thead>
                     <tr>
