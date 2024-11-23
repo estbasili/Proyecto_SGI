@@ -74,6 +74,8 @@ class Orden:
         cursor.close()
         conexion.close()
         return Orden(data).a_json() if data else None
+
+        
         
     @classmethod
     def create_orden(cls, data):
