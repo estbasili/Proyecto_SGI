@@ -197,5 +197,35 @@ class Producto:
             cursor.close()
             conexion.close()
 
+    @classmethod
+    def updateStock(cls, id_producto, cantidad_decrementar):
+        # Query para actualizar el stock
+        query = '''
+            UPDATE producto 
+            SET stock = stock - %s
+            WHERE id_producto = %s
+        '''
+        print(f"Query preparada: {query}")
+        print(f"Valores: cantidad_decrementar={cantidad_decrementar}, id_producto={id_producto}")
+        
+        # Conexión a la base de datos
+        conexion = get_db_connection()
+        cursor = conexion.cursor()
 
-   
+        try:
+            # Ejecutar la consulta
+            cursor.execute(query, (cantidad_decrementar, id_producto))
+            
+            # Confirmar los cambios
+            conexion.commit()
+            print("Stock actualizado correctamente.")
+            return True
+        except Exception as e:
+            # Revertir los cambios en caso de error
+            conexion.rollback()
+            print(f"Error al actualizar el stock: {str(e)}")
+            raise
+        finally:
+            # Cerrar cursor y conexión
+            cursor.close()
+            conexion.close()

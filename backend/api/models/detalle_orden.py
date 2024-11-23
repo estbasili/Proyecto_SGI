@@ -91,7 +91,6 @@ class DetalleOrden:
         # Preparar conexión y cursor para la base de datos
         conexion = get_db_connection()
         cursor = conexion.cursor()
-        
         try:
             # Preparar la consulta para insertar
             query = '''
@@ -102,6 +101,7 @@ class DetalleOrden:
             # Insertar cada producto en la tabla detalle_orden
             for producto in productos:
                 valores = (id_orden, producto['id_producto'], producto['cantidad'])
+                Producto.updateStock(producto['id_producto'],producto['cantidad'])
                 print(f"Ejecutando query: {query} con valores {valores}")
                 cursor.execute(query, valores)
 
