@@ -1,7 +1,8 @@
 from api import app
 from flask import request, jsonify
 from api.models.orden import Orden
-#from api.models.detalle_orden import DetalleOrden
+import sys
+from api.models.detalle_orden import DetalleOrden
 # Obtener todas las órdenes
 @app.route('/ordenes', methods=['GET'])
 def get_all_ordenes():
@@ -25,33 +26,50 @@ def get_orden_by_id(id):
 
 @app.route('/ordenes', methods=['POST'])
 def create_orden():
-    try:
-        data = request.get_json()  # Captura el JSON enviado
+        # Captura el JSON enviado
+        data = request.get_json()
         print("Datos recibidos en el servidor:", data)  # Log para depuración
 
         # Validar los datos (simulación de función de validación)
-        if not Orden.validar_datos(data):
-             return jsonify({"error": True , "message":"Los datos no son validos"}), 400
+        is_valid, validation_message = Orden.validar_datos(data)
+        if not is_valid:
+            print('Datos inválidos antes de continuar')
+            return jsonify({"error": True, "message": validation_message}), 400
 
-       # Guardar el valor de 'productos' en una variable
-        productos = data['productos'] if 'productos' in data else None
-
-        # Eliminar la clave 'productos' del diccionario
+        # Guardar el valor de 'productos' en una variable, y eliminarlo del cuerpo
+        productos = data.get('productos', None)
         if 'productos' in data:
             del data['productos']
 
-        # Imprimir el valor guardado para depuración
-        print(productos)
-        #detalle_orden = DetalleOrden.validar_datos(productos)
-        # Crear la orden
+        print("Productos guardados:", productos)
+
+        # Verificar si los productos existen y son válidos
+        if productos is None or not isinstance(productos, list):
+            print("ANTES")
+            return jsonify({"error": True, "message": "El campo 'productos' es obligatorio y debe ser una lista."}), 400
+
+        # Validar los productos en los renglones de la orden
+        renglones_validos, mensaje = DetalleOrden.validar_datos(productos)
+        if not renglones_validos:
+            print("ACA")
+            return jsonify({"error": True, "message": mensaje}), 202
+
+        # Crear la orden si los datos son válidos
         orden = Orden.create_orden(data)
-        #print("Orden creada:", orden)
+        id_orden_creada = orden["id_orden"]
+        print(f"ID de la orden creada: {id_orden_creada}")        
+        #sys.exit()
+        print(productos)
+        print("LLEGO HASTA ACA")
+        detalle = DetalleOrden.createDetalleOrden(id_orden_creada,productos)
+        
+        if not orden:
+            return jsonify({"error": True, "message": "No se pudo crear la orden."}), 500
 
-        return jsonify(orden), 201
+        # Respuesta exitosa con los datos de la orden creada
+        return jsonify({"success": True, "message": "Orden creada con éxito", "orden": orden}), 201
 
-    except Exception as e:
-        print("Error al procesar la solicitud:", e)  # Log para depuración
-        return jsonify({"error": str(e)}), 400
+
 
     
 

@@ -172,14 +172,14 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
       }  
       // Manejo respuesta no exitosa
       if (!response.ok) {
-          throw new Error("Error en la solicitud: ${response.status}");
+          throw new Error(`Error en la solicitud: ${response.status}`);
       }
-      // Manejo si el codigo de estado es 204 (sin contenido)
+      // Manejo si el código de estado es 204 (sin contenido)
       if(response.status === 204) {
-        return{};
+        return {};
       }
       
-      // si hay contenido en la rspuesta, devuelvo JSON
+      // Si hay contenido en la respuesta, devuelvo JSON
       return await response.json();
       
   } catch (error) {
@@ -187,6 +187,7 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
       alert(`Error al procesar la solicitud: ${error.message}`);
   }
 }
+
 
 
 
