@@ -1111,7 +1111,7 @@ function capturarProductos() {
     fecha_recepcion: document.getElementById("fecha_recepcion").value,
     estado: document.getElementById("estado").value,
     id_proveedor: parseInt(document.getElementById("proveedor_seleccionado").value),
-    id_usuario: 1, // Cambiar según sea necesario
+    id_usuario: id_usuario_session, // Cambiar según sea necesario
     productos: [] // Lista para almacenar productos
   };
 
@@ -1299,7 +1299,6 @@ function loadProveedoresSelect(){
     });
 }
 
-
 // Esta función se llamará al mostrar el formulario para agregar una compra
 function showAgregarCompra(item){
   showHeader("Gestor de Compras","Agregar Compra");
@@ -1374,25 +1373,100 @@ function showAgregarCompra(item){
   // fin de listar productos con limite de stock
 
 
+  // Funcion para el historial de orden de compra
+
+  function showHCompras() {
+    showHeader("Gestor de Reportes", "Historial de Compras");
+    clearContent();
+
+    // Crear estructura inicial de la tabla
+    const table = `
+        <div class="card-body table-responsive p-0" style="height: 400px;">
+            <table id="dataTable_compras" class="table table-head-fixed text-nowrap">
+                <thead>
+                    <tr>
+                        <th>ID Orden</th>
+                        <th>Fecha Pedido</th>
+                        <th>Fecha Recepción</th>
+                        <th>Estado</th>
+                        <th>ID Proveedor</th>
+                        <th>ID Operador</th>
+                        <th>Detalles</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody_orders"></tbody>
+            </table>
+        </div>
+    `;
+
+    // Insertar la tabla en el contenedor
+    document.getElementById("showSelect").innerHTML = table;
+
+    // Cargar los datos
+    compras();
+}
+
+// Petición a la API
+async function compras() {
+    const data = await apiRequest("/ordenes");
+    if (data && Array.isArray(data)) {
+        // Generar contenido de la tabla
+        const content = data.map(orden => `
+            <tr>
+                <td>${orden.id_orden}</td>
+                <td>${orden.fecha_pedido}</td>
+                <td>${orden.fecha_recepcion ? orden.fecha_recepcion : "Sin recepción"}</td>
+                <td>${orden.estado}</td>
+                <td>${orden.id_proveedor}</td>
+                <td>${orden.id_usuario}</td>
+                <td>
+                    <button class="btn btn-info btn-sm" onclick="detalleProductos(${orden.id_orden}, ${orden.id_usuario})">
+                        Ver Detalle
+                    </button>
+                </td>
+            </tr>
+        `).join("");
+
+        // Insertar contenido en la tabla
+        document.getElementById("tableBody_orders").innerHTML = content;
+
+        // Inicializar DataTable para la tabla generada
+        $('#dataTable_compras').DataTable({
+            paging: true,
+            searching: true,
+            info: false,
+            responsive: true,
+            language: {
+                search: "Buscar: ",
+                lengthMenu: "Mostrar _MENU_ registros por página",
+                zeroRecords: "No se encontraron resultados",
+                infoEmpty: "No hay registros disponibles",
+                infoFiltered: "(filtrado de _MAX_ registros totales)",
+                paginate: {
+                    first: "Primero",
+                    last: "Último",
+                    next: "Siguiente",
+                    previous: "Anterior"
+                }
+            }
+        });
+    }
+}
+
+// Función para manejar el botón de detalle
+function detalleProductos(idOrden, idOperador) {
+    console.log(`Detalles de la orden ID: ${idOrden}, Operador ID: ${idOperador}`);
+    // Implementar lógica personalizada aquí
+}
+
+
+
+
+
+
+
 
 
  /////////////////////////////////////   
 
-/*
-// ! Validación de formulario de login--- en revision
-document.addEventListener('DOMContentLoaded', () => {
-  const loginForm = document.querySelector('#loginForm');
-  if (loginForm) {
-      loginForm.addEventListener('submit', function(event) {
-          const email = document.querySelector('#email').value;
-          const password = document.querySelector('#password').value;
-          
-          if (!email || !password) {
-              event.preventDefault();
-              alert('Por favor complete todos los campos.');
-          }
-      });
-  }
-});
-*/
 
