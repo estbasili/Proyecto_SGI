@@ -1143,6 +1143,13 @@ async function guardarOrdenCompra(ordenCompra) {
 
       if(data){
         console.log(data);
+
+        Swal.fire({
+          title: '¡Éxito!',
+          text: data.message,
+          icon: 'success',
+          confirmButtonText: 'OK'
+        });
       }
       
 } 
