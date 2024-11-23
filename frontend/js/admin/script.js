@@ -812,9 +812,9 @@ async function addProveedor() {
   const data = await apiRequest("/proveedores", 'POST', nuevoProveedor);
   if (data) {
       alert("Proveedor agregado correctamente");
-      console.log(data[0].id_proveedor);
+      console.log(data.id_proveedor);
         // Ahora que el proveedor ha sido creado, mostrar la tabla para asociar productos
-      await showAsociarProductos(data[0].id_proveedor); // Mostrar productos para asociar
+      await showAsociarProductos(data.id_proveedor); // Mostrar productos para asociar
   }
 }
 
