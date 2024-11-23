@@ -128,6 +128,46 @@ class Producto:
         conexion.close()
 
     @classmethod
+    def validarStockProducto(cls, id_producto, cantidad):
+        print(f"Validando stock para producto: {id_producto} con cantidad: {cantidad}")
+        try:
+            conexion = get_db_connection()
+            cursor = conexion.cursor()
+
+            query = "SELECT stock FROM producto WHERE id_producto = %s"
+            print(f"Ejecutando consulta: {query} con id_producto = {id_producto}")
+            
+            cursor.execute(query, (id_producto,))
+            result = cursor.fetchone()
+            print(f"Resultado de la consulta: {result}")
+
+            # Verifica si se encontró el producto y si la cantidad es válida
+            if result:
+                stock_disponible = result[0]
+                print(f"Stock disponible para {id_producto}: {stock_disponible}")
+                if cantidad <= stock_disponible:
+                    print("La cantidad solicitada está disponible.")
+                    return True  # La cantidad es válida
+                else:
+                    print("La cantidad solicitada supera el stock disponible.")
+                    return False  # La cantidad es mayor al stock
+            else:
+                print(f"Producto con id {id_producto} no encontrado en la base de datos.")
+                return False  # El producto no existe
+
+        except Exception as e:
+            print(f"Error al validar el stock del producto {id_producto}: {str(e)}")
+            return False  # En caso de error, devolvemos False para manejarlo
+
+        finally:
+            # Asegura el cierre de cursor y conexión
+            if cursor:
+                cursor.close()
+            if conexion:
+                conexion.close()
+
+
+    @classmethod
     def get_proveedores(cls, id_producto):
         conexion = get_db_connection()
         cursor = conexion.cursor()

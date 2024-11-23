@@ -10,35 +10,30 @@ class Orden:
         "id_usuario": int
     }
 
-
     @classmethod
     def validar_datos(cls, data):
         if data is None or not isinstance(data, dict):
-            print("Error: Los datos no son un diccionario o son None.")
-            return False
+            return False, "Error: Los datos no son un diccionario o son None."
 
         for key in cls.schema:
             if key not in data:
-                print(f"Error: Falta el campo '{key}' en los datos proporcionados.")
-                return False
+                return False, f"Error: Falta el campo '{key}' en los datos proporcionados."
 
             expected_types = cls.schema[key]
 
             # Validar tipo de dato
             if not isinstance(data[key], expected_types):
-                print(f"Error: El campo '{key}' tiene un valor de tipo inválido. Esperado: {expected_types}, Recibido: {type(data[key])}. Valor: {data[key]}")
-                return False
+                return False, f"Error: El campo '{key}' tiene un valor de tipo inválido. Esperado: {expected_types}, Recibido: {type(data[key])}. Valor: {data[key]}"
 
             # Validar formato de las fechas
             if key in ["fecha_pedido", "fecha_recepcion"] and data[key] is not None:
                 try:
                     datetime.strptime(data[key], '%Y-%m-%d')  # Verifica el formato
                 except ValueError:
-                    print(f"Error: El campo '{key}' tiene un formato de fecha inválido. Valor recibido: {data[key]}")
-                    return False
+                    return False, f"Error: El campo '{key}' tiene un formato de fecha inválido. Valor recibido: {data[key]}"
 
-        print("Validación exitosa. Todos los datos son válidos.")
-        return True
+        return True, "Validación exitosa. Todos los datos son válidos."
+
 
 
 
@@ -82,13 +77,16 @@ class Orden:
         
     @classmethod
     def create_orden(cls, data):
-        print(data['fecha_pedido'])
+        print("LLEGO A LA CREACIÓN CON LOS DATOS:")
+        print(data)
+
         if not cls.validar_datos(data):
             raise ValueError("Datos inválidos")
 
         conexion = get_db_connection()
         cursor = conexion.cursor()
         try:
+            # Ejecutar el INSERT
             cursor.execute(
                 '''
                 INSERT INTO orden_compra (fecha_pedido, fecha_recepcion, estado, id_proveedor, id_usuario)
@@ -96,14 +94,25 @@ class Orden:
                 ''',
                 (data['fecha_pedido'], data['fecha_recepcion'], data['estado'], data['id_proveedor'], data['id_usuario'])
             )
+            # Confirmar la transacción
             conexion.commit()
-            return {"mensaje": "Orden creada exitosamente", "id_orden": cursor.lastrowid, "error": False}
+
+            # Obtener el ID recién creado
+            id_orden = cursor.lastrowid
+            print(f"Orden creada con ID: {id_orden}")
+
+            # Retornar un mensaje y el ID
+            return {"mensaje": "Orden creada exitosamente", "id_orden": id_orden, "error": False}
         except Exception as e:
+            # Revertir cambios en caso de error
             conexion.rollback()
             raise Exception(f"Error al crear orden: {str(e)}")
         finally:
+            # Cerrar la conexión y el cursor
             cursor.close()
             conexion.close()
+
+
 
     @classmethod
     def update_orden_by_id(cls, id, data):
