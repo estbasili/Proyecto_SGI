@@ -1,7 +1,7 @@
 from api import app
 from flask import request, jsonify
 from api.models.orden import Orden
-
+#from api.models.detalle_orden import DetalleOrden
 # Obtener todas las órdenes
 @app.route('/ordenes', methods=['GET'])
 def get_all_ordenes():
@@ -30,16 +30,22 @@ def create_orden():
         print("Datos recibidos en el servidor:", data)  # Log para depuración
 
         # Validar los datos (simulación de función de validación)
-        # if not Orden.validar_datos(data):
-        #     raise ValueError("Datos inválidos")
+        if not Orden.validar_datos(data):
+             return jsonify({"error": True , "message":"Los datos no son validos"}), 400
 
-        # Eliminar la clave 'productos' si existe
-        data.pop('productos', None)
-        print("Después de sacar productos:", data)  # Log para depuración
+       # Guardar el valor de 'productos' en una variable
+        productos = data['productos'] if 'productos' in data else None
 
+        # Eliminar la clave 'productos' del diccionario
+        if 'productos' in data:
+            del data['productos']
+
+        # Imprimir el valor guardado para depuración
+        print(productos)
+        #detalle_orden = DetalleOrden.validar_datos(productos)
         # Crear la orden
         orden = Orden.create_orden(data)
-        print("Orden creada:", orden)
+        #print("Orden creada:", orden)
 
         return jsonify(orden), 201
 

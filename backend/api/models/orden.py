@@ -1,5 +1,5 @@
 from api.db.db import get_db_connection, DBError
-from datetime import datetime
+from datetime import datetime, date
 
 class Orden:
     schema = {
@@ -44,8 +44,8 @@ class Orden:
 
     def __init__(self, data):
         self.id_orden = data[0]
-        self.fecha_pedido = datetime.strptime(data[1], '%Y-%m-%d') if data[1] else None
-        self.fecha_recepcion = datetime.strptime(data[2], '%Y-%m-%d') if data[2] else None
+        self.fecha_pedido = data[1] if isinstance(data[1], (datetime, date)) else datetime.strptime(data[1], '%Y-%m-%d') if data[1] else None
+        self.fecha_recepcion = data[2] if isinstance(data[2], (datetime, date)) else datetime.strptime(data[2], '%Y-%m-%d') if data[2] else None
         self.estado = data[3]
         self.id_proveedor = data[4]
         self.id_usuario = data[5]
