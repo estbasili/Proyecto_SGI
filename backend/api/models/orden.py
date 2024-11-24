@@ -1,6 +1,6 @@
 from api.db.db import get_db_connection, DBError
 from datetime import datetime, date
-
+from api.models.detalle_orden import DetalleOrden
 class Orden:
     schema = {
         "fecha_pedido": str,
@@ -67,19 +67,51 @@ class Orden:
         data = cursor.fetchall()
         cursor.close()
         conexion.close()
-        return [Orden(orden).a_json() for orden in data]
-    
-    @classmethod
-    def get_orden_by_id(cls, id):
-        conexion = get_db_connection()
-        cursor = conexion.cursor()
-        cursor.execute('SELECT * FROM orden_compra WHERE id_orden = %s', (id,))
-        data = cursor.fetchone()
-        cursor.close()
-        conexion.close()
-        return Orden(data).a_json() if data else None
 
+        return [Orden(orden).a_json() for orden in data]
+
+
+    @classmethod
+    def get_orden_by_id(cls, id):        
+        conexion = None
+        cursor = None
+        try:
+            conexion = get_db_connection()
+            cursor = conexion.cursor()
+            cursor.execute(
+                '''
+                SELECT detalle_orden.id_orden, detalle_orden.id_producto,producto.nombre, detalle_orden.cantidad 
+                FROM gestion_inventario.orden_compra 
+                INNER JOIN detalle_orden ON detalle_orden.id_orden = orden_compra.id_orden
+                INNER JOIN producto ON producto.id_producto = detalle_orden.id_producto
+                WHERE orden_compra.id_orden = %s
+                ''', (id,)
+            )
+            data = cursor.fetchall()
+
+            print(data)
+            
+            if not data:
+                return False
+            
+            detalle_orden = [
+                {"id_orden": row[0], "id_producto": row[1], "nombre": row[2], "cantidad":row[3]}
+                for row in data
+            ]
+
+            return detalle_orden
         
+        except Exception as e:
+            return False
+        
+        finally:
+            if cursor:
+                cursor.close()
+            if conexion:
+                conexion.close()
+
+
+
         
     @classmethod
     def create_orden(cls, data):
