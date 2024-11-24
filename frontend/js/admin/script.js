@@ -1121,7 +1121,7 @@ function capturarProductos() {
     fecha_recepcion: document.getElementById("fecha_recepcion").value,
     estado: document.getElementById("estado").value,
     id_proveedor: parseInt(document.getElementById("proveedor_seleccionado").value),
-    id_usuario: id_usuario_session, // Cambiar según sea necesario
+    id_usuario: id_usuario_sesion, // Cambiar según sea necesario
     productos: [] // Lista para almacenar productos
   };
 
