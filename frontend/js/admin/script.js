@@ -412,7 +412,7 @@ async function updateProduct() {
       precio: parseFloat(document.getElementById("precio").value.trim().replace(",", ".")), // Reemplazar coma por punto y convertir a float
       stock: parseInt(document.getElementById("stock") ? document.getElementById("stock").value : NaN),
       id_categoria: parseInt(document.getElementById("categoria") ? document.getElementById("categoria").value : NaN),
-      id_usuario: id_usuario_session //////////////////////////////////// // Este valor debe corresponder al ID del usuario autenticado 
+      id_usuario: id_usuario_sesion //////////////////////////////////// // Este valor debe corresponder al ID del usuario autenticado 
   };
 
   // Verificar si los campos numéricos son válidos
@@ -810,12 +810,20 @@ async function addProveedor() {
       id_usuario: id_usuario_sesion
   };
 
-  const data = await apiRequest("/proveedores", 'POST', nuevoProveedor);
+  const data = await apiRequest(`/usuarios/${id_usuario_sesion}/proveedores`, 'POST', nuevoProveedor);
   if (data) {
-      alert("Proveedor agregado correctamente");
-      console.log(data.id_proveedor);
+      // Verificar que el arreglo no esté vacío
+      if (data.length > 0) {
+          // Obtener el último elemento del array
+           const ultimoProveedor = data[data.length - 1];
+          // Extraer el id_proveedor del último objeto
+            const idProveedor = ultimoProveedor.id_proveedor;
+            alert("Proveedor agregado correctamente");
+            console.log(idProveedor);
         // Ahora que el proveedor ha sido creado, mostrar la tabla para asociar productos
-      await showAsociarProductos(data.id_proveedor); // Mostrar productos para asociar
+            await showAsociarProductos(idProveedor); // Mostrar productos para asociar
+            
+        } 
   }
 }
 
@@ -920,7 +928,8 @@ async function asociarProductosAlProveedor(idProveedor) {
   }
 
   // Enviar los productos seleccionados a la API para asociarlos con el proveedor
-  const data = await apiRequest(`/proveedores/${idProveedor}/productos/varios`, 'POST', { productos: selectedProductos });
+  
+  const data = await apiRequest(`/usuarios/${id_usuario_sesion}/proveedores/${idProveedor}/productos/varios`, 'POST', { productos: selectedProductos });
 
   if (data) {
     alert("Productos asociados al proveedor correctamente");
