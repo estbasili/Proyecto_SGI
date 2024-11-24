@@ -229,3 +229,43 @@ class Producto:
             # Cerrar cursor y conexión
             cursor.close()
             conexion.close()
+
+
+##############################################################################
+# metodo que llamado desde la ruta /productos/id_usuario/proveedores para que dicha ruta devuelva un arreglo de dict
+# [{"id_producto": , "producto_nombre": ,"proveedor_nombre": "stock": }, {...}, ... ]
+    @classmethod
+    def get_productos_proveedores(cls,id_usuario):
+        conexion = get_db_connection()
+        cursor = conexion.cursor()
+
+        # Ejecutar la consulta con JOIN para obtener el nombre de la categoría
+        cursor.execute("""
+            SELECT 
+                p.id_producto, p.nombre AS producto_nombre, p.stock, pr.nombre AS proveedor_nombre
+            FROM 
+                producto p
+            JOIN 
+                producto_proveedor pp ON p.id_producto = pp.id_producto
+            JOIN 
+                proveedor pr ON pp.id_proveedor = pr.id_proveedor
+            WHERE 
+                 p.id_usuario = %s; 
+            
+            """,(id_usuario,))
+
+        # Transformamos los resultados a formato JSON
+        productos = []
+        for producto in cursor.fetchall():
+            productos.append({
+                "id_producto": producto[0],
+                "producto_nombre": producto[1],
+                "stock": producto[2],
+                "proveedor_nombre": producto[3]
+                })
+
+        cursor.close()
+        conexion.close()
+
+        return productos
+###########################################################################

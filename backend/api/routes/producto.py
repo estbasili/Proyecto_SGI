@@ -77,3 +77,15 @@ def get_proveedores_por_producto(id):
     if not proveedores:
         return jsonify({"message": "No se encontraron proveedores para este producto"}), 404
     return jsonify(proveedores), 200
+
+##################################################################
+# ruta: /productos/id_usuario/proveedores que recibe el id_ usuario_sesion y devuelva un arreglo de dict
+# [{"id_producto": , "producto_nombre": ,"proveedor_nombre": "stock": }, {...}, ... ] para ser representado en una tabla
+# en la parte de inventario actual del frontend
+@app.route('/productos/<int:id_usuario>/usuario', methods=['GET'])
+def usuario_productos_proveedores(id_usuario):
+    productos = Producto.get_productos_proveedores(id_usuario)
+    if not productos :
+        return jsonify({'message': 'Productos no encontrado'}), 404
+    return jsonify(productos), 200
+#################################################################33

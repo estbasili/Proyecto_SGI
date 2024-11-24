@@ -70,8 +70,7 @@ def create_orden():
         return jsonify({"success": True, "message": "Orden creada con éxito", "orden": orden}), 201
 
 
-
-    
+  
 
 # Actualizar una orden existente
 @app.route('/ordenes/<int:id>', methods=['PUT'])

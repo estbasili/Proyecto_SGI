@@ -37,6 +37,15 @@
     background-repeat: no-repeat; /* Evita que la imagen se repita */
     
   }
+
+/*-------------------------------------Estilo para fondo de tabla ----------------------------------------*/
+.table-blur {
+  backdrop-filter: blur(10px); /* Nivel de desenfoque */
+  background-color: rgba(255, 255, 255, 0.274); /* Fondo blanco con opacidad */
+  border-radius: 5 px; /* Bordes redondeados (opcional) */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+
  
 /*-------------------------------------- Estilo para los botones de paginación redondeados --------------------------------------------- */
 

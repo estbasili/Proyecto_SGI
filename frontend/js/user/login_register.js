@@ -208,7 +208,7 @@ function userRegister(){
             messageElement.classList.add('error');
         })
         .finally(() => {
-            // Ocultar el spinner y activar el botón nuevamente
+            
                  
         });
       

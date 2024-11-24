@@ -20,7 +20,7 @@ setInterval(actualizarFecha, 1000); // Actualiza cada segundo
 // Recuperar los datos del usuario logeado
 const token = localStorage.getItem("token");
 const email = localStorage.getItem("email");
-const id_usuario_session = parseInt(localStorage.getItem("id"),10);
+const id_usuario_sesion = parseInt(localStorage.getItem("id"),10);
 
 // Mostrar los datos en la consola para verificarlos 
 // console.log("Token:", token);
@@ -220,9 +220,9 @@ async function addProduct() {
   const precio = parseFloat(document.getElementById("precio").value);
   const stock = parseInt(document.getElementById("stock").value);
   const categoriaNombre = document.getElementById("categoria").value.trim();
-  const id_usuario = id_usuario_session ;
   
-  if (isNaN(precio) || isNaN(stock) || isNaN(id_usuario)) {
+  
+  if (isNaN(precio) || isNaN(stock) || isNaN(id_usuario_sesion)) {
       alert("Por favor, revisa los campos numéricos.");
       return;
   }
@@ -243,7 +243,7 @@ async function addProduct() {
     }
     
     // Imprimir las categorías obtenidas para verificar
-    console.log("Categorías obtenidas:", categorias);
+    //console.log("Categorías obtenidas:", categorias);
 
     // Buscar la categoría con el nombre ingresado
     const categoria = categorias.find(c => c.nombre && c.nombre.toLowerCase() === categoriaNombre.toLowerCase());
@@ -260,7 +260,7 @@ async function addProduct() {
         precio: precio,
         stock: stock,
         id_categoria: categoria.id_categoria,  // Usar id_categoria de la API
-        id_usuario: id_usuario
+        id_usuario: id_usuario_sesion
     };
 
     if (nuevoProducto.id_categoria === undefined) {
@@ -807,7 +807,7 @@ async function addProveedor() {
       nombre: document.getElementById("nombre").value,
       email: document.getElementById("email").value,
       telefono: document.getElementById("telefono").value,
-      id_usuario: id_usuario_session
+      id_usuario: id_usuario_sesion
   };
 
   const data = await apiRequest("/proveedores", 'POST', nuevoProveedor);
@@ -833,7 +833,7 @@ async function showAsociarProductos(idProveedor) {
   // Crear una tabla con DataTables
   const table = document.createElement("table");
   table.setAttribute("id", "productosTable");
-  table.classList.add("display", "table", "table-striped", "table-bordered");  // Clases para estilo Bootstrap
+  table.classList.add("display", "table", "table-striped", "table-bordered","table-blur");  // Clases para estilo Bootstrap
 
   // Crear el encabezado de la tabla
   table.innerHTML = `
@@ -986,7 +986,7 @@ async function buscarProducto3() {
       if (data && Array.isArray(data)) {
         // Generar la tabla
         const table = `
-          <div class="card-body table-responsive p-0" style="height: 300px;">
+          <div class="card-body table-responsive p-0 table-blur  style="height: 300px;">
             <table id="dataTable_products" class="table table-head-fixed text-nowrap">
               <thead>
                 <tr>
@@ -1028,7 +1028,7 @@ async function buscarProducto3() {
 
   
 ////////////////////////////////////////////////////////////////-- Gestor de compras ---------------------------------------------------
-////////// hacer  
+  
 
 function generarFormOrdenCompra(){
   const form = `
@@ -1325,7 +1325,7 @@ function showAgregarCompra(item){
     `;
   
     const table = `
-      <div class="card-body table-responsive p-0" style="height: 300px;">
+      <div class="card-body table-responsive p-0 table-blur  style="height: 300px;">
         <table id="dataTable_products" class="table table-head-fixed text-nowrap">
           <thead>
             <tr>
@@ -1374,7 +1374,6 @@ function showAgregarCompra(item){
   // fin de listar productos con limite de stock
 
 
-
   // Funcion para el historial de orden de compra
   function showHCompras() {
     showHeader("Gestor de Reportes", "Historial de Compras");
@@ -1383,7 +1382,7 @@ function showAgregarCompra(item){
     // Crear estructura inicial de la tabla
     const table = `
      
-        <div class="card-body table-responsive p-0 style="height: 100%; width: 100%;" >
+        <div class="card-body table-responsive p-0 table-blur style="height: 100%; width: 100%;" >
             <table id="dataTable_compras" class="table table-head-fixed text-nowrap">
                 <thead>
                     <tr>
@@ -1455,7 +1454,7 @@ function showAgregarCompra(item){
 }
 
 // Función para manejar el botón de detalle
-async function detalleProductos(idOrden, idUsuario, idProveedor) {
+  async function detalleProductos(idOrden, idUsuario, idProveedor) {
     showHeader("Gestor de Reportes", "Historial de Compras/Detalle de orden");
     clearContent();
     
@@ -1466,6 +1465,99 @@ async function detalleProductos(idOrden, idUsuario, idProveedor) {
     console.log(`Detalles de la orden ID: ${idOrden}, Operador ID: ${idUsuario}`);
    
 }
+
+
+/// funcion para listar inventario actual
+function showInventarioActual(){
+  showHeader("Gestor de Reportes", "Historial Actual");
+  clearContent();
+  
+  const table = `
+    <div class="card-body table-responsive p-0 table-blur style="height: 100%; width: 100%;" ">
+    <!-- Tabla -->
+    <table id="dataTable_products" class="table table-head-fixed text-nowrap">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Stock</th>
+          <th>Proveedor</th>
+       </tr>
+      </thead>
+      <tbody id="tableBody_products"></tbody>
+      <tfoot>
+        <tr>
+          <th colspan="2"></th>
+          <th>Total: 0</th>
+          <th></th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>`;
+  
+  document.getElementById("showSelect").innerHTML =  table;
+
+  listar(id_usuario_sesion);
+}
+async function listar(id_usuario_sesion) {
+  const url = `/productos/${id_usuario_sesion}/usuario`;
+  const data = await apiRequest(url);
+
+  if (data && Array.isArray(data)) {
+    // Generar filas para la tabla
+    const rows = data.map(producto => `
+      <tr>
+        <td>${producto.id_producto}</td>
+        <td>${producto.producto_nombre}</td>
+        <td>${producto.stock}</td>
+        <td>${producto.proveedor_nombre}</td>
+      </tr>
+    `).join("");
+
+    // Insertar filas en el cuerpo de la tabla
+    document.getElementById("tableBody_products").innerHTML = rows;
+
+    // Inicializar DataTable
+    $('#dataTable_products').DataTable({
+      destroy: true, // Reinicia la tabla si ya existe
+      paging: true,
+      searching: true,
+      info: false,
+      responsive: true,
+      footerCallback: function (row, data, start, end, display) {
+        // Calcular la sumatoria del stock visible en la tabla
+        const api = this.api();
+        const sumatoria = api
+          .column(2, { search: 'applied' }) // Columna de "Stock"
+          .data()
+          .reduce((total, stock) => total + parseFloat(stock || 0), 0);
+
+        // Insertar la sumatoria en el pie de la tabla
+        $(api.column(2).footer()).html(`Total de stock: ${sumatoria}`);
+      },
+      language: {
+        search: "Filtrar producto:",
+        lengthMenu: "Mostrar _MENU_ registros por página",
+        zeroRecords: "No se encontraron productos",
+        infoEmpty: "No hay registros disponibles",
+        infoFiltered: "(filtrado de _MAX_ registros totales)",
+        paginate: {
+          first: "Primero",
+          last: "Último",
+          next: "Siguiente",
+          previous: "Anterior"
+        }
+      }
+    });
+  } else {
+    document.getElementById("tableBody_products").innerHTML = `
+      <tr>
+        <td colspan="4">No se encontraron productos.</td>
+      </tr>`;
+  }
+}
+//fin para listar Inventario actual
+
 
 
 
