@@ -7,7 +7,7 @@ class Producto:
         "precio": float,
         "stock": int,
         "id_categoria": int,
-        "id_usuario": int,
+        #"id_usuario": int,
     }
 
     @classmethod
@@ -36,70 +36,9 @@ class Producto:
             "precio": self.precio,
             "stock": self.stock,
             "id_categoria": self.id_categoria,
-            "id_usuario": self.id_usuario,
+            #"id_usuario": self.id_usuario,
         }
-
-    @classmethod
-    def get_all(cls):
-        conexion = get_db_connection()
-        cursor = conexion.cursor()
-
-        # Ejecutar la consulta con JOIN para obtener el nombre de la categoría
-        cursor.execute("""
-            SELECT 
-                producto.id_producto,
-                producto.nombre AS producto_nombre,
-                producto.descripcion,
-                producto.precio,
-                producto.stock,
-                producto.id_categoria,
-                categoria.nombre AS categoria_nombre
-            FROM 
-                producto
-            INNER JOIN 
-                categoria ON producto.id_categoria = categoria.id_categoria
-        """)
-
-        # Transformamos los resultados a formato JSON
-        productos = []
-        for producto in cursor.fetchall():
-            productos.append({
-                "id_producto": producto[0],
-                "nombre": producto[1],
-                "descripcion": producto[2],
-                "precio": producto[3],
-                "stock": producto[4],
-                "id_categoria": producto[5],
-                "categoria_nombre": producto[6]
-            })
-
-        cursor.close()
-        conexion.close()
-
-        return productos
-
-    @classmethod
-    def get_by_id(cls, id_producto):
-        conexion = get_db_connection()
-        cursor = conexion.cursor()
-        cursor.execute("SELECT * FROM producto WHERE id_producto = %s", (id_producto,))
-        data = cursor.fetchone()
-        cursor.close()
-        conexion.close()
-        return cls(data) if data else None
-
-    @classmethod
-    def create(cls, data):
-        conexion = get_db_connection()
-        cursor = conexion.cursor()
-        cursor.execute(
-            "INSERT INTO producto (nombre, descripcion, precio, stock, id_categoria, id_usuario) VALUES (%s, %s, %s, %s, %s, %s)",
-            (data['nombre'], data['descripcion'], data['precio'], data['stock'], data['id_categoria'], data['id_usuario'])
-        )
-        conexion.commit()
-        cursor.close()
-        conexion.close()
-
+    
     def json_select(self):
         return {
             "id_producto": self.id_producto,
@@ -107,72 +46,158 @@ class Producto:
         }
 
     @classmethod
-    def update(cls, id_producto, data):
+    def get_productos_by_user(cls, id_usuario):
+        conexion = get_db_connection()
+        cursor = conexion.cursor()
+        cursor.execute("""
+        SELECT 
+            producto.id_producto,
+            producto.nombre AS producto_nombre,
+            producto.descripcion,
+            producto.precio,
+            producto.stock,
+            producto.id_categoria,
+            categoria.nombre AS categoria_nombre
+        FROM 
+            producto
+        INNER JOIN 
+            categoria ON producto.id_categoria = categoria.id_categoria
+        WHERE 
+            producto.id_usuario = %s
+        """, (id_usuario,))
+        productos = []
+        for producto in cursor.fetchall():
+            productos.append({
+            "id_producto": producto[0],
+            "nombre": producto[1],
+            "descripcion": producto[2],
+            "precio": producto[3],
+            "stock": producto[4],
+            "id_categoria": producto[5],
+            "categoria_nombre": producto[6]
+            })
+        cursor.close()
+        conexion.close()
+        #si no se encontraron productos
+        if not productos:
+            raise DBError(f"No existen productos para el usuario con ID {id_usuario}")
+        return productos
+    
+    #producto por id_producto
+    @classmethod
+    def get_by_id_producto(cls, id_usuario, id_producto):
+        conexion = get_db_connection()
+        cursor = conexion.cursor()
+        cursor.execute("SELECT * FROM producto WHERE id_usuario = %s AND id_producto = %s", (id_usuario, id_producto))
+        data = cursor.fetchone()
+        cursor.close()
+        conexion.close()
+        if data:
+           return cls(data).a_json()  # Retornar datos en formato JSON
+        raise DBError(f"No se encontró el producto con ID {id_producto} para el usuario {id_usuario}")
+
+
+    #create
+    @classmethod
+    def create_producto_by_user(cls, data, id_usuario):
+        if not cls.validar_datos(data):
+            raise ValueError("Datos inválidos para crear el producto.")
+        conexion = get_db_connection()
+        cursor = conexion.cursor()
+      #Verificar si ya existe un producto con el mismo nombre, categoría y usuario
+        cursor.execute(
+        """
+        SELECT id_producto FROM producto 
+        WHERE nombre = %s AND id_categoria = %s AND id_usuario = %s
+        """,
+        (data['nombre'], data['id_categoria'], id_usuario))
+        producto_existente = cursor.fetchone()
+        if producto_existente:
+            cursor.close()
+            conexion.close()
+            raise DBError(f"El producto {data['nombre']} ya existe en la categoría {data['id_categoria']} para este usuario.")
+        cursor.execute(
+        """
+        INSERT INTO producto (nombre, descripcion, precio, stock, id_categoria, id_usuario) 
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """,
+        (data['nombre'], data['descripcion'], data['precio'], data['stock'], data['id_categoria'], id_usuario))
+        conexion.commit()
+        cursor.execute("SELECT LAST_INSERT_ID()")
+        id_producto = cursor.fetchone()[0]
+        cursor.close()
+        conexion.close()
+        return {"id_producto": id_producto, "mensaje": "Producto creado con éxito."}
+    
+    #update
+    @classmethod
+    def update_producto_by_user(cls, data, id_usuario, id_producto):
+        conexion = get_db_connection()
+        cursor = conexion.cursor()
+    # Verificar si el producto existe y pertenece al usuario
+        cursor.execute(
+        "SELECT id_usuario FROM producto WHERE id_producto = %s",
+        (id_producto,))
+        producto = cursor.fetchone()
+        if producto is None:
+            cursor.close()
+            conexion.close()
+            raise ValueError("No existe el recurso solicitado")
+        if producto[0] != id_usuario:
+            cursor.close()
+            conexion.close()
+            raise ValueError(f"No tienes permiso para actualizar este producto.")
+        cursor.execute(
+        "UPDATE producto SET nombre = %s, descripcion = %s, precio = %s, stock = %s, id_categoria = %s WHERE id_producto = %s AND id_usuario = %s",
+        (data['nombre'], data['descripcion'], data['precio'], data['stock'], data['id_categoria'], id_producto, id_usuario))
+        conexion.commit()
+        cursor.close()
+        conexion.close()
+        return cls.get_productos_by_user(id_usuario)
+
+    @classmethod
+    def delete_by_user(cls, id_usuario, id_producto):
+        conexion = get_db_connection()
+        cursor = conexion.cursor()
+        cursor.execute("SELECT id_usuario FROM producto WHERE id_producto = %s", (id_producto,))
+        producto = cursor.fetchone()
+        if producto is None:
+            cursor.close()
+            conexion.close()
+            return f"Producto con id {id_producto} no encontrado."
+        if producto[0] != id_usuario:
+            cursor.close()
+            conexion.close()
+            return f"No tienes permiso para eliminar este producto."
+        cursor.execute("DELETE FROM producto WHERE id_producto = %s AND id_usuario = %s", (id_producto, id_usuario))
+        conexion.commit()
+        cursor.close()
+        conexion.close()
+        return cls.get_productos_by_user(id_usuario)
+
+
+    @classmethod
+    def validarStockProducto(cls, id_usuario, id_producto, cantidad):
+        conexion = get_db_connection()
+        cursor = conexion.cursor()
+        cursor.execute("SELECT stock FROM producto WHERE id_producto = %s AND id_usuario = %s", (id_producto, id_usuario))
+        result = cursor.fetchone()
+        cursor.close()
+        conexion.close()
+        if result:
+            stock_disponible = result[0]
+            if cantidad <= stock_disponible:
+                return True  
+            else:
+                raise DBError(f"La cantidad solicitada supera el stock disponible para el producto {id_producto}.")
+        else:
+            raise DBError(f"Producto con id {id_producto} no encontrado")
+        
+    @classmethod
+    def get_proveedores(cls, id_usuario, id_producto):
         conexion = get_db_connection()
         cursor = conexion.cursor()
         cursor.execute(
-            "UPDATE producto SET nombre = %s, descripcion = %s, precio = %s, stock = %s, id_categoria = %s, id_usuario = %s WHERE id_producto = %s", #############################
-            (data['nombre'], data['descripcion'], data['precio'], data['stock'], data['id_categoria'], data['id_usuario'], id_producto)
-        )
-        conexion.commit()
-        cursor.close()
-        conexion.close()
-
-    @classmethod
-    def delete(cls, id_producto):
-        conexion = get_db_connection()
-        cursor = conexion.cursor()
-        cursor.execute("DELETE FROM producto WHERE id_producto = %s", (id_producto,))##########################################correccion de id_producto
-        conexion.commit()
-        cursor.close()
-        conexion.close()
-
-    @classmethod
-    def validarStockProducto(cls, id_producto, cantidad):
-        print(f"Validando stock para producto: {id_producto} con cantidad: {cantidad}")
-        try:
-            conexion = get_db_connection()
-            cursor = conexion.cursor()
-
-            query = "SELECT stock FROM producto WHERE id_producto = %s"
-            print(f"Ejecutando consulta: {query} con id_producto = {id_producto}")
-            
-            cursor.execute(query, (id_producto,))
-            result = cursor.fetchone()
-            print(f"Resultado de la consulta: {result}")
-
-            # Verifica si se encontró el producto y si la cantidad es válida
-            if result:
-                stock_disponible = result[0]
-                print(f"Stock disponible para {id_producto}: {stock_disponible}")
-                if cantidad <= stock_disponible:
-                    print("La cantidad solicitada está disponible.")
-                    return True  # La cantidad es válida
-                else:
-                    print("La cantidad solicitada supera el stock disponible.")
-                    return False  # La cantidad es mayor al stock
-            else:
-                print(f"Producto con id {id_producto} no encontrado en la base de datos.")
-                return False  # El producto no existe
-
-        except Exception as e:
-            print(f"Error al validar el stock del producto {id_producto}: {str(e)}")
-            return False  # En caso de error, devolvemos False para manejarlo
-
-        finally:
-            # Asegura el cierre de cursor y conexión
-            if cursor:
-                cursor.close()
-            if conexion:
-                conexion.close()
-
-
-    @classmethod
-    def get_proveedores(cls, id_producto):
-        conexion = get_db_connection()
-        cursor = conexion.cursor()
-        try:
-            cursor.execute(
             '''
             SELECT 
                 proveedor.id_proveedor,
@@ -184,88 +209,66 @@ class Producto:
             INNER JOIN 
                 proveedor ON producto_proveedor.id_proveedor = proveedor.id_proveedor
             WHERE 
-                producto.id_producto = %s
+                producto.id_producto = %s AND producto.id_usuario = %s
             ''',
-            (id_producto,)
-           )
-            proveedores = [
-                {"id_proveedor": row[0], "nombre_proveedor": row[1]}
-                for row in cursor.fetchall()
-            ]
-            return proveedores
-        finally:
-            cursor.close()
-            conexion.close()
-
-    @classmethod
-    def updateStock(cls, id_producto, cantidad_decrementar):
-        # Query para actualizar el stock
-        query = '''
-            UPDATE producto 
-            SET stock = stock - %s
-            WHERE id_producto = %s
-        '''
-        print(f"Query preparada: {query}")
-        print(f"Valores: cantidad_decrementar={cantidad_decrementar}, id_producto={id_producto}")
-        
-        # Conexión a la base de datos
-        conexion = get_db_connection()
-        cursor = conexion.cursor()
-
-        try:
-            # Ejecutar la consulta
-            cursor.execute(query, (cantidad_decrementar, id_producto))
-            
-            # Confirmar los cambios
-            conexion.commit()
-            print("Stock actualizado correctamente.")
-            return True
-        except Exception as e:
-            # Revertir los cambios en caso de error
-            conexion.rollback()
-            print(f"Error al actualizar el stock: {str(e)}")
-            raise
-        finally:
-            # Cerrar cursor y conexión
-            cursor.close()
-            conexion.close()
-
-
-##############################################################################
-# metodo que llamado desde la ruta /productos/id_usuario/proveedores para que dicha ruta devuelva un arreglo de dict
-# [{"id_producto": , "producto_nombre": ,"proveedor_nombre": "stock": }, {...}, ... ]
-    @classmethod
-    def get_productos_proveedores(cls,id_usuario):
-        conexion = get_db_connection()
-        cursor = conexion.cursor()
-
-        # Ejecutar la consulta con JOIN para obtener el nombre de la categoría
-        cursor.execute("""
-            SELECT 
-                p.id_producto, p.nombre AS producto_nombre, p.stock, pr.nombre AS proveedor_nombre
-            FROM 
-                producto p
-            JOIN 
-                producto_proveedor pp ON p.id_producto = pp.id_producto
-            JOIN 
-                proveedor pr ON pp.id_proveedor = pr.id_proveedor
-            WHERE 
-                 p.id_usuario = %s; 
-            
-            """,(id_usuario,))
-
-        # Transformamos los resultados a formato JSON
-        productos = []
-        for producto in cursor.fetchall():
-            productos.append({
-                "id_producto": producto[0],
-                "producto_nombre": producto[1],
-                "stock": producto[2],
-                "proveedor_nombre": producto[3]
-                })
-
+            (id_producto, id_usuario))
+        proveedores = [
+         {"id_proveedor": row[0], "nombre_proveedor": row[1]}
+         for row in cursor.fetchall()]
         cursor.close()
         conexion.close()
+        if not proveedores:
+            raise DBError(f"No se encontraron proveedores para el producto {id_producto} y usuario {id_usuario}.")
+        return proveedores
+    
 
+    @classmethod
+    def updateStock(cls, id_usuario, id_producto, cantidad_decrementar):
+        query = '''
+        UPDATE producto 
+        SET stock = stock - %s
+        WHERE id_producto = %s AND id_usuario = %s
+    '''
+        conexion = get_db_connection()
+        cursor = conexion.cursor()
+        cursor.execute(query, (cantidad_decrementar, id_producto, id_usuario))
+        if cursor.rowcount == 0:
+           raise DBError(f"No se encontró un producto con id {id_producto}")
+        conexion.commit()
+        cursor.close()
+        conexion.close()
+        return True
+
+
+    @classmethod
+    def get_productos_proveedores(cls, id_usuario):
+        conexion = get_db_connection()
+        cursor = conexion.cursor()
+        cursor.execute("""
+        SELECT 
+            p.id_producto, p.nombre AS producto_nombre, p.stock, pr.nombre AS proveedor_nombre
+        FROM 
+            producto p
+        JOIN 
+            producto_proveedor pp ON p.id_producto = pp.id_producto
+        JOIN 
+            proveedor pr ON pp.id_proveedor = pr.id_proveedor
+        WHERE 
+            p.id_usuario = %s;
+    """, (id_usuario,))
+        productos = [
+        {
+            "id_producto": row[0],
+            "producto_nombre": row[1],
+            "stock": row[2],
+            "proveedor_nombre": row[3],
+        }
+        for row in cursor.fetchall()]
+        cursor.close()
+        conexion.close()
+        if not productos:
+            raise DBError(f"No se encontraron productos")
         return productos
-###########################################################################
+
+        
+

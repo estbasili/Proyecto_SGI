@@ -11,8 +11,10 @@ def get_proveedores_by_user(id_usuario):
         proveedores = Proveedor.get_proveedores_by_user(id_usuario)
         if proveedores:
             return jsonify(proveedores), 200
-    except Exception as e:
+    except DBError as e:
         return jsonify({"message": str(e)}), 400
+    except Exception as e:
+        return jsonify({"message": "Error inesperado: " + str(e)}), 500
     
 #Crear un nuevo proveedor por usuario
 @app.route('/usuarios/<int:id_usuario>/proveedores', methods=['POST'])
@@ -102,5 +104,7 @@ def asociar_varios_productos_a_proveedor(id_usuario, id_proveedor):
                     "error": str(e)
                 })
         return jsonify({"resultados": resultados}), 201
-    except Exception as e:
+    except DBError as e:
         return jsonify({"message": str(e)}), 400
+    except Exception as e:
+        return jsonify({"message": "Error inesperado: " + str(e)}), 500
