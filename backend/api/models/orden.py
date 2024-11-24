@@ -47,6 +47,7 @@ class Orden:
     
     def a_json(self):
         return {
+
             
              "id_orden": self.id_orden,
              "fecha_pedido": self.fecha_pedido.strftime('%Y-%m-%d') if self.fecha_pedido else None,
@@ -56,6 +57,7 @@ class Orden:
              "id_usuario": self.id_usuario
        
              }
+
 
     @classmethod
     def get_all_ordenes(cls):
@@ -76,6 +78,8 @@ class Orden:
         cursor.close()
         conexion.close()
         return Orden(data).a_json() if data else None
+
+        
         
     @classmethod
     def create_orden(cls, data):

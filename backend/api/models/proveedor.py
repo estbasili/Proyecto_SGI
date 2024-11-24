@@ -10,7 +10,7 @@ class Proveedor:
         "nombre": str,
         "telefono": str, 
         "email": str,
-        "id_usuario": int,
+        #"id_usuario": int, ya no es necesario
     }
 
     @classmethod
@@ -39,7 +39,7 @@ class Proveedor:
             "nombre": self.nombre,
             "telefono": self.telefono,
             "email": self.email,
-            "id_usuario": self.id_usuario
+            #"id_usuario": self.id_usuario esto ya no se necesita
         }
 
     def json_select(self):
@@ -47,104 +47,163 @@ class Proveedor:
             "id_proveedor": self.id_proveedor,
             "nombre": self.nombre,
         }
-
+  
+    
+    #metodo actuyalizado segun cada usuario
     @classmethod
-    def get_all_list_proveedor(cls):
+    def get_proveedores_by_user(cls, id_usuario):
         conexion = get_db_connection()
         cursor = conexion.cursor()
-        cursor.execute('SELECT * FROM proveedor')
+        cursor.execute('SELECT * FROM proveedor WHERE id_usuario = %s', (id_usuario,))
+        data = cursor.fetchall()
+        cursor.close()
+        conexion.close()
+        #print(data)
+        #Comprobar si se obtuvo algun registro
+        if len(data)>0:
+            lista = []
+            for fila in data:
+                objeto = Proveedor(fila).a_json()
+                lista.append(objeto)
+            return lista
+        raise DBError("No existe el recurso solicitado")
+    
+    #Crear proveedor
+    @classmethod
+    def create_proveedor_by_user(cls, data, id_usuario):
+        if not cls.validar_datos(data):
+            raise DBError("Campos/valores inválidos")
+        conexion = get_db_connection()
+        cursor = conexion.cursor()
+        cursor.execute(
+            'SELECT * FROM proveedor WHERE email = %s AND id_usuario = %s',
+            (data["email"], id_usuario)
+        )
+        if cursor.fetchone():
+            raise DBError("Email ya registrado")
+        
+        cursor.execute(
+            '''
+            INSERT INTO proveedor (nombre, telefono, email, id_usuario)
+            VALUES (%s, %s, %s, %s)
+            ''',
+            (data["nombre"], data["telefono"], data["email"], id_usuario)
+        )
+        conexion.commit()
+        #id_proveedor = cursor.lastrowid #t da el ultimo id generado
+        cursor.close()
+        conexion.close()
+        return cls.get_proveedores_by_user(id_usuario)
+        #return {"mensaje": "Proveedor creado exitosamente", "id_proveedor": id_proveedor}
+
+    #Update proveedor
+    @classmethod
+    def update_proveedor_by_user(cls,data, id_usuario, id_proveedor):
+        if not cls.validar_datos(data):
+            raise DBError("Campos/valores inválidos")
+        conexion = get_db_connection()
+        cursor = conexion.cursor()
+        cursor.execute('SELECT * FROM proveedor WHERE id_proveedor = %s', (id_proveedor,))
+        proveedor = cursor.fetchone()
+        if proveedor is None:
+          raise DBError("No existe el recurso solicitado")
+        if proveedor[4] != id_usuario:  # id_usuario está en la columna 4
+            raise DBError("No tienes permiso para modificar este proveedor.")
+        cursor.execute(
+            'SELECT * FROM proveedor WHERE email = %s AND id_usuario = %s',
+            (data["email"], id_usuario)
+        )
+        if cursor.fetchone():
+            raise DBError("Email ya registrado")
+        
+        cursor.execute(
+            'UPDATE proveedor SET nombre = %s, telefono = %s, email = %s, id_usuario = %s WHERE id_proveedor = %s',
+            (data['nombre'], data['telefono'], data['email'], id_usuario, id_proveedor)
+        )
+        conexion.commit()
+        cursor.close()
+        conexion.close()
+        #return {"mensaje: Proveedor actualizado"}
+        return cls.get_proveedores_by_user(id_usuario)
+    
+    #delete
+    @classmethod
+    def delete_proveedor_by_user(cls, id_usuario, id_proveedor):
+        conexion = get_db_connection()
+        cursor = conexion.cursor()
+        cursor.execute('SELECT * FROM proveedor WHERE id_proveedor = %s', (id_proveedor,))
+        if cursor.fetchone() is None:
+            raise DBError("No existe el recurso solicitado")
+        cursor.execute('DELETE FROM proveedor WHERE id_proveedor = %s', (id_proveedor,))
+        conexion.commit()
+        cursor.close()
+        conexion.close()
+        return cls.get_proveedores_by_user(id_usuario)
+        #return {"mensaje": "Proveedor eliminado"}
+
+
+    @classmethod
+    def get_all_list_proveedor(cls, id_usuario): 
+        conexion = get_db_connection()
+        cursor = conexion.cursor()
+        cursor.execute('SELECT * FROM proveedor WHERE id_usuario = %s', (id_usuario,))
         data = cursor.fetchall()
         cursor.close()
         conexion.close()
         if len(data) > 0:
             return [Proveedor(proveedor).json_select() for proveedor in data]
         raise DBError("No existe el recurso solicitado")
-    
-    @classmethod
-    def get_all_proveedores(cls):
-        conexion = get_db_connection()
-        cursor = conexion.cursor()
-        cursor.execute('SELECT * FROM proveedor')
-        data = cursor.fetchall()
-        cursor.close()
-        conexion.close()
-        if data:
-            return [Proveedor(proveedor).a_json() for proveedor in data]
-        raise DBError("No existe el recurso solicitado")
 
+    #Proveedor por id_proveedor
     @classmethod
-    def get_proveedor_by_id(cls, id):
+    def get_proveedor_by_id_proveedor(cls, id_usuario, id_proveedor):
         conexion = get_db_connection()
         cursor = conexion.cursor()
-        cursor.execute('SELECT * FROM proveedor WHERE id_proveedor = %s', (id,))
+        cursor.execute('SELECT * FROM proveedor WHERE id_usuario = %s AND id_proveedor = %s',
+        (id_usuario, id_proveedor))
         data = cursor.fetchone()
         cursor.close()
         conexion.close()
         if data:
             return Proveedor(data).a_json()
         raise DBError('No existe el recurso solicitado')
-
+    
     @classmethod
-    def create_proveedor(cls, data):
-        if not cls.validar_datos(data):
-            raise DBError("Campos/valores inválidos")
+    def obtener_productos_con_proveedor(cls, id_usuario, id_proveedor):
         conexion = get_db_connection()
         cursor = conexion.cursor()
-        # Control si el email no esta en uso por otro proveedor
-        email = data["email"]
-        cursor.execute('SELECT * FROM proveedor WHERE email = %s', (email,))
-        row = cursor.fetchone()
-        if row is not None:
-            raise DBError("Email ya registrado")
-        
-        cursor.execute(
-            'INSERT INTO proveedor (nombre, telefono, email, id_usuario) VALUES (%s, %s, %s, %s)',
-            (data['nombre'], data['telefono'], data['email'], data['id_usuario'])
-        )
-        conexion.commit()
-        id_proveedor = cursor.lastrowid
-        cursor.close()
-        conexion.close()
-        return {"mensaje": "Proveedor creado exitosamente", "id_proveedor": id_proveedor}
-
-    @classmethod
-    def update_proveedor(cls, id, data):
-        if not cls.validar_datos(data):
-            raise DBError("Campos/valores inválidos")
-        conexion = get_db_connection()
-        cursor = conexion.cursor()
-        cursor.execute('SELECT * FROM proveedor WHERE id_proveedor = %s', (id,))
+        cursor.execute("SELECT * FROM proveedor WHERE id_proveedor = %s AND id_usuario = %s",
+                       (id_proveedor, id_usuario))
         if cursor.fetchone() is None:
             raise DBError("No existe el recurso solicitado")
         cursor.execute(
-            'UPDATE proveedor SET nombre = %s, telefono = %s, email = %s, id_usuario = %s WHERE id_proveedor = %s',
-            (data['nombre'], data['telefono'], data['email'], data['id_usuario'], id)
-        )
-        conexion.commit()
+        '''
+        SELECT 
+            producto.id_producto AS idProducto,
+            producto.nombre AS nombre_producto
+        FROM proveedor
+        INNER JOIN producto_proveedor 
+            ON proveedor.id_proveedor = producto_proveedor.id_proveedor
+        INNER JOIN producto 
+            ON producto_proveedor.id_producto = producto.id_producto
+        WHERE proveedor.id_proveedor = %s
+        ''', 
+        (id_proveedor,))
+        data = cursor.fetchall()
         cursor.close()
         conexion.close()
-        return {"mensaje: Proveedor actualizado"}
-
+        if not data:
+            raise DBError(f"No existen productos asociados al proveedor con ID {id_proveedor}.")
+        return [{"idProducto": row[0], "nombre_producto": row[1]} for row in data]
+    
+    #asociar productos---- falta probarla, porque todavia no tengo listo lo de productos hasta ahora pide la lista pero no falla
     @classmethod
-    def delete_proveedor(cls, id):
+    def asociar_producto(cls, id_usuario, id_proveedor, id_producto):
         conexion = get_db_connection()
         cursor = conexion.cursor()
-        cursor.execute('SELECT * FROM proveedor WHERE id_proveedor = %s', (id,))
+        cursor.execute("SELECT * FROM proveedor WHERE id_proveedor = %s AND id_usuario = %s", (id_proveedor, id_usuario))
         if cursor.fetchone() is None:
-            raise DBError("No existe el recurso solicitado")
-        cursor.execute('DELETE FROM proveedor WHERE id_proveedor = %s', (id,))
-        conexion.commit()
-        cursor.close()
-        conexion.close()
-        return {"mensaje": "Proveedor eliminado"}
-
-    @classmethod
-    def asociar_producto(cls, id_proveedor, id_producto):
-        conexion = get_db_connection()
-        cursor = conexion.cursor()
-        cursor.execute("SELECT * FROM proveedor WHERE id_proveedor = %s", (id_proveedor,))
-        if cursor.fetchone() is None:
-            raise DBError(f"No existe el recurso solicitado: Proveedor con ID {id_proveedor}")
+            raise DBError(f"No existe el recurso solicitado o no tienes permiso: Proveedor con ID {id_proveedor}")
         cursor.execute("SELECT * FROM producto WHERE id_producto = %s", (id_producto,))
         if cursor.fetchone() is None:
             raise DBError(f"No existe el recurso solicitado: Producto con ID {id_producto}")
@@ -152,32 +211,6 @@ class Proveedor:
         conexion.commit()
         cursor.close()
         conexion.close()
-        return {"id_proveedor": id_proveedor, "id_producto": id_producto, "estado": "asociado"}
+        return {"id_usuario": id_usuario, "id_proveedor": id_proveedor, "id_producto": id_producto, "estado": "asociado"}
 
-    @classmethod
-    def obtener_productos_con_proveedor(cls, id_proveedor):
-        conexion = get_db_connection()
-        cursor = conexion.cursor()
-        cursor.execute("SELECT * FROM proveedor WHERE id_proveedor = %s", (id_proveedor,))
-        if cursor.fetchone() is None:
-            raise DBError(f"No existe el recurso solicitado: Proveedor con ID {id_proveedor}")
-        cursor.execute(
-            '''
-            SELECT 
-            producto.id_producto as idProducto ,
-            producto.nombre as nombre_producto
-            FROM proveedor
-            INNER JOIN producto_proveedor 
-            on proveedor.id_proveedor = producto_proveedor.id_proveedor
-            INNER JOIN producto 
-            on producto_proveedor.id_producto = producto.id_producto 
-            Where proveedor.id_proveedor = %s 
-            ''', 
-            (id_proveedor,)
-        )
-        data = cursor.fetchall()
-        cursor.close()
-        conexion.close()
-        if not data:
-            raise DBError("No existen productos asociados al proveedor solicitado.")
-        return [{"idProducto": row[0], "nombre_producto": row[1]} for row in data]
+

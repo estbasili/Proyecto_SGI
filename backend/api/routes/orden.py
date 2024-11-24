@@ -41,26 +41,22 @@ def create_orden():
         if 'productos' in data:
             del data['productos']
 
-        print("Productos guardados:", productos)
-
         # Verificar si los productos existen y son válidos
         if productos is None or not isinstance(productos, list):
-            print("ANTES")
             return jsonify({"error": True, "message": "El campo 'productos' es obligatorio y debe ser una lista."}), 400
 
         # Validar los productos en los renglones de la orden
         renglones_validos, mensaje = DetalleOrden.validar_datos(productos)
         if not renglones_validos:
-            print("ACA")
             return jsonify({"error": True, "message": mensaje}), 202
 
         # Crear la orden si los datos son válidos
         orden = Orden.create_orden(data)
         id_orden_creada = orden["id_orden"]
-        print(f"ID de la orden creada: {id_orden_creada}")        
+        
         #sys.exit()
-        print(productos)
-        print("LLEGO HASTA ACA")
+        
+        
         detalle = DetalleOrden.createDetalleOrden(id_orden_creada,productos)
         
         if not orden:
