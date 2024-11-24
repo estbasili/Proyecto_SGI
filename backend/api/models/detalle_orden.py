@@ -1,17 +1,27 @@
 from api.db.db import get_db_connection, DBError
 from api.models.producto import Producto
+
 class DetalleOrden:
     schema = {
         "id_orden": int,
         "id_producto": int, 
-        "cantidad": int,
+        "cantidad": str,
     }
+    @classmethod
+    
+    def a_json(self):
+        return {
+            "id_orden": self.id_orden,
+            "id_producto": self.id_producto if self.id_producto else None,
+            "cantidad": self.cantidad if self.cantidad else None,
+        }
 
     def __init__(self, data):
-        self.id_detalle = data[0]
-        self.id_orden = data[1] if isinstance(data[1], (datetime, date)) else datetime.strptime(data[1], '%Y-%m-%d') if data[1] else None
-        self.id_producto = data[2] if isinstance(data[2], (datetime, date)) else datetime.strptime(data[2], '%Y-%m-%d') if data[2] else None
-        self.cantidad = data[3]
+        self.id_detalle = data[0]  # Asume que este es un entero o similar
+        self.id_orden = data[1]  # Asume que este es un entero
+        self.id_producto = data[2]  # Asume que este es un entero o cadena
+        self.cantidad = data[3]  # Asume que este es un entero
+
 
     @classmethod
     def validar_datos(cls, data):
