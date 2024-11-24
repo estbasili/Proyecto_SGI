@@ -1190,8 +1190,7 @@ function enviarOrdenCompra(event) {
 
 
 function loadProductos(selectElement,idProveedor) {
-  
-    fetch(`http://127.0.0.1:5001/proveedores/${idProveedor}/productos`)
+    fetch(`http://127.0.0.1:5001/usuarios/${id_usuario_sesion}/proveedores/${idProveedor}/productos`)
     .then(response => response.json())
     .then(data => {
       console.log(data);
@@ -1273,7 +1272,8 @@ function cargarMultipleInput() {
 
 function loadProveedoresSelect(){
   // Función para cargar los proveedores desde la API
-  fetch('http://127.0.0.1:5001/listarProveedores')
+  
+  fetch(`http://127.0.0.1:5001/usuarios/${id_usuario_sesion}/proveedores`)
     .then(response => response.json())  // Convertir la respuesta en JSON
     .then(data => {
       const selectElement = document.getElementById('proveedores');
