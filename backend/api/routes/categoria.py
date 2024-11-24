@@ -1,41 +1,64 @@
 from api import app
+from api.db.db import DBError
 from flask import request, jsonify
 from api.models.categoria import Categoria
+from api.utils.security import token_required  # Decorador de autenticación
 
-# Get all categories
-@app.route('/categorias', methods=['GET'])
-def get_categorias():
-    categorias = Categoria.get_all()
-    return jsonify(categorias), 200
+@app.route('/usuarios/<int:id_usuario>/categorias', methods=['GET'])
+#@token_required
+def get_categorias_by_user(id_usuario):
+    try:
+        categorias = Categoria.get_all_by_user(id_usuario)
+        return jsonify(categorias), 200 
+    except DBError as e:
+        return jsonify({"message": str(e)}), 404
+    except Exception as e:
+        return jsonify({"message": "Error inesperado: " + str(e)}), 500
 
-# Get category by ID
-@app.route('/categorias/<int:id_categoria>', methods=['GET'])
-def get_categoria(id_categoria):
-    categoria = Categoria.get_by_id(id_categoria)
-    if categoria:
-        return jsonify(categoria.a_json()), 200
-    return jsonify({"error": "Category not found"}), 404
+@app.route('/usuarios/<int:id_usuario>/categorias/<int:id_categoria>', methods=['GET'])
+#@token_required
+def get_categoria(id_usuario, id_categoria):
+    try:
+        categoria = Categoria.get_by_id_categoria(id_usuario, id_categoria)
+        return jsonify(categoria.a_json()), 200  
+    except DBError as e:
+        return jsonify({"message": str(e)}), 404
+    except Exception as e:
+        return jsonify({"message": "Error inesperado: " + str(e)}), 500
 
-# Create a new category
-@app.route('/categorias', methods=['POST'])
-def create_categoria():
-    data = request.json
-    if not Categoria.validar_datos(data):
-        return jsonify({"error": "Invalid data"}), 400
-    Categoria.create(data)
-    return jsonify({"message": "Category created successfully"}), 201
+@app.route('/usuarios/<int:id_usuario>/categorias', methods=['POST'])
+#@token_required
+def create_categoria(id_usuario):
+    data = request.get_json()
+    try:
+        Categoria.create_by_user(data, id_usuario)
+        categorias = Categoria.get_all_by_user(id_usuario) 
+        return jsonify(categorias), 201  
+    except DBError as e:
+        return jsonify({"message": str(e)}), 400
+    except Exception as e:
+        return jsonify({"message": "Error inesperado: " + str(e)}), 500
 
-# Update category
-@app.route('/categorias/<int:id_categoria>', methods=['PUT'])
-def update_categoria(id_categoria):
-    data = request.json
-    if not Categoria.validar_datos(data):
-        return jsonify({"error": "Invalid data"}), 400
-    Categoria.update(id_categoria, data)
-    return jsonify({"message": "Category updated successfully"}), 200
+@app.route('/usuarios/<int:id_usuario>/categorias/<int:id_categoria>', methods=['PUT'])
+#@token_required
+def update_categoria(id_usuario, id_categoria):
+    data = request.get_json()
+    try:
+        Categoria.update_by_user(data, id_usuario, id_categoria)
+        categorias = Categoria.get_all_by_user(id_usuario) 
+        return jsonify(categorias), 200  
+    except DBError as e:
+        return jsonify({"message": str(e)}), 400
+    except Exception as e:
+        return jsonify({"message": "Error inesperado: " + str(e)}), 500
 
-# Delete category
-@app.route('/categorias/<int:id_categoria>', methods=['DELETE'])
-def delete_categoria(id_categoria):
-    Categoria.delete(id_categoria)
-    return jsonify({"message": "Category deleted successfully"}), 200
+@app.route('/usuarios/<int:id_usuario>/categorias/<int:id_categoria>', methods=['DELETE'])
+#@token_required
+def delete_categoria(id_usuario, id_categoria):
+    try:
+        Categoria.delete_by_user(id_usuario, id_categoria)
+        categorias = Categoria.get_all_by_user(id_usuario)  
+        return jsonify(categorias), 200  
+        return jsonify({"message": str(e)}), 404
+    except Exception as e:
+        return jsonify({"message": "Error inesperado: " + str(e)}), 500

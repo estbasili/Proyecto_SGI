@@ -65,22 +65,3 @@ def login():
             info = e.args[0]
             return jsonify(info), info["code"]
         return jsonify({"message": str(e)}), 400
-"""
-# agregacion de loggin
-@app.route('/login', methods=['POST'])
-def login():
-     # Imprimir todos los encabezados de la solicitud para verificar si llega el Authorization
-    print("------------------Encabezados recibidos:", request.headers)
-    
-    auth = request.authorization
-    print("Authorization:", auth)  # Esto mostrará el contenido del objeto auth
-    try:
-        usuario = Usuario.login(auth)
-        return jsonify( usuario ), 200
-    except Exception as e:
-        if isinstance(e, DBError):
-            info = e.args[0]
-            return jsonify(info), info["code"]
-        return jsonify( {"message": e.args[0]} ), 400
-        """
-

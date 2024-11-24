@@ -142,11 +142,11 @@ class Producto:
         if producto is None:
             cursor.close()
             conexion.close()
-            raise ValueError("No existe el recurso solicitado")
+            raise DBError("No existe el recurso solicitado")
         if producto[0] != id_usuario:
             cursor.close()
             conexion.close()
-            raise ValueError(f"No tienes permiso para actualizar este producto.")
+            raise DBError(f"No tienes permiso para actualizar este producto.")
         cursor.execute(
         "UPDATE producto SET nombre = %s, descripcion = %s, precio = %s, stock = %s, id_categoria = %s WHERE id_producto = %s AND id_usuario = %s",
         (data['nombre'], data['descripcion'], data['precio'], data['stock'], data['id_categoria'], id_producto, id_usuario))
@@ -164,11 +164,11 @@ class Producto:
         if producto is None:
             cursor.close()
             conexion.close()
-            return f"Producto con id {id_producto} no encontrado."
+            raise DBError("No existe el recurso solicitado")
         if producto[0] != id_usuario:
             cursor.close()
             conexion.close()
-            return f"No tienes permiso para eliminar este producto."
+            raise DBError(f"No tienes permiso para actualizar este producto.")
         cursor.execute("DELETE FROM producto WHERE id_producto = %s AND id_usuario = %s", (id_producto, id_usuario))
         conexion.commit()
         cursor.close()
