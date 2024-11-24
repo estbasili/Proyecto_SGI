@@ -4,110 +4,103 @@ from api.db.db import DBError
 from api.models.proveedor import Proveedor
 from api.models.producto import Producto
 
-
-@app.route('/listarProveedores', methods=['GET'])
-def get_all_list_proveedores():
+#obtener todos los proveedores por uusario
+@app.route('/usuarios/<int:id_usuario>/proveedores', methods=['GET'])
+def get_proveedores_by_user(id_usuario):
     try:
-        proveedores = Proveedor.get_all_list_proveedor()
-        return jsonify(proveedores), 200
-    except Exception as e:
-        return jsonify({"message": str(e)}), 400
-
-
-@app.route('/proveedores', methods=['GET'])
-def get_all_proveedores():
-    try:
-        proveedores = Proveedor.get_all_proveedores()
+        proveedores = Proveedor.get_proveedores_by_user(id_usuario)
         if proveedores:
             return jsonify(proveedores), 200
     except Exception as e:
         return jsonify({"message": str(e)}), 400
-
-# Obtener un proveedor por ID
-@app.route('/proveedores/<int:id>', methods=['GET'])
-def get_proveedor(id):
-    try:
-        proveedor = Proveedor.get_proveedor_by_id(id)
-        if proveedor:
-            return jsonify(proveedor), 200
-    except Exception as e:
-        return jsonify({"message": str(e)}), 400
     
-# Crear un nuevo proveedor
-@app.route('/proveedores', methods=['POST'])
-def create_proveedor():
+#Crear un nuevo proveedor por usuario
+@app.route('/usuarios/<int:id_usuario>/proveedores', methods=['POST'])
+def create_proveedor_by_user(id_usuario):
     try:
-        data = request.get_json()
-        proveedor = Proveedor.create_proveedor(data)
-        return jsonify(proveedor), 201
-    except Exception as e:
+        data = request.get_json() 
+        proveedores = Proveedor.create_proveedor_by_user(data, id_usuario)
+        return jsonify(proveedores), 201
+    except DBError as e:
         return jsonify({"message": str(e)}), 400
+    except Exception as e:
+        return jsonify({"message": "Error inesperado: " + str(e)}), 500
     
 # Actualizar un proveedor por ID
-@app.route('/proveedores/<int:id>', methods=['PUT'])
-def update_proveedor(id):
+@app.route('/usuarios/<int:id_usuario>/proveedores/<int:id_proveedor>', methods=['PUT'])
+def update_proveedor_by_user(id_usuario, id_proveedor):
     try:
         data = request.get_json()
-        proveedor = Proveedor.update_proveedor(id, data)
+        proveedor = Proveedor.update_proveedor_by_user(data, id_usuario, id_proveedor)
         if proveedor:
             return jsonify(proveedor), 200
-    except Exception as e:
+    except DBError as e:
         return jsonify({"message": str(e)}), 400
-
+    except Exception as e:
+        return jsonify({"message": "Error inesperado: " + str(e)}), 500
+    
 # Eliminar un proveedor por ID
-@app.route('/proveedores/<int:id>', methods=['DELETE'])
-def delete_proveedor(id):
+@app.route('/usuarios/<int:id_usuario>/proveedores/<int:id_proveedor>', methods=['DELETE'])
+def delete_proveedor_by_user(id_usuario, id_proveedor):
     try:
-        proveedor = Proveedor.delete_proveedor(id)
+        proveedor = Proveedor.delete_proveedor_by_user(id_usuario, id_proveedor)
         return jsonify(proveedor), 200
     except DBError as e:
         return jsonify({"mensaje": str(e)}), 404
     except Exception as e:
         return jsonify({"message": str(e)}), 500
 
-@app.route('/proveedores/<int:id_proveedor>/productos', methods=['POST'])
-def asociar_producto_a_proveedor(id_proveedor):
+#listar proveedores
+@app.route('/usuarios/<int:id_usuario>/listarProveedores', methods=['GET']) 
+def get_all_list_proveedores(id_usuario): 
     try:
-        data = request.get_json()
-        id_producto = data.get("id_producto")
-        if not id_producto:
-            return jsonify({"message": "ID de producto es necesario"}), 400
-        resultado = Proveedor.asociar_producto(id_proveedor, id_producto)
-        return jsonify(resultado), 201
+        proveedores = Proveedor.get_all_list_proveedor(id_usuario)
+        return jsonify(proveedores), 200
+    except DBError as e:
+        return jsonify({"message": str(e)}), 404
     except Exception as e:
-        return jsonify({"message": str(e)}), 400
+        return jsonify({"message": "Error inesperado: " + str(e)}), 500
+    
+# Obtener un proveedor por id_proveedor según el usuario
+@app.route('/usuarios/<int:id_usuario>/proveedores/<int:id_proveedor>', methods=['GET'])
+def get_proveedor_by_id_proveedor(id_usuario, id_proveedor):
+    try:
+        proveedor = Proveedor.get_proveedor_by_id_proveedor(id_usuario, id_proveedor)
+        return jsonify(proveedor), 200  
+    except DBError as e:
+        return jsonify({"message": str(e)}), 404  
+    except Exception as e:
+        return jsonify({"message": "Error inesperado: " + str(e)}), 500  
+    
+#obtener productos asociados
+@app.route('/usuarios/<int:id_usuario>/proveedores/<int:id_proveedor>/productos', methods=['GET'])
+def obtener_productos_con_proveedor(id_usuario, id_proveedor):
+    try:
+        productos = Proveedor.obtener_productos_con_proveedor(id_usuario, id_proveedor)
+        return jsonify(productos), 200  
+    except DBError as e:
+        return jsonify({"message": str(e)}), 404
+    except Exception as e:
+        return jsonify({"message": "Error inesperado: " + str(e)}), 500 
 
-# Modificación para asociar varios productos
-@app.route('/proveedores/<int:id_proveedor>/productos/varios', methods=['POST'])
-def asociar_varios_productos_a_proveedor(id_proveedor):
+#asociar productos
+@app.route('/usuarios/<int:id_usuario>/proveedores/<int:id_proveedor>/productos/varios', methods=['POST'])
+def asociar_varios_productos_a_proveedor(id_usuario, id_proveedor):
     try:
         data = request.get_json()
         productos = data.get("productos", [])
-        
         if not productos:
             return jsonify({"message": "Lista de productos es necesaria"}), 400
-        
-        resultados = [] # lista para almacenar el resultado de las asociaciones
+        resultados = []  
         for id_producto in productos:
             try:
-                resultado = Proveedor.asociar_producto(id_proveedor,id_producto)
+                resultado = Proveedor.asociar_producto(id_usuario, id_proveedor, id_producto)
                 resultados.append(resultado) 
             except Exception as e:
-                #captura error especifico para un producto
-                resultados.append({"id_producto":id_producto,
-                                   "error": str(e)})
-                
-        return jsonify({"id_producto": id_producto,
-                        "resultados":resultados}), 201
+                resultados.append({
+                    "id_producto": id_producto,
+                    "error": str(e)
+                })
+        return jsonify({"resultados": resultados}), 201
     except Exception as e:
-        return jsonify({"message":str(e)}),400
-  
-
-# Obtener productos de un proveedor
-@app.route('/proveedores/<int:id_proveedor>/productos', methods=['GET'])
-def obtener_productos_de_proveedor(id_proveedor):
-    try:
-        productos = Proveedor.obtener_productos_con_proveedor(id_proveedor)
-        return jsonify(productos), 200
-    except Exception as e:
-        return jsonify({"message": f"message interno: {str(e)}"}), 500
+        return jsonify({"message": str(e)}), 400

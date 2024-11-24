@@ -48,11 +48,12 @@ CREATE TABLE proveedor (
     id_proveedor INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     telefono VARCHAR(50) NOT NULL,
-    email VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(50) NOT NULL,
     id_usuario INT NOT NULL,
     FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
     ON DELETE CASCADE
-    ON UPDATE CASCADE
+    ON UPDATE CASCADE,
+    UNIQUE (id_usuario, email) -- Restricción única compuesta para que un usuario no pueda crear dos proveedores con el mismo mail
 );
 
 
@@ -89,7 +90,6 @@ CREATE TABLE detalle_orden (
     id_orden INT NOT NULL, 
     id_producto INT, 
     cantidad INT NOT NULL CHECK (cantidad > 0),
-    precio_unitario DECIMAL(10, 2) NOT NULL CHECK (precio_unitario >= 0),
     FOREIGN KEY (id_orden) REFERENCES orden_compra(id_orden)
     ON DELETE CASCADE
     ON UPDATE CASCADE,
