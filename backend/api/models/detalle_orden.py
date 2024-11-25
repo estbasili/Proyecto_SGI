@@ -1,19 +1,21 @@
 from api.db.db import get_db_connection, DBError
 from api.models.producto import Producto
 
+
 class DetalleOrden:
     schema = {
         "id_orden": int,
         "id_producto": int, 
         "cantidad": str,
     }
-    @classmethod
     
-    def a_json(self):
+    @classmethod
+    def a_json(cls, id_usuario):
+        # Aquí puedes personalizar cómo retornar los detalles con id_usuario si es necesario
         return {
-            "id_orden": self.id_orden,
-            "id_producto": self.id_producto if self.id_producto else None,
-            "cantidad": self.cantidad if self.cantidad else None,
+            "id_orden": cls.id_orden,
+            "id_producto": cls.id_producto if cls.id_producto else None,
+            "cantidad": cls.cantidad if cls.cantidad else None,
         }
 
     def __init__(self, data):
@@ -22,11 +24,11 @@ class DetalleOrden:
         self.id_producto = data[2]  # Asume que este es un entero o cadena
         self.cantidad = data[3]  # Asume que este es un entero
 
-
     @classmethod
-    def validar_datos(cls, data):
+    def validar_datos(cls, data, id_usuario):
         # Validar que data sea una lista
         print("Validando los datos recibidos...")
+
         if not isinstance(data, list):
             return False, "Error: Los datos no son una lista."
 
@@ -59,7 +61,7 @@ class DetalleOrden:
 
                 # Verificar si el producto tiene stock disponible
                 print(f"Verificando stock para el producto {id_producto} con cantidad {cantidad}...")
-                if not Producto.validarStockProducto(id_producto, cantidad):
+                if not Producto.validarStockProducto(id_producto, cantidad, id_usuario):
                     print(f"Producto {id_producto} sin stock.")
                     productos_sin_stock.append(id_producto)  # Guardar el id del producto sin stock
 
@@ -84,7 +86,7 @@ class DetalleOrden:
         return True, "Validación exitosa. Todos los renglones son válidos."
 
     @classmethod
-    def createDetalleOrden(cls, id_orden, productos):
+    def createDetalleOrden(cls, id_orden, productos, id_usuario):
         # Imprime el ID de la orden recibida
         print(f"ID de la orden recibida: {id_orden}")
         
@@ -104,14 +106,14 @@ class DetalleOrden:
         try:
             # Preparar la consulta para insertar
             query = '''
-                INSERT INTO detalle_orden (id_orden, id_producto, cantidad)
-                VALUES (%s, %s, %s)
+                INSERT INTO detalle_orden (id_orden, id_producto, cantidad, id_usuario)
+                VALUES (%s, %s, %s, %s)
             '''
             
             # Insertar cada producto en la tabla detalle_orden
             for producto in productos:
-                valores = (id_orden, producto['id_producto'], producto['cantidad'])
-                Producto.updateStock(producto['id_producto'],producto['cantidad'])
+                valores = (id_orden, producto['id_producto'], producto['cantidad'], id_usuario)
+                Producto.updateStock(producto['id_producto'], producto['cantidad'], id_usuario)
                 print(f"Ejecutando query: {query} con valores {valores}")
                 cursor.execute(query, valores)
 
