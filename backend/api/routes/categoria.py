@@ -11,7 +11,7 @@ def get_categorias_by_user(id_usuario):
         categorias = Categoria.get_all_by_user(id_usuario)
         return jsonify(categorias), 200 
     except DBError as e:
-        return jsonify({"message": str(e)}), 404
+        return jsonify({"message": str(e)}), 203
     except Exception as e:
         return jsonify({"message": "Error inesperado: " + str(e)}), 500
 

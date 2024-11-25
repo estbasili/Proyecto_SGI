@@ -234,7 +234,7 @@ async function addProduct() {
 
   try {
     // Consultar las categorías existentes
-    const categorias = await apiRequest("/categorias", 'GET');
+    const categorias = await apiRequest(`/usuarios/${id_usuario_sesion}/categorias`, 'GET');
 
     if (!categorias || categorias.length === 0) {
         console.error("No se encontraron categorías en la respuesta de la API.");
@@ -304,14 +304,14 @@ async function deleteProduct() {
 
   // Verificar si el producto existe antes de intentar eliminarlo
   try {
-      const producto = await apiRequest(`/productos/${codigo}`, 'GET');  // Consultar si el producto existe
+      const producto = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${codigo}`, 'GET');  // Consultar si el producto existe
       if (!producto) {
           alert(`No se encontró un producto con el ID ${codigo}.`);
           return;  // Detener si el producto no existe
       }
       console.log(codigo); 
       // Si el producto existe, realizar la eliminación
-      const data = await apiRequest(`/productos/${codigo}`, 'DELETE');
+      const data = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${codigo}`, 'DELETE');
       if (data) {
          alert("Producto eliminado correctamente");
          showQuitarProducto();
@@ -352,7 +352,7 @@ async function buscarProducto() {
 
   try {
       // Solicitar los datos del producto a la API
-      const producto = await apiRequest(`/productos/${codigo}`, 'GET');
+      const producto = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${codigo}`, 'GET');
 
       if (producto) {
           clearContent();
@@ -387,7 +387,7 @@ async function buscarProducto() {
 // Función para obtener las categorías desde la API
 async function getCategorias() {
   // Obtener categorías desde la API
-  const categorias = await apiRequest('/categorias', 'GET');
+  const categorias = await apiRequest(`/usuarios/${id_usuario_sesion}/categorias`, 'GET');
   return categorias.map(categoria => ({
     value: categoria.id_categoria,
     text: categoria.nombre
@@ -432,7 +432,7 @@ async function updateProduct() {
 
   try {
       // Enviar los datos a la API para actualizar el producto
-      const data = await apiRequest(`/productos/${codigo}`, 'PUT', productoActualizado);
+      const data = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${codigo}`, 'PUT', productoActualizado);
       if (data) {
           alert("Producto actualizado correctamente");
       }
@@ -454,7 +454,7 @@ async function showNuevaCategoria() {
   clearContent();
   
   // Obtener las categorías y generar el formulario
-  const categorias = await apiRequest("/categorias", "GET");
+  const categorias = await apiRequest(`/usuarios/${id_usuario_sesion}/categorias`, "GET");
   generateForm(
       [{ nombre: "nuevaCategoria", placeholder: "Ingrese nueva Categoría" }],
       "addCategory",
@@ -481,7 +481,7 @@ async function addCategory() {
   }
 
   // Hacer la solicitud POST para agregar la categoría
-  const data = await apiRequest("/categorias", 'POST', { nombre: nuevaCategoriaNombre });
+  const data = await apiRequest(`/usuarios/${id_usuario_sesion}/categorias`, 'POST', { nombre: nuevaCategoriaNombre });
   if (data) {
       alert("Categoría agregada correctamente");
       inputElement.value = "";  // Limpiar el campo de entrada después de agregar
@@ -499,8 +499,8 @@ async function showAsociarCategoriaProducto() {
 
       // Obtener productos y categorías de la API
       const [productos, categorias] = await Promise.all([
-          apiRequest("/productos", "GET"),
-          apiRequest("/categorias", "GET")
+          apiRequest(`/usuarios/${id_usuario_sesion}/productos`, "GET"),
+          apiRequest(`/usuarios/${id_usuario_sesion}/categorias`, "GET")
       ]);
 
       if (!productos || !categorias) {
@@ -539,7 +539,7 @@ async function asociarCategoriaProducto() {
       const categoriaId = document.getElementById("categoriaSelect").value;
 
       // Obtener los detalles del producto seleccionado
-      const producto = await apiRequest(`/productos/${productoId}`, "GET");
+      const producto = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${productoId}`, "GET");
 
       if (!producto) {
           throw new Error("Producto no encontrado.");
@@ -556,7 +556,8 @@ async function asociarCategoriaProducto() {
       };
 
       // Llamar a apiRequest para realizar la actualización
-      const data = await apiRequest(`/productos/${productoId}`, "PUT", nuevaCategoriaProducto);
+      
+      const data = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${productoId}`, "PUT", nuevaCategoriaProducto);
 
       if (data) {
           alert("Producto actualizado correctamente.");
@@ -599,7 +600,7 @@ async function buscarProducto1() {
 
   try {
     // Solicitar los datos del producto a la API
-    const producto = await apiRequest(`/productos/${codigo}`, 'GET');
+    const producto = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${codigo}`, 'GET');
 
     if (!producto) {
       alert("Producto no encontrado.");
@@ -650,9 +651,8 @@ async function updateStock() {
   }
 
   productoActual.stock = stock; // Actualizar el stock en el objeto completo del producto
-
   try {
-    const data = await apiRequest(`/productos/${productoActual.id_producto}`, 'PUT', productoActual);
+    const data = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${productoActual.id_producto}`, 'PUT', productoActual);
     if (data) {
       alert("Stock actualizado correctamente");
       showActualizarStock();
@@ -830,7 +830,8 @@ async function addProveedor() {
 // muestra la table para selleccionar los productoa asociados al proveedor
 async function showAsociarProductos(idProveedor) {
   clearContent();
-  const productos = await apiRequest("/productos", 'GET');  // Obtener productos disponibles
+  
+  const productos = await apiRequest(`/usuarios/${id_usuario_sesion}/productos`, 'GET');  // Obtener productos disponibles
   
   // Selecciona el contenedor con id="showSelect"
   const container = document.getElementById("showSelect");
@@ -967,7 +968,7 @@ async function buscarProducto3() {
   }
 
   // Solicitar los datos del producto a la API
-  const producto = await apiRequest(`/productos/${codigo}`, 'GET');
+  const producto = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${codigo}`, 'GET');
 
   if (producto) {
       clearContent();
@@ -991,7 +992,7 @@ async function buscarProducto3() {
 } 
 
  async function proveedoresAsociados(id_producto) {
-      const data = await apiRequest(`/productos/${id_producto}/proveedores`, 'GET');
+      const data = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${id_producto}/proveedores`, 'GET');
       if (data && Array.isArray(data)) {
         // Generar la tabla
         const table = `
@@ -1369,8 +1370,10 @@ function showAgregarCompra(item){
     Products(stockThreshold);
   }
   // Peticion a la API
+
+  
   async function Products(stockThreshold) {
-    const data = await apiRequest("/productos");
+    const data = await apiRequest(`/usuarios/${id_usuario_sesion}/productos`);
     if (data && Array.isArray(data)) {
       // Filtrar productos con stock por debajo del límite
       const lowStockProducts = data.filter(product => product.stock < stockThreshold);
