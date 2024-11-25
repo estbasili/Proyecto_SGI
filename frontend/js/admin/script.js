@@ -677,7 +677,7 @@ document.addEventListener("DOMContentLoaded", function () {
   async function loadLowStockProducts(limit = null, renderTable = false) {
     try {
       // Realizar solicitud a la API usando apiRequest
-      const productos = await apiRequest("/productos");
+      const productos = await apiRequest(`/usuarios/${id_usuario_sesion}/productos`);
 
       // Filtrar productos con stock bajo
       const productosBajoStock = productos.filter(producto => producto.stock <= 30); //  límite de stock según sea necesario
