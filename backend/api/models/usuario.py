@@ -107,7 +107,7 @@ class Usuario:
     def login(cls, auth): 
         # auth es un diccionario con 'email' y 'password'
         if not auth or 'email' not in auth or 'password' not in auth:
-            raise DBError({"message": "No autorizado", "code": 401})
+            raise DBError({"message": "No autorizado1", "code": 401})
  
         email = auth['email']
         password = auth['password']
@@ -121,7 +121,7 @@ class Usuario:
 
     # Validar contraseña
         if not row or not check_password_hash(row[2], password): 
-            raise DBError({"message": "No autorizado", "code": 401})
+            raise DBError({"message": "No autorizado2", "code": 401})
 
     # Generar el token JWT
         exp_timestamp = (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=15)).timestamp()

@@ -40,7 +40,7 @@ def register():
             return jsonify(info), info["code"]
         return jsonify( {"message": e.args[0]} ), 400
 
-@app.route('/login', methods=['POST'])
+"""@app.route('/login', methods=['POST'])
 def login():
     print("Encabezados recibidos:", request.headers)
 
@@ -64,4 +64,31 @@ def login():
         if isinstance(e, DBError):
             info = e.args[0]
             return jsonify(info), info["code"]
-        return jsonify({"message": str(e)}), 400
+        return jsonify({"message": str(e)}), 400"""
+
+
+
+
+@app.route('/login', methods=['POST'])
+def login():
+    try:
+        # Asegurarte de que la solicitud contiene un cuerpo JSON
+        if not request.is_json:
+            return jsonify({"message": "El cuerpo de la solicitud debe ser JSON"}), 400
+        
+        # Obtén los datos de autenticación desde la solicitud
+        auth = request.get_json()
+        
+        # Usa el método login de Usuario para validar las credenciales y generar el token
+        login_result = Usuario.login(auth)
+        
+        # Retorna el resultado del login
+        return jsonify(login_result), 200
+    except DBError as db_err:
+        # Manejo específico de errores personalizados
+        return jsonify({"message": db_err.args[0]["message"]}), db_err.args[0]["code"]
+    except Exception as e:
+        # Captura errores generales
+        return jsonify({"message": f"Error del servidor: {str(e)}"}), 500
+
+    

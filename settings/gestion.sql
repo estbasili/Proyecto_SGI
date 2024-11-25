@@ -4,7 +4,6 @@ COLLATE utf8mb4_unicode_ci;
 
 USE gestion_inventario;
 
-
 CREATE TABLE rol (
     id_rol INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL
@@ -21,12 +20,14 @@ CREATE TABLE usuario (
     ON UPDATE CASCADE
 );
 
-
 CREATE TABLE categoria (
     id_categoria INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL
+    nombre VARCHAR(100) NOT NULL,
+    id_usuario INT NOT NULL,
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
 );
-
 
 CREATE TABLE producto (
     id_producto INT AUTO_INCREMENT PRIMARY KEY,
@@ -53,9 +54,8 @@ CREATE TABLE proveedor (
     FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
     ON DELETE CASCADE
     ON UPDATE CASCADE,
-    UNIQUE (id_usuario, email) -- Restricción única compuesta para que un usuario no pueda crear dos proveedores con el mismo mail
+    UNIQUE (id_usuario, email)
 );
-
 
 CREATE TABLE producto_proveedor (
     id_proveedor INT NOT NULL,
@@ -68,7 +68,6 @@ CREATE TABLE producto_proveedor (
     ON DELETE CASCADE
     ON UPDATE CASCADE
 );
-
 
 CREATE TABLE orden_compra (
     id_orden INT AUTO_INCREMENT PRIMARY KEY,

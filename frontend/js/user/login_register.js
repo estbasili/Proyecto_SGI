@@ -87,71 +87,55 @@ window.addEventListener("resize", anchoPage);
 
 //-- funcion si el usuario esta registrado y decide logearse
 
-function userLogin(){ 
-    // Obtener los valores ingresados en el formulario
+function userLogin() { 
     const email = document.getElementById("email_login").value;
     const password = document.getElementById("password_login").value;
 
-    // Elemento para mostrar mensajes al usuario
     const messageElement = document.getElementById("message_login");
     messageElement.classList.remove('error', 'success');
 
-     
-    // Validación de campos
     if (!email || !password) {
         messageElement.innerHTML = "Por favor, complete ambos campos.";
         messageElement.classList.add('error');
         return;
     }
 
-    // Mostrar un mensaje de carga
-    messageElement.innerHTML = "Iniciando sesión...";
-      
-
-    // Configuración de la solicitud
     const credentials = btoa(`${email}:${password}`);
+    const requestBody = { email, password }; // Asegúrate de que los nombres coincidan con los esperados en el backend
+
     const requestOptions = {
         method: 'POST',
         headers: {
             "Content-Type": "application/json",
             "Authorization": `Basic ${credentials}`
-        }
+        },
+        body: JSON.stringify(requestBody) // Aquí enviamos el JSON al servidor
     };
-    console.log(credentials)
-    // Realizar la solicitud de inicio de sesión
-    fetch(urlAPI + '/login', requestOptions)
-        .then(response => handleResponse(response))
-        .then(response => {
-            if (response.token) {
-                // Almacenar los datos de sesión en localStorage
-                
-                localStorage.setItem("token", response.token);
-                localStorage.setItem("email", response.email);
-                localStorage.setItem("id", response.id_usuario);
 
-                // Redirigir al usuario al dashboard
+    console.log("Request body:", requestBody);
+
+    fetch(urlAPI + '/login', requestOptions)
+        .then(response => response.text())
+        .then(data => {
+            console.log("Contenido de la respuesta:", data);
+            const jsonData = JSON.parse(data); // Intenta parsear como JSON
+            if (jsonData.token) {
+                localStorage.setItem("token", jsonData.token);
+                localStorage.setItem("email", jsonData.email);
+                localStorage.setItem("id", jsonData.id_usuario);
                 window.location.href = "index.html";
             } else {
-                // Mensaje en caso de que no se obtenga un token
-                messageElement.innerHTML = response.message || "Error al iniciar sesión.";
+                messageElement.innerHTML = jsonData.message || "Error al iniciar sesión.";
                 messageElement.classList.add('error');
             }
         })
         .catch(error => {
-            // Hubo algún error, ya sea en respueta de la API o error de conexión
-            if (error.message === "Failed to fetch") {
-                messageElement.innerHTML = "No se pudo conectar con el servidor. Verifique su conexión o intente más tarde.";
-            } else {
-                messageElement.innerHTML = error.message || "Error al iniciar sesión";
-            }
+            console.error("Error en la solicitud:", error);
+            messageElement.innerHTML = "Error al iniciar sesión. Verifique su conexión.";
             messageElement.classList.add('error');
-            messageElement.classList.add('error');
-        })
-        .finally(() => {
-           
-            
-      });
+        });
 }
+
 
 // -- funcion para registrarse
 function userRegister(){
