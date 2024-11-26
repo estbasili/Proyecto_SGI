@@ -35,14 +35,14 @@ class Orden:
 
         return True, "Validación exitosa. Todos los datos son válidos."
 
-    def __init__(self, data, id_usuario):
+    def __init__(self, data):
         self.id_orden = data[0]
         self.fecha_pedido = data[1] if isinstance(data[1], (datetime, date)) else datetime.strptime(data[1], '%Y-%m-%d') if data[1] else None
         self.fecha_recepcion = data[2] if isinstance(data[2], (datetime, date)) else datetime.strptime(data[2], '%Y-%m-%d') if data[2] else None
         self.estado = data[3]
         self.id_proveedor = data[4]
-        self.id_usuario = id_usuario  # Aquí se asigna el id_usuario recibido al crear el objeto
-
+        self.id_usuario = data[5]
+        
     def a_json(self):
         return {
             "id_orden": self.id_orden,
@@ -54,7 +54,7 @@ class Orden:
         }
 
     @classmethod
-    def get_all_ordenes(cls, id_usuario):
+    def get_all_ordenes(cls,id_usuario):
         conexion = get_db_connection()
         cursor = conexion.cursor()
         cursor.execute('SELECT * FROM orden_compra WHERE id_usuario = %s', (id_usuario,))
