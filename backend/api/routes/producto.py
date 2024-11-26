@@ -12,8 +12,8 @@ def get_productos_por_usuario(id_usuario):
     try:
         productos = Producto.get_productos_by_user(id_usuario)
         return jsonify(productos), 200
-    except DBError as e:
-        return jsonify({"message": str(e)}), 400
+    #except DBError as e:
+    #    return jsonify({"message": str(e)}), 400
     except Exception as e:
         return jsonify({"message": "Error inesperado: " + str(e)}), 500
     
@@ -25,7 +25,7 @@ def get_producto_por_id(id_usuario, id_producto):
         producto = Producto.get_by_id_producto(id_usuario, id_producto)
         return jsonify(producto), 200
     except DBError as e:
-        return jsonify({"message": str(e)}), 404
+        return jsonify([]), 200 # respuesta exitosa, pero sin datos, devuelve un array vacio
     except Exception as e:
         return jsonify({"message": "Error inesperado"}), 500
     
@@ -80,6 +80,13 @@ def obtener_proveedores(id_usuario, id_producto):
 
 
 ##################################################################
+
+
+
+
+
+
+
 # ruta: /productos/id_usuario/proveedores que recibe el id_ usuario_sesion y devuelva un arreglo de dict
 # [{"id_producto": , "producto_nombre": ,"proveedor_nombre": "stock": }, {...}, ... ] para ser representado en una tabla
 # en la parte de inventario actual del frontend

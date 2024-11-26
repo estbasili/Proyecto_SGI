@@ -167,16 +167,19 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
       const response = await fetch(`${urlAPI}${endpoint}`, options);
       console.log(`${urlAPI}${endpoint}`);
       // Manejar error 404 de forma específica
-      if (response.status === 404) {
-          throw new Error("No encontrado");
-      }  
+      //if (response.status === 404) {
+      //    throw new Error("No encontrado");
+      //}  
       // Manejo respuesta no exitosa
       if (!response.ok) {
           throw new Error(`Error en la solicitud: ${response.status}`);
       }
       // Manejo si el código de estado es 204 (sin contenido)
-      if(response.status === 204) {
-        return {};
+      //if(response.status === 204) {
+      //  return {};  
+      //}
+      if (response.status === 204 || response.status === 404) {
+        return []; // Retorna un array vacío si no hay productos
       }
       
       // Si hay contenido en la respuesta, devuelvo JSON
@@ -191,7 +194,7 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
 
 
 
-// -- Gestor de Productos ----------------------------------------------------
+// -- Gestor de Productos ( anda 25/11)----------------------------------------------------
 
 
 // Función para Agregar Producto (anda)
@@ -213,7 +216,6 @@ function showAgregarProducto() {
         "btn-success"
     );
 }
-
 async function addProduct() {
   const nombre = document.getElementById("producto").value.trim();
   const descripcion = document.getElementById("descripcion").value.trim();
@@ -235,7 +237,13 @@ async function addProduct() {
   try {
     // Consultar las categorías existentes
     const categorias = await apiRequest(`/usuarios/${id_usuario_sesion}/categorias`, 'GET');
-
+    
+    if (!Array.isArray(categorias))
+    {
+      console.error("La respuesta de categorías no es un arreglo:", categorias);
+      alert("No se encontraron categorías, por favor cree categoría");
+      return;
+    }
     if (!categorias || categorias.length === 0) {
         console.error("No se encontraron categorías en la respuesta de la API.");
         alert("No se encontraron categorías disponibles.");
@@ -272,7 +280,7 @@ async function addProduct() {
     console.log("Datos a enviar:", nuevoProducto);
 
     // Enviar los datos a la API
-    const data = await apiRequest("/productos", 'POST', nuevoProducto);
+    const data = await apiRequest(`/usuarios/${id_usuario_sesion}/productos`, 'POST', nuevoProducto);
     if (data) {
         alert("Producto agregado correctamente");
     }
@@ -284,8 +292,9 @@ async function addProduct() {
 
   showAgregarProducto();
 }
+// fin funcion Agregar Producto
 
-// Función para Eliminar Producto ( envia el id falta el delete en el back)
+// Función para Eliminar Producto (anda)
 function showQuitarProducto() {
   showHeader("Gestor de Productos", "Eliminar Producto");
   clearContent();
@@ -297,32 +306,37 @@ function showQuitarProducto() {
       "btn-danger"
   );
 }
-
 async function deleteProduct() {
   const codigo = document.getElementById("idProduct").value.trim();  // Obtener el ID del producto
-  
+
+   // Valida que el código no esté vacío
+    if (!codigo) {
+        alert("Por favor, ingresa un ID de producto.");
+        return;
+    }
 
   // Verificar si el producto existe antes de intentar eliminarlo
   try {
       const producto = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${codigo}`, 'GET');  // Consultar si el producto existe
-      if (!producto) {
+      console.log (producto);
+      if (producto.length === 0) {
           alert(`No se encontró un producto con el ID ${codigo}.`);
           return;  // Detener si el producto no existe
       }
-      console.log(codigo); 
+
       // Si el producto existe, realizar la eliminación
       const data = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${codigo}`, 'DELETE');
       if (data) {
-         alert("Producto eliminado correctamente");
-         showQuitarProducto();
-         
+          alert("Producto eliminado correctamente");
+          showQuitarProducto(); // Actualizar la interfaz
       }
 
   } catch (error) {
-      console.error(error);
-      alert("Hubo un problema al eliminar el producto.");
+    console.error("Error en el proceso de eliminación:", error);
+    alert("Hubo un problema al eliminar el producto.");      
   }
 }
+// fin Eliminar
 
 // Función para Actualizar Producto (anda)
 function showActualizarProducto() {
@@ -340,7 +354,6 @@ function showActualizarProducto() {
       "btn-primary"
   );
 }
-
 // Función para buscar el producto por su código
 async function buscarProducto() {
   const codigo = document.getElementById("codigo").value.trim();
@@ -353,8 +366,13 @@ async function buscarProducto() {
   try {
       // Solicitar los datos del producto a la API
       const producto = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${codigo}`, 'GET');
+      console.log(producto);
 
-      if (producto) {
+       // Verificar si la respuesta es un array vacío
+       if (Array.isArray(producto) && producto.length === 0) {
+        alert("Producto no encontrado");
+        return;  // Detener la ejecución si no se encuentra el producto
+    }
           clearContent();
           showHeader("Gestor de Productos", "Actualizar Producto");
 
@@ -373,7 +391,7 @@ async function buscarProducto() {
               "Actualizar",
               "btn-warning"
           );
-      }
+      
   } catch (error) {
       if (error.message === 'Producto no encontrado') {
           alert("El producto con el código especificado no existe.");
@@ -383,7 +401,6 @@ async function buscarProducto() {
       }
   }
 }
-
 // Función para obtener las categorías desde la API
 async function getCategorias() {
   // Obtener categorías desde la API
@@ -393,7 +410,6 @@ async function getCategorias() {
     text: categoria.nombre
   }));
 }
-
 // Función para actualizar el producto
 async function updateProduct() {
   const codigo = document.getElementById("codigo").value.trim();
@@ -444,17 +460,16 @@ async function updateProduct() {
 // fin funcion atualizar producto
 
 
-///////////////////////////////////////////////////////////////////-- Gestor Categoria ---------------------------------------------------
+///////////////////////////////////////////////////////////////////-- Gestor Categoria (Anda 25/11)---------------------------------------------------
 
 
-// Agregar nueva categoria (anda)
-// Mostrar el formulario y cargar categorías existentes
-async function showNuevaCategoria() {
+// Agregar nueva categoria (anda 25/11)
+function showNuevaCategoria() {
   showHeader("Gestor de Categoría", "Agregar Categoría");
   clearContent();
   
   // Obtener las categorías y generar el formulario
-  const categorias = await apiRequest(`/usuarios/${id_usuario_sesion}/categorias`, "GET");
+ // const categorias = await apiRequest(`/usuarios/${id_usuario_sesion}/categorias`, "GET");
   generateForm(
       [{ nombre: "nuevaCategoria", placeholder: "Ingrese nueva Categoría" }],
       "addCategory",
@@ -463,34 +478,35 @@ async function showNuevaCategoria() {
       "btn-success"
   );
   
-  // Almacenar las categorías en un atributo de dataset para la validación
-  document.getElementById("addCategory").dataset.categorias = JSON.stringify(categorias || []);
 }
-
-// Función para agregar categoría, solo si no existe previamente
+// Función para agregar categoría
 async function addCategory() {
   const inputElement = document.getElementById("nuevaCategoria");
   const nuevaCategoriaNombre = inputElement.value.trim();
-  const categoriasExistentes = JSON.parse(document.getElementById("addCategory").dataset.categorias);
 
-  // Verificar si la categoría ya existe en la lista cargada
-  if (categoriasExistentes.some(cat => cat.nombre.toLowerCase() === nuevaCategoriaNombre.toLowerCase())) {
-      alert("La categoría ya existe.");
-      inputElement.value = "";  // Limpiar el campo de entrada
-      return;
+  // Valida que el campo no esté vacío
+  if (!nuevaCategoriaNombre) {
+    alert("El nombre de la categoría no puede estar vacío.");
+    return;
   }
 
-  // Hacer la solicitud POST para agregar la categoría
-  const data = await apiRequest(`/usuarios/${id_usuario_sesion}/categorias`, 'POST', { nombre: nuevaCategoriaNombre });
-  if (data) {
-      alert("Categoría agregada correctamente");
-      inputElement.value = "";  // Limpiar el campo de entrada después de agregar
-      showNuevaCategoria();  // Recargar el formulario y categorías
-  }
+  try{
+       const response = await apiRequest(`/usuarios/${id_usuario_sesion}/categorias`, 'POST', { nombre: nuevaCategoriaNombre });
+       if (response.message === "La categoría ya existe") {
+        alert(`La categoría "${nuevaCategoriaNombre}" ya existe.`);
+        } else {
+            alert("Categoría agregada correctamente.");
+            inputElement.value = ""; // Limpiar el campo de entrada
+            showNuevaCategoria();   // Recargar el formulario y categorías
+        }
+      } catch (error) {
+                console.error("Error al agregar categoría:", error);
+                alert("Hubo un problema al agregar la categoría. Intenta nuevamente.");
+      }
 }
 // fin agregra categoria
 
-// Asociacion de categoria a producto (anda)
+// Asociacion de categoria a producto (anda25/11)
 // Función para mostrar el formulario de asociación de categoría a producto
 async function showAsociarCategoriaProducto() {
   try {
@@ -572,9 +588,10 @@ async function asociarCategoriaProducto() {
 // fin de Asociacion
 
 
-///////////////////////////////////////////////////////////////////-- Gestor Stock -------------------------------------------------------
+///////////////////////////////////////////////////////////////////-- Gestor Stock (anda 25/11) -------------------------------------------------------
+//funcion para actualizar stock de un producto (anda 25/11)
 
-// Función principal para mostrar el formulario de actualización de stock (revisar problema si no se encuentra el codigo)
+// Función principal para mostrar el formulario de actualización de stock ()
 function showActualizarStock() {
   showHeader("Gestor de Stock", "Actualizar Stock de Producto");
   clearContent();
@@ -588,7 +605,6 @@ function showActualizarStock() {
     "btn-primary"
   );
 }
-
 // Función para buscar el producto y mostrar solo el campo de stock
 async function buscarProducto1() {
   const codigo = document.getElementById("codigo").value.trim();
@@ -601,11 +617,14 @@ async function buscarProducto1() {
   try {
     // Solicitar los datos del producto a la API
     const producto = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${codigo}`, 'GET');
+    console.log(producto);
 
-    if (!producto) {
-      alert("Producto no encontrado.");
-      return;
+       // Verificar si la respuesta es un array vacío
+       if (Array.isArray(producto) && producto.length === 0) {
+        alert("Producto no encontrado");
+        return;  // Detener la ejecución si no se encuentra el producto
     }
+
 
     // Almacena los datos del producto
     productoActual = { ...producto, precio: parseFloat(producto.precio) };
@@ -622,7 +641,6 @@ async function buscarProducto1() {
     }
   }
 }
-
 // Función para mostrar el formulario de actualización de stock
 function mostrarFormularioActualizarStock(producto) {
   clearContent();
@@ -640,7 +658,6 @@ function mostrarFormularioActualizarStock(producto) {
     "btn-warning"
   );
 }
-
 // Función para actualizar el stock, enviando todos los datos del producto
 async function updateStock() {
   const stock = parseInt(document.getElementById("stock").value.trim());
@@ -664,7 +681,7 @@ async function updateStock() {
 }
 // fin de gestir actualizacion stock
 
-// Notificaciones de producto bajo stock y si genera una lista de los productos bajo stock (anda)
+// Notificaciones de producto bajo stock y si genera una lista de los productos bajo stock (anda 25/11)
 document.addEventListener("DOMContentLoaded", function () {
   loadLowStockProducts(4); // Carga productos de bajo stock en el menú con un límite de 4
 
@@ -678,7 +695,8 @@ document.addEventListener("DOMContentLoaded", function () {
     try {
       // Realizar solicitud a la API usando apiRequest
       const productos = await apiRequest(`/usuarios/${id_usuario_sesion}/productos`);
-
+      
+    
       // Filtrar productos con stock bajo
       const productosBajoStock = productos.filter(producto => producto.stock <= 30); //  límite de stock según sea necesario
 
@@ -696,10 +714,13 @@ document.addEventListener("DOMContentLoaded", function () {
   // Función para renderizar productos de bajo stock en el menú de notificaciones
   function renderLowStockMenuItems(productos, limit) {
     const stockItemsContainer = document.getElementById("low-stock-items");
+    const stockBadge = document.getElementById("stock-badge");
     stockItemsContainer.innerHTML = ""; // Limpia el contenido previo
 
     if (productos.length === 0) {
       stockItemsContainer.innerHTML = "<p class='dropdown-item text-muted'>No hay productos con stock mínimo.</p>";
+      // Ocultar el badge de notificaciones
+      stockBadge.style.display = "none";
     } else {
       const productosMostrados = limit ? productos.slice(0, limit) : productos;
       productosMostrados.forEach((producto) => {
@@ -714,7 +735,9 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       // Actualiza el contador de productos en stock mínimo
-      document.getElementById("stock-badge").textContent = productos.length;
+      //document.getElementById("stock-badge").textContent = productos.length;
+      stockBadge.textContent = productos.length;
+      stockBadge.style.display = "inline-block"; // Asegurar que sea visible
     }
   }
 
@@ -771,14 +794,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-//////////////////////////////////////////////////////////////-- Gestor de proveedores ------------------------------------------------
+//////////////////////////////////////////////////////////////-- Gestor de proveedores (anda 25/11)------------------------------------------------
  
-// Función para Agregar Proveedor (anda falta validar campo telefono para que sea un numero que luego se combierta en str)
-async function showAgregarProveedor() {
+// Función para Agregar Proveedor (anda25/11)
+function showAgregarProveedor() {
   showHeader("Gestor de Proveedores", "Agregar Proveedor y Asociar productos");
   clearContent();
-  
-
   generateForm(
       [
           { nombre: "nombre", placeholder: "Nombre de proveedor" },
@@ -791,7 +812,6 @@ async function showAgregarProveedor() {
       "btn-success"
   );
 }
-
 // Función para obtener las categorías desde la API
 async function getUsuarios() {
   // Obtener categorías desde la API
@@ -801,7 +821,6 @@ async function getUsuarios() {
     text: usuario.nombre
   }));
 }
-
 async function addProveedor() {
   const nuevoProveedor = {
       nombre: document.getElementById("nombre").value,
@@ -809,6 +828,12 @@ async function addProveedor() {
       telefono: document.getElementById("telefono").value,
       id_usuario: id_usuario_sesion
   };
+
+  // Verificar si el nombre está vacío
+   if (!nuevoProveedor.nombre || !nuevoProveedor.email || !nuevoProveedor.telefono) {
+      alert(" Todos los campos son obligatorios");
+      return;  // Detener la ejecución si el nombre está vacío
+   }
 
   const data = await apiRequest(`/usuarios/${id_usuario_sesion}/proveedores`, 'POST', nuevoProveedor);
   if (data) {
@@ -826,7 +851,6 @@ async function addProveedor() {
         } 
   }
 }
-
 // muestra la table para selleccionar los productoa asociados al proveedor
 async function showAsociarProductos(idProveedor) {
   clearContent();
@@ -917,7 +941,6 @@ async function showAsociarProductos(idProveedor) {
     });
   });
 }
-
 // Función para asociar los productos seleccionados a un proveedor
 async function asociarProductosAlProveedor(idProveedor) {
   const selectedProductos = Array.from(document.querySelectorAll('.producto-checkbox:checked'))
@@ -940,8 +963,7 @@ async function asociarProductosAlProveedor(idProveedor) {
 }
 // fin para Agregar proveeedor
 
-//Función para consultar los provedores asociados a productos especificos  (anda)
-
+//Función para consultar los provedores asociados a productos especificos  (anda 25/11)
 function showConsultarProveedor() {
     showHeader("Gestor de Proveedores", "Proveedores asociados al producto");
     clearContent();
@@ -957,7 +979,6 @@ function showConsultarProveedor() {
     );
     
 }
-
 // Función para buscar el producto por su código
 async function buscarProducto3() {
   const codigo = document.getElementById("codigo").value.trim();
@@ -966,11 +987,16 @@ async function buscarProducto3() {
     alert("Por favor, ingresa el código del producto.");
     return;
   }
-
+  
   // Solicitar los datos del producto a la API
   const producto = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${codigo}`, 'GET');
+  console.log(producto);
 
-  if (producto) {
+     // Verificar si la respuesta es un array vacío
+     if (Array.isArray(producto) && producto.length === 0) {
+      alert("Producto no encontrado");
+      return;  // Detener la ejecución si no se encuentra el producto
+  }
       clearContent();
       showHeader("Gestor de Proveedores", " Proveedores asociados al producto");
 
@@ -988,11 +1014,10 @@ async function buscarProducto3() {
 
       document.getElementById("showSelect").innerHTML = div; 
       proveedoresAsociados(producto.id_producto);  
-    }
+    
 } 
-
  async function proveedoresAsociados(id_producto) {
-      const data = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${id_producto}/proveedores`, 'GET');
+      const data = await apiRequest(`/usuarios/${id_usuario_sesion}/proveedores/${id_producto}`, 'GET');
       if (data && Array.isArray(data)) {
         // Generar la tabla
         const table = `
@@ -1327,7 +1352,7 @@ function showAgregarCompra(item){
   
   /////////////////////////////////////////////////////////////-- Gestor de Reportes -------------------------------------------------
 
-  // Función para Listar Productos  con limite de stock (anda)
+  // Función para Listar Productos  con limite de stock (anda 25/11)
   function showProdBS() {
     showHeader("Gestor de Reportes", "Lista de Productos Bajo Stock");
     clearContent();
@@ -1370,8 +1395,6 @@ function showAgregarCompra(item){
     Products(stockThreshold);
   }
   // Peticion a la API
-
-  
   async function Products(stockThreshold) {
     const data = await apiRequest(`/usuarios/${id_usuario_sesion}/productos`);
     if (data && Array.isArray(data)) {
@@ -1391,6 +1414,8 @@ function showAgregarCompra(item){
     }
   }
   // fin de listar productos con limite de stock
+
+
 
 
   // Funcion para el historial de orden de compra

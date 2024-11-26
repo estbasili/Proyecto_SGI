@@ -79,8 +79,8 @@ class Producto:
         cursor.close()
         conexion.close()
         #si no se encontraron productos
-        if not productos:
-            raise DBError(f"No existen productos para el usuario con ID {id_usuario}")
+        #if not productos:
+        #   raise DBError(f"No existen productos para el usuario con ID {id_usuario}")
         return productos
     
     #producto por id_producto
@@ -94,7 +94,7 @@ class Producto:
         conexion.close()
         if data:
            return cls(data).a_json()  # Retornar datos en formato JSON
-        raise DBError(f"No se encontró el producto con ID {id_producto} para el usuario {id_usuario}")
+        return []
 
 
     #create

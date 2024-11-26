@@ -196,6 +196,7 @@ class Proveedor:
             raise DBError(f"No existen productos asociados al proveedor con ID {id_proveedor}.")
         return [{"idProducto": row[0], "nombre_producto": row[1]} for row in data]
     
+    
     #asociar productos---- falta probarla, porque todavia no tengo listo lo de productos hasta ahora pide la lista pero no falla
     @classmethod
     def asociar_producto(cls, id_usuario, id_proveedor, id_producto):
