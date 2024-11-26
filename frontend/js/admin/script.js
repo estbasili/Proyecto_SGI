@@ -963,6 +963,7 @@ async function asociarProductosAlProveedor(idProveedor) {
 }
 // fin para Agregar proveeedor
 
+
 //Función para consultar los provedores asociados a productos especificos  (anda 25/11)
 function showConsultarProveedor() {
     showHeader("Gestor de Proveedores", "Proveedores asociados al producto");
@@ -1499,19 +1500,27 @@ function showAgregarCompra(item){
 
 // Función para manejar el botón de detalle
   async function detalleProductos(idOrden, idUsuario, idProveedor) {
-    showHeader("Gestor de Reportes", "Historial de Compras/Detalle de orden");
     clearContent();
-    
-    
-    const content = `<h4> id de orden: ${idOrden}    id de usuario: ${idUsuario} id de proveedor: ${idProveedor}</h4>`;
-    document.getElementById("showSelect").innerHTML = content
+    showHeader("Gestor de Proveedores", " Proveedores asociados al producto");
 
-    console.log(`Detalles de la orden ID: ${idOrden}, Operador ID: ${idUsuario}`);
+   const div = `
+                <div class="card-body bg-dark rounded p-3 shadow-sm">
+                  <h4>Detalle de Orden</h4>
+                  <p>Código: ${idOrden}</p>
+                <div class="card-body bg-dark  p-1 text-center">
+                  <h4>Productos</h4>
+                </div>
+                </div>
+               
+               `;
+
+    document.getElementById("showSelect").innerHTML = div; 
    
+      
 }
 
 
-/// funcion para listar inventario actual
+/// funcion para listar inventario actual (anda 25/11)
 function showInventarioActual(){
   showHeader("Gestor de Reportes", "Historial Actual");
   clearContent();
@@ -1546,67 +1555,6 @@ function showInventarioActual(){
 
   listar(id_usuario_sesion);
 }
-
-/*
-async function listar(id_usuario_sesion) {
-  const url = `/productos/${id_usuario_sesion}/usuario`;
-  const data = await apiRequest(url);
-
-  if (data && Array.isArray(data)) {
-    // Generar filas para la tabla
-    const rows = data.map(producto => `
-      <tr>
-        <td>${producto.id_producto}</td>
-        <td>${producto.producto_nombre}</td>
-        <td>${producto.stock}</td>
-        <td>${producto.proveedor_nombre}</td>
-      </tr>
-    `).join("");
-
-    // Insertar filas en el cuerpo de la tabla
-    document.getElementById("tableBody_products").innerHTML = rows;
-
-    // Inicializar DataTable
-    $('#dataTable_products').DataTable({
-      destroy: true, // Reinicia la tabla si ya existe
-      paging: true,
-      searching: true,
-      info: false,
-      responsive: true,
-      footerCallback: function (row, data, start, end, display) {
-        // Calcular la sumatoria del stock visible en la tabla
-        const api = this.api();
-        const sumatoria = api
-          .column(2, { search: 'applied' }) // Columna de "Stock"
-          .data()
-          .reduce((total, stock) => total + parseFloat(stock || 0), 0);
-
-        // Insertar la sumatoria en el pie de la tabla
-        $(api.column(2).footer()).html(`Total de stock: ${sumatoria}`);
-      },
-      language: {
-        search: "Filtrar producto:",
-        lengthMenu: "Mostrar _MENU_ registros por página",
-        zeroRecords: "No se encontraron productos",
-        infoEmpty: "No hay registros disponibles",
-        infoFiltered: "(filtrado de _MAX_ registros totales)",
-        paginate: {
-          first: "Primero",
-          last: "Último",
-          next: "Siguiente",
-          previous: "Anterior"
-        }
-      }
-    });
-  } else {
-    document.getElementById("tableBody_products").innerHTML = `
-      <tr>
-        <td colspan="4">No se encontraron productos.</td>
-      </tr>`;
-  }
-}*/
-
-
 // funcion para listar el inventario actual
 async function listar(id_usuario_sesion) {
   const url = `/productos/${id_usuario_sesion}/usuario`;
@@ -1681,7 +1629,6 @@ async function listar(id_usuario_sesion) {
       </tr>`;
   }
 }
-
 //fin para listar Inventario actual
 
 
