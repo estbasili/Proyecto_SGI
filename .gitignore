@@ -13,6 +13,7 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
+*.pyc
 
 # Archivos de logs y bases de datos locales
 *.log

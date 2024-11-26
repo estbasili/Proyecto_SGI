@@ -1524,6 +1524,7 @@ function showInventarioActual(){
         <tr>
           <th>ID</th>
           <th>Nombre</th>
+          <th>Descripción</th>
           <th>Stock</th>
           <th>Proveedor</th>
        </tr>
@@ -1531,10 +1532,12 @@ function showInventarioActual(){
       <tbody id="tableBody_products"></tbody>
       <tfoot>
         <tr>
-          <th colspan="2"></th>
-          <th>Total: 0</th>
-          <th></th>
-        </tr>
+        <th></th> <!-- Vacío para la columna ID -->
+        <th></th> <!-- Vacío para la columna Nombre -->
+        <th></th> <!-- Vacío para la columna Descripción -->
+        <th>Total de stock: 0</th> <!-- Mostrar total aquí -->
+        <th></th> <!-- Vacío para la columna Proveedor -->
+      </tr>
       </tfoot>
     </table>
   </div>`;
@@ -1603,10 +1606,12 @@ async function listar(id_usuario_sesion) {
   }
 }*/
 
+
+// funcion para listar el inventario actual
 async function listar(id_usuario_sesion) {
   const url = `/productos/${id_usuario_sesion}/usuario`;
   const data = await apiRequest(url);
-
+ 
   if (data && Array.isArray(data)) {
     // Agrupar los proveedores por producto
     const productosAgrupados = {};
@@ -1615,6 +1620,7 @@ async function listar(id_usuario_sesion) {
         productosAgrupados[producto.id_producto] = {
           id_producto: producto.id_producto,
           producto_nombre: producto.producto_nombre,
+          descripcion: producto.descripcion,
           stock: producto.stock,
           proveedores: []
         };
@@ -1627,6 +1633,7 @@ async function listar(id_usuario_sesion) {
       <tr>
         <td>${producto.id_producto}</td>
         <td>${producto.producto_nombre}</td>
+        <td>${producto.descripcion}</td>
         <td>${producto.stock}</td>
         <td>${producto.proveedores.join(", ")}</td>
       </tr>
@@ -1646,12 +1653,12 @@ async function listar(id_usuario_sesion) {
         // Calcular la sumatoria del stock visible en la tabla
         const api = this.api();
         const sumatoria = api
-          .column(2, { search: 'applied' }) // Columna de "Stock"
+          .column(3, { search: 'applied' }) // Columna de "Stock"
           .data()
           .reduce((total, stock) => total + parseFloat(stock || 0), 0);
 
         // Insertar la sumatoria en el pie de la tabla
-        $(api.column(2).footer()).html(`Total de stock: ${sumatoria}`);
+        $(api.column(3).footer()).html(`Total de stock: ${sumatoria}`);
       },
       language: {
         search: "Filtrar producto:",

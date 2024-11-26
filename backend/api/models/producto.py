@@ -246,7 +246,7 @@ class Producto:
         cursor = conexion.cursor()
         cursor.execute("""
         SELECT 
-            p.id_producto, p.nombre AS producto_nombre, p.stock, pr.nombre AS proveedor_nombre
+            p.id_producto, p.nombre AS producto_nombre, p.descripcion,p.stock, pr.nombre AS proveedor_nombre
         FROM 
             producto p
         JOIN 
@@ -260,8 +260,9 @@ class Producto:
         {
             "id_producto": row[0],
             "producto_nombre": row[1],
-            "stock": row[2],
-            "proveedor_nombre": row[3],
+            "descripcion": row[2],
+            "stock": row[3],
+            "proveedor_nombre": row[4],
         }
         for row in cursor.fetchall()]
         cursor.close()
