@@ -1091,10 +1091,7 @@ function generarFormOrdenCompra(){
           <div class="col-12">
             <label for="estado">Estado:</label>
             <select id="estado" name="estado" class="form-control" required>
-              <option value="Pendiente">Pendiente</option>
-              <option value="Procesando">Procesando</option>
-              <option value="Completado">Completado</option>
-              <option value="Cancelado">Cancelado</option>
+                <option value="">Cargando estados...</option>
             </select>
           </div>
 
@@ -1119,9 +1116,35 @@ function generarFormOrdenCompra(){
 
   // Cargar proveedores y configurar el formulario
   loadProveedoresSelect();
+  loadState();
   setFechaPedido();
   cargarMultipleInput();
 }
+
+async function loadState() {
+  const estadoSelect = document.getElementById('estado');
+
+  try {
+      // Llamada a la API utilizando apiRequest
+      const data = await apiRequest(`/estados`, 'GET');
+      console.log(data);
+      // Limpiar las opciones anteriores del select
+      estadoSelect.innerHTML = '';
+
+      // Agregar nuevas opciones al select
+      data.forEach(estado => {
+          const option = document.createElement('option');
+          option.value = estado.id_estado;
+          option.textContent = estado.descripcion;
+          estadoSelect.appendChild(option);
+      });
+  } catch (error) {
+      // Manejo de errores
+      console.error("Error al cargar los estados:", error);
+      estadoSelect.innerHTML = '<option value="">Error al cargar estados</option>';
+  }
+}
+
 
 function setFechaPedido() {
   const fechaPedidoInput = document.getElementById("fecha_pedido");
@@ -1140,10 +1163,10 @@ function capturarProductos() {
   const ordenCompra = {
     fecha_pedido: document.getElementById("fecha_pedido").value,
     fecha_recepcion: document.getElementById("fecha_recepcion").value,
-    estado: document.getElementById("estado").value,
-    id_proveedor: parseInt(document.getElementById("proveedor_seleccionado").value),
-    id_usuario: id_usuario_sesion, // Cambiar según sea necesario
-    productos: [] // Lista para almacenar productos
+    estado: parseInt(document.getElementById("estado").value, 10),  // Convierte a int
+    id_proveedor: parseInt(document.getElementById("proveedor_seleccionado").value, 10),  // Convierte a int
+    id_usuario: id_usuario_sesion,  // Se asume que 'id_usuario_sesion' está definido correctamente
+    productos: []  // Lista para almacenar productos, puede llenarse dinámicamente
   };
 
   const productRows = document.querySelectorAll("#productos-container .product-row");
@@ -1191,13 +1214,13 @@ function enviarOrdenCompra(event) {
   const proveedorId = document.getElementById("proveedor_seleccionado").value;
   const fecha_pedido = document.getElementById("fecha_pedido").value;
   const fecha_recepcion = document.getElementById("fecha_recepcion").value;
-  const estado = document.getElementById("estado").value;
-  const proveedor =document.getElementById('proveedor_seleccionado').value
-  if (!proveedorId || !fecha_pedido || !fecha_recepcion || !estado || !proveedor) {
+  const estado = parseInt(document.getElementById("estado").value, 10);  // Convertimos a int
+  const proveedor = document.getElementById('proveedor_seleccionado').value;
+
+  if (!proveedorId || !fecha_pedido || !fecha_recepcion || isNaN(estado) || !proveedor) {
     alert("Por favor, complete todos los campos obligatorios.");
     return;
   }
-
   // Capturar productos
   const ordenCompra = capturarProductos();
 

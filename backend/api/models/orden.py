@@ -1,14 +1,13 @@
 from api.db.db import get_db_connection, DBError
 from datetime import datetime, date
 from api.models.detalle_orden import DetalleOrden
-
 class Orden:
     schema = {
         "fecha_pedido": str,
         "fecha_recepcion": (str, type(None)),  # Permitir None como tipo válido
-        "estado": str,
+        "estado": int,  # Estado debe ser un entero
         "id_proveedor": int,
-        #"id_usuario": int
+        #"id_usuario": int  # Si no lo usas, lo dejas comentado
     }
 
     @classmethod
@@ -36,13 +35,15 @@ class Orden:
         return True, "Validación exitosa. Todos los datos son válidos."
 
     def __init__(self, data):
+        # Asignación de valores considerando el tipo adecuado
         self.id_orden = data[0]
         self.fecha_pedido = data[1] if isinstance(data[1], (datetime, date)) else datetime.strptime(data[1], '%Y-%m-%d') if data[1] else None
         self.fecha_recepcion = data[2] if isinstance(data[2], (datetime, date)) else datetime.strptime(data[2], '%Y-%m-%d') if data[2] else None
-        self.estado = data[3]
+        self.estado = int(data[3])  # Convertir estado a entero
         self.id_proveedor = data[4]
-        self.id_usuario = data[5]
-        
+        self.id_usuario = data[5] if len(data) > 5 else None  # Asegurar que no cause error si no existe
+
+
     def a_json(self):
         return {
             "id_orden": self.id_orden,
