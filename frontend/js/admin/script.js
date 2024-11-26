@@ -1175,7 +1175,7 @@ async function guardarOrdenCompra(ordenCompra) {
       console.log("Datos enviados a la API:", ordenCompra); // Log de los datos enviados
 
       // Realizar la solicitud a la API
-      const data = await apiRequest("/ordenes", 'POST', ordenCompra);
+      const data = await apiRequest(`/usuarios/${id_usuario_sesion}/ordenes`, 'POST', ordenCompra);
 
       if(data){
         console.log(data);
@@ -1342,7 +1342,6 @@ function loadProveedoresSelect(){
       selectElement.appendChild(errorOption);
     });
 }
-
 // Esta función se llamará al mostrar el formulario para agregar una compra
 function showAgregarCompra(item){
   showHeader("Gestor de Compras","Agregar Compra");
@@ -1354,7 +1353,7 @@ function showAgregarCompra(item){
   /////////////////////////////////////////////////////////////-- Gestor de Reportes -------------------------------------------------
 
   // Función para Listar Productos  con limite de stock (anda 25/11)
-  function showProdBS() {
+function showProdBS() {
     showHeader("Gestor de Reportes", "Lista de Productos Bajo Stock");
     clearContent();
     
@@ -1389,14 +1388,14 @@ function showAgregarCompra(item){
     // Límite de stock inicial
     const initialStockThreshold = parseInt(document.getElementById("stockThresholdInput").value, 10);
     Products(initialStockThreshold);
-  }
+}
   // Función que se llama al hacer clic en el botón "Aplicar"
-  function establecerStock() {
+function establecerStock() {
     const stockThreshold = parseInt(document.getElementById("stockThresholdInput").value, 10);
     Products(stockThreshold);
-  }
+}
   // Peticion a la API
-  async function Products(stockThreshold) {
+async function Products(stockThreshold) {
     const data = await apiRequest(`/usuarios/${id_usuario_sesion}/productos`);
     if (data && Array.isArray(data)) {
       // Filtrar productos con stock por debajo del límite
@@ -1413,14 +1412,14 @@ function showAgregarCompra(item){
       `).join("");
       document.getElementById("tableBody_products").innerHTML = content;
     }
-  }
+}
   // fin de listar productos con limite de stock
 
 
 
 
   // Funcion para el historial de orden de compra (anda 26/11)
-  function showHCompras() {
+function showHCompras() {
     showHeader("Gestor de Reportes", "Historial de Compras");
     clearContent();
 
@@ -1452,8 +1451,8 @@ function showAgregarCompra(item){
     compras();
 }
 // Petición a la API
-  async function compras() {
-    const data = await apiRequest("/ordenes");
+async function compras() {
+    const data = await apiRequest(`/usuarios/${id_usuario_sesion}/ordenes`);
     if (data && Array.isArray(data)) {
         // Generar contenido de la tabla
         const content = data.map(orden => `
@@ -1465,7 +1464,7 @@ function showAgregarCompra(item){
                 <td>${orden.id_proveedor}</td>
                 <td>${orden.id_usuario}</td>
                 <td>
-                    <button class="btn btn-info btn-sm" onclick="detalleProductos(${orden.id_orden}, ${orden.id_usuario},${orden.id_proveedor})">
+                    <button class="btn btn-info btn-sm" onclick="detalleProductos(${orden.id_orden})">
                         Ver Detalle
                     </button>
                 </td>
@@ -1498,9 +1497,9 @@ function showAgregarCompra(item){
     }
 }
 // Función para manejar el botón de detalle
-  async function detalleProductos(idOrden) {
+async function detalleProductos(idOrden) {
     clearContent();
-    showHeader("Gestor de Proveedores", " Proveedores asociados al producto");
+    showHeader("Gestor de Reportes", "Detalle de contenido");
 
    const div = `
                 <div class="card-body bg-dark rounded p-3 shadow-sm">
@@ -1517,7 +1516,7 @@ function showAgregarCompra(item){
     productosAsociados(idOrden);  
 }
 async function productosAsociados(idOrden) {
-  const data = await apiRequest(`/ordenes/${idOrden}`, 'GET');
+  const data = await apiRequest(`/usuarios/${id_usuario_sesion}/ordenes/${idOrden}`, 'GET');
   if (data && Array.isArray(data)) {
     // Generar la tabla
     const table = `
@@ -1562,6 +1561,8 @@ async function productosAsociados(idOrden) {
 
 
 
+
+
 /// funcion para listar inventario actual (anda 25/11)
 function showInventarioActual(){
   showHeader("Gestor de Reportes", "Historial Actual");
@@ -1597,7 +1598,7 @@ function showInventarioActual(){
 
   listar(id_usuario_sesion);
 }
-// funcion para listar el inventario actual
+// funcion para listar el inventario actual 
 async function listar(id_usuario_sesion) {
   const url = `/productos/${id_usuario_sesion}/usuario`;
   const data = await apiRequest(url);
