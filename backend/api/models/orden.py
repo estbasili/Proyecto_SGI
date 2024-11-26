@@ -111,7 +111,7 @@ class Orden:
     def create_orden(cls, data, id_usuario):
         if not cls.validar_datos(data)[0]:
             raise ValueError("Datos inválidos")
-
+        
         conexion = get_db_connection()
         cursor = conexion.cursor()
         try:

@@ -36,6 +36,7 @@ def create_orden(id_usuario):
     try:
         # Captura el JSON enviado
         data = request.get_json()
+        
         print("Datos recibidos en el servidor:", data)  # Log para depuración
 
         # Validar los datos (simulación de función de validación)
@@ -54,7 +55,7 @@ def create_orden(id_usuario):
             return jsonify({"error": True, "message": "El campo 'productos' es obligatorio y debe ser una lista."}), 400
 
         # Validar los productos en los renglones de la orden
-        renglones_validos, mensaje = DetalleOrden.validar_datos(productos)
+        renglones_validos, mensaje = DetalleOrden.validar_datos(productos,id_usuario)
         if not renglones_validos:
             return jsonify({"error": True, "message": mensaje}), 202
 

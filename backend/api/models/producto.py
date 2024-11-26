@@ -267,8 +267,9 @@ class Producto:
         for row in cursor.fetchall()]
         cursor.close()
         conexion.close()
-        if not productos:
-            raise DBError(f"No se encontraron productos")
+          
+        #if not productos:
+        #    raise DBError(f"No se encontraron productos")
         return productos
 
         

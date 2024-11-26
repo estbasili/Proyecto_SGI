@@ -89,8 +89,8 @@ def usuario_productos_proveedores(id_usuario):
     try:
         productos = Producto.get_productos_proveedores(id_usuario)
         return jsonify(productos), 200
-    except DBError as e:
-        return jsonify({'message': str(e)}), 404
+    #except DBError as e:
+    #    return jsonify({'message': str(e)}), 404
     except Exception as e:
         return jsonify({'message': f"Error inesperado: {str(e)}"}), 500
 

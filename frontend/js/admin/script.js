@@ -166,20 +166,14 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
   try {
       const response = await fetch(`${urlAPI}${endpoint}`, options);
       console.log(`${urlAPI}${endpoint}`);
-      // Manejar error 404 de forma específica
-      //if (response.status === 404) {
-      //    throw new Error("No encontrado");
-      //}  
+     
       // Manejo respuesta no exitosa
       if (!response.ok) {
           throw new Error(`Error en la solicitud: ${response.status}`);
       }
-      // Manejo si el código de estado es 204 (sin contenido)
-      //if(response.status === 204) {
-      //  return {};  
-      //}
+      
       if (response.status === 204 || response.status === 404) {
-        return []; // Retorna un array vacío si no hay productos
+         return []; // Retorna un array vacío si no hay productos
       }
       
       // Si hay contenido en la respuesta, devuelvo JSON
@@ -1417,8 +1411,7 @@ async function Products(stockThreshold) {
 
 
 
-
-  // Funcion para el historial de orden de compra (anda 26/11)
+  // Funcion para el historial de orden de compra (anda 26/11 ver problema si no tiene ordenes Error 400)
 function showHCompras() {
     showHeader("Gestor de Reportes", "Historial de Compras");
     clearContent();
@@ -1453,6 +1446,7 @@ function showHCompras() {
 // Petición a la API
 async function compras() {
     const data = await apiRequest(`/usuarios/${id_usuario_sesion}/ordenes`);
+     
     if (data && Array.isArray(data)) {
         // Generar contenido de la tabla
         const content = data.map(orden => `
@@ -1561,8 +1555,6 @@ async function productosAsociados(idOrden) {
 
 
 
-
-
 /// funcion para listar inventario actual (anda 25/11)
 function showInventarioActual(){
   showHeader("Gestor de Reportes", "Historial Actual");
@@ -1600,9 +1592,10 @@ function showInventarioActual(){
 }
 // funcion para listar el inventario actual 
 async function listar(id_usuario_sesion) {
-  const url = `/productos/${id_usuario_sesion}/usuario`;
-  const data = await apiRequest(url);
- 
+  
+  const data = await apiRequest(`/productos/${id_usuario_sesion}/usuario`);
+  console.log(data)
+  
   if (data && Array.isArray(data)) {
     // Agrupar los proveedores por producto
     const productosAgrupados = {};
