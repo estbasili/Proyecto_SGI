@@ -1419,7 +1419,7 @@ function showAgregarCompra(item){
 
 
 
-  // Funcion para el historial de orden de compra
+  // Funcion para el historial de orden de compra (anda 26/11)
   function showHCompras() {
     showHeader("Gestor de Reportes", "Historial de Compras");
     clearContent();
@@ -1497,9 +1497,8 @@ function showAgregarCompra(item){
         });
     }
 }
-
 // Función para manejar el botón de detalle
-  async function detalleProductos(idOrden, idUsuario, idProveedor) {
+  async function detalleProductos(idOrden) {
     clearContent();
     showHeader("Gestor de Proveedores", " Proveedores asociados al producto");
 
@@ -1515,9 +1514,52 @@ function showAgregarCompra(item){
                `;
 
     document.getElementById("showSelect").innerHTML = div; 
-   
-      
+    productosAsociados(idOrden);  
 }
+async function productosAsociados(idOrden) {
+  const data = await apiRequest(`/ordenes/${idOrden}`, 'GET');
+  if (data && Array.isArray(data)) {
+    // Generar la tabla
+    const table = `
+      <div class="card-body table-responsive p-0 table-blur  style="height: 300px;">
+        <table id="dataTable_products" class="table table-head-fixed text-nowrap">
+          <thead>
+            <tr>
+              <th>Id</th>
+              <th>Nombre</th>
+              <th>Cantidad</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody_products">
+            <!-- Las filas se generarán aquí dinámicamente -->
+          </tbody>
+        </table>
+      </div>`;
+    
+    // Obtener el segundo hijo div de "showSelect"
+    const firstChildDiv = document.querySelector("#showSelect > div");
+   
+       // Insertar la tabla después del primer hijo div
+       firstChildDiv.insertAdjacentHTML('afterend', table);
+
+      // Generar las filas para cada producto
+      const rows = data.map(producto => `
+        <tr>
+          <td>${producto.id_producto}</td>
+          <td>${producto.nombre}</td>
+          <td>${producto.cantidad}</td>
+        </tr>
+      `).join(""); // Unir todas las filas en un solo string
+      // Insertar las filas en el cuerpo de la tabla
+      document.getElementById("tableBody_products").innerHTML = rows;
+  } else {
+    // Manejar el caso en que no hay proveedores
+    console.warn("No se encontraron proveedores asociados.");
+  }
+}
+// fin para listar detalle de compra
+
+
 
 
 /// funcion para listar inventario actual (anda 25/11)
