@@ -36,43 +36,58 @@ def create_orden(id_usuario):
     try:
         # Captura el JSON enviado
         data = request.get_json()
-        
-        print("Datos recibidos en el servidor:", data)  # Log para depuración
+        print("JSON recibido:", data)
 
-        # Validar los datos (simulación de función de validación)
+        # Validar que se haya recibido algo
+        if data is None:
+            return jsonify({"error": True, "message": "No se recibió un JSON válido."}), 400
+
+        # Validar los datos
+        print("Validando datos de la orden...")
         is_valid, validation_message = Orden.validar_datos(data)
         if not is_valid:
-            print('Datos inválidos antes de continuar')
-            return jsonify({"error": True, "message": validation_message}), 400
+            print("Datos inválidos:", validation_message)
+            return jsonify({"error": True, "message": validation_message}), 202
 
-        # Guardar el valor de 'productos' en una variable, y eliminarlo del cuerpo
+        # Procesar 'productos'
         productos = data.get('productos', None)
         if 'productos' in data:
             del data['productos']
 
-        # Verificar si los productos existen y son válidos
         if productos is None or not isinstance(productos, list):
+            print("Error en 'productos':", productos)
             return jsonify({"error": True, "message": "El campo 'productos' es obligatorio y debe ser una lista."}), 400
 
-        # Validar los productos en los renglones de la orden
-        renglones_validos, mensaje = DetalleOrden.validar_datos(productos,id_usuario)
+        # Validar productos
+        print("Validando productos...")
+        renglones_validos, mensaje = DetalleOrden.validar_datos(productos, id_usuario)
         if not renglones_validos:
+            print("Productos inválidos:", mensaje)
             return jsonify({"error": True, "message": mensaje}), 202
 
-        # Crear la orden si los datos son válidos
-        orden = Orden.create_orden(data, id_usuario)  # Asociamos la orden al id_usuario
-        id_orden_creada = orden["id_orden"]
-        
-        detalle = DetalleOrden.createDetalleOrden(id_orden_creada, productos)
-        
+        # Crear la orden
+        print("Creando la orden...")
+        orden = Orden.create_orden(data, id_usuario)
         if not orden:
+            print("Fallo en la creación de la orden.")
             return jsonify({"error": True, "message": "No se pudo crear la orden."}), 500
 
-        # Respuesta exitosa con los datos de la orden creada
+        id_orden_creada = orden["id_orden"]
+        print("ID de orden creada:", id_orden_creada)
+
+        # Crear el detalle de la orden
+        print("Creando el detalle de la orden...")
+        detalle = DetalleOrden.createDetalleOrden(id_orden_creada, productos,id_usuario)
+        print("Detalle creado:", detalle)
+
+        # Respuesta exitosa
         return jsonify({"success": True, "message": "Orden creada con éxito", "orden": orden}), 201
 
     except Exception as e:
+        # Registra el error para identificar la causa
+        print("Error no controlado:", str(e))
         return jsonify({"error": str(e)}), 400
+
 
 
 @app.route('/usuarios/<int:id_usuario>/ordenes/<int:id>', methods=['PUT'])

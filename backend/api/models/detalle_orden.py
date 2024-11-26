@@ -39,13 +39,19 @@ class DetalleOrden:
         for i, renglon in enumerate(data):
             try:
                 print(f"Validando renglón {i + 1}...")
+                print(f"Renglón recibido: {renglon}")  # Depuración adicional
 
-                # Verificar si las claves 'id_producto' y 'cantidad' existen en el renglon
+                # Verificar si las claves 'id_producto' y 'cantidad' existen en el renglón
+                if not isinstance(renglon, dict):
+                    return False, f"Error en el renglón {i + 1}: No es un diccionario."
+
                 if 'id_producto' not in renglon or 'cantidad' not in renglon:
                     return False, f"Error en el renglón {i + 1}: Faltan claves 'id_producto' o 'cantidad'."
 
                 id_producto = renglon['id_producto']
                 cantidad = renglon['cantidad']
+
+                print(f"Renglón {i + 1}: id_producto={id_producto}, cantidad={cantidad}")  # Más depuración
 
                 # Validar que id_producto y cantidad sean del tipo esperado
                 if not isinstance(id_producto, str):
@@ -57,20 +63,13 @@ class DetalleOrden:
                 if cantidad <= 0:
                     return False, f"Error en el renglón {i + 1}: 'cantidad' debe ser un número positivo."
 
-                print(f"Renglón {i + 1}: id_producto = {id_producto}, cantidad = {cantidad}")
-
                 # Verificar si el producto tiene stock disponible
                 print(f"Verificando stock para el producto {id_producto} con cantidad {cantidad}...")
+                print(id_producto," -- ",cantidad)
                 if not Producto.validarStockProducto(id_producto, cantidad, id_usuario):
                     print(f"Producto {id_producto} sin stock.")
                     productos_sin_stock.append(id_producto)  # Guardar el id del producto sin stock
 
-            except KeyError as e:
-                # Capturar error si falta alguna clave en el renglón
-                return False, f"Error en el renglón {i + 1}: Falta la clave '{e.args[0]}'."
-            except TypeError as e:
-                # Capturar error de tipo si el renglón no tiene la estructura correcta
-                return False, f"Error en el renglón {i + 1}: Estructura del renglón inválida."
             except Exception as e:
                 # Capturar cualquier otro tipo de error inesperado
                 return False, f"Error en el renglón {i + 1}: {str(e)}"
@@ -84,6 +83,7 @@ class DetalleOrden:
         print("Todos los renglones son válidos. Validación exitosa.")
         # Si todos los renglones son válidos
         return True, "Validación exitosa. Todos los renglones son válidos."
+
 
     @classmethod
     def createDetalleOrden(cls, id_orden, productos, id_usuario):
@@ -106,14 +106,29 @@ class DetalleOrden:
         try:
             # Preparar la consulta para insertar
             query = '''
-                INSERT INTO detalle_orden (id_orden, id_producto, cantidad, id_usuario)
-                VALUES (%s, %s, %s, %s)
+                INSERT INTO detalle_orden (id_orden, id_producto, cantidad)
+                VALUES (%s, %s, %s)
             '''
             
             # Insertar cada producto en la tabla detalle_orden
             for producto in productos:
-                valores = (id_orden, producto['id_producto'], producto['cantidad'], id_usuario)
-                Producto.updateStock(producto['id_producto'], producto['cantidad'], id_usuario)
+                # Extraer id_producto y cantidad correctamente
+                id_producto = producto.get('id_producto')
+                cantidad = producto.get('cantidad')
+
+                # Asegurarse de que los valores sean válidos
+                if not isinstance(id_producto, str):
+                    raise ValueError(f"El 'id_producto' debe ser una cadena, pero se recibió: {id_producto}")
+                if not isinstance(cantidad, int) or cantidad <= 0:
+                    raise ValueError(f"La 'cantidad' debe ser un número entero positivo, pero se recibió: {cantidad}")
+
+                # Preparar valores para la consulta
+                valores = (id_orden, id_producto, cantidad)
+
+                # Actualizar el stock del producto
+                Producto.updateStock(id_usuario, id_producto, cantidad)
+
+                # Ejecutar la consulta
                 print(f"Ejecutando query: {query} con valores {valores}")
                 cursor.execute(query, valores)
 

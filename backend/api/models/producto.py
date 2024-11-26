@@ -175,9 +175,8 @@ class Producto:
         conexion.close()
         return cls.get_productos_by_user(id_usuario)
 
-
     @classmethod
-    def validarStockProducto(cls, id_usuario, id_producto, cantidad):
+    def validarStockProducto(cls, id_producto, cantidad, id_usuario):
         conexion = get_db_connection()
         cursor = conexion.cursor()
         cursor.execute("SELECT stock FROM producto WHERE id_producto = %s AND id_usuario = %s", (id_producto, id_usuario))
