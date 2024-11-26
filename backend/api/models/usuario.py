@@ -124,7 +124,7 @@ class Usuario:
             raise DBError({"message": "No autorizado2", "code": 401})
 
     # Generar el token JWT
-        exp_timestamp = (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=15)).timestamp()
+        exp_timestamp = (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=40)).timestamp()
         token = jwt.encode({
         'email': email,
         'id_usuario': row[0],

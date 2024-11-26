@@ -22,7 +22,7 @@ def get_all_ordenes(id_usuario):
         return jsonify({"message": "Error inesperado: " + str(e)}), 500
 
 @app.route('/usuarios/<int:id_usuario>/ordenes/<int:id>', methods=['GET'])
-##@token_required
+#@token_required
 def get_orden_by_id(id_usuario, id):
     try:
         # Obtener la orden del usuario especificado
@@ -34,7 +34,7 @@ def get_orden_by_id(id_usuario, id):
         return jsonify({"error": str(e)}), 400
 
 @app.route('/usuarios/<int:id_usuario>/ordenes', methods=['POST'])
-#@token_required
+@token_required
 def create_orden(id_usuario):
     try:
         # Captura el JSON enviado
@@ -94,7 +94,7 @@ def create_orden(id_usuario):
 
 
 @app.route('/usuarios/<int:id_usuario>/ordenes/<int:id>', methods=['PUT'])
-#@token_required
+@token_required
 def update_orden_by_id(id_usuario, id):
     try:
         data = request.get_json()
@@ -113,7 +113,7 @@ def update_orden_by_id(id_usuario, id):
 
 
 @app.route('/usuarios/<int:id_usuario>/ordenes/<int:id>', methods=['DELETE'])
-#@token_required
+@token_required
 def delete_orden_by_id(id_usuario, id):
     try:
         # Eliminar la orden
@@ -124,16 +124,4 @@ def delete_orden_by_id(id_usuario, id):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-#@token_required
-def delete_orden_by_id(id_usuario, id, current_user):
-    try:
-        if id_usuario != current_user:
-            return jsonify({"error": "No autorizado"}), 403  # Verifica que el id_usuario coincida con el usuario actual
 
-        # Eliminar la orden solo si pertenece al id_usuario
-        result = Orden.delete_orden_by_id(id, id_usuario)
-        if result:
-            return jsonify({"mensaje": "Orden eliminada exitosamente"}), 200
-        return jsonify({"mensaje": "Orden no encontrada"}), 404
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400

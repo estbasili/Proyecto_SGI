@@ -48,8 +48,9 @@ def token_required(func):
         # Se decodifica y se comprueba si son iguales
         try:
             data = jwt.decode(token , app.config['SECRET_KEY'], algorithms = ['HS256'])
-            token_id = data['id']
-
+            token_id = data['id_usuario']
+            # Imprime el token decodificado para ver su contenido
+            print("Token decodificado:", data)
 
             if int(id_usuario) != int(token_id):
                 return jsonify({"message": "Error de id"}), 401

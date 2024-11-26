@@ -7,7 +7,7 @@ from api.utils.security import token_required
 
 # Obtener todos los proveedores por usuario
 @app.route('/usuarios/<int:id_usuario>/proveedores', methods=['GET'])
-#@token_required
+@token_required
 def get_proveedores_by_user(id_usuario):
     try:
         proveedores = Proveedor.get_proveedores_by_user(id_usuario)
@@ -20,7 +20,7 @@ def get_proveedores_by_user(id_usuario):
 
 # Crear un nuevo proveedor por usuario
 @app.route('/usuarios/<int:id_usuario>/proveedores', methods=['POST'])
-#@token_required
+@token_required
 def create_proveedor_by_user(id_usuario):
     try:
         data = request.get_json()
@@ -33,7 +33,7 @@ def create_proveedor_by_user(id_usuario):
 
 # Actualizar un proveedor por ID
 @app.route('/usuarios/<int:id_usuario>/proveedores/<int:id_proveedor>', methods=['PUT'])
-#@token_required
+@token_required
 def update_proveedor_by_user(id_usuario, id_proveedor):
     try:
         data = request.get_json()
@@ -47,7 +47,7 @@ def update_proveedor_by_user(id_usuario, id_proveedor):
 
 # Eliminar un proveedor por ID
 @app.route('/usuarios/<int:id_usuario>/proveedores/<int:id_proveedor>', methods=['DELETE'])
-#@token_required
+@token_required
 def delete_proveedor_by_user(id_usuario, id_proveedor):
     try:
         proveedor = Proveedor.delete_proveedor_by_user(id_usuario, id_proveedor)
@@ -59,7 +59,7 @@ def delete_proveedor_by_user(id_usuario, id_proveedor):
 
 # Listar proveedores
 @app.route('/usuarios/<int:id_usuario>/listarProveedores', methods=['GET'])
-#@token_required
+@token_required
 def get_all_list_proveedores(id_usuario):
     try:
         proveedores = Proveedor.get_all_list_proveedor(id_usuario)
@@ -71,7 +71,7 @@ def get_all_list_proveedores(id_usuario):
 
 # Obtener un proveedor por ID
 @app.route('/usuarios/<int:id_usuario>/proveedores/<int:id_proveedor>', methods=['GET'])
-#@token_required
+@token_required
 def get_proveedor_by_id_proveedor(id_usuario, id_proveedor):
     try:
         proveedor = Proveedor.get_proveedor_by_id_proveedor(id_usuario, id_proveedor)
@@ -83,7 +83,7 @@ def get_proveedor_by_id_proveedor(id_usuario, id_proveedor):
 
 # Obtener productos asociados a un proveedor
 @app.route('/usuarios/<int:id_usuario>/proveedores/<int:id_proveedor>/productos', methods=['GET'])
-#@token_required
+@token_required
 def obtener_productos_con_proveedor(id_usuario, id_proveedor):
     try:
         productos = Proveedor.obtener_productos_con_proveedor(id_usuario, id_proveedor)
@@ -95,7 +95,7 @@ def obtener_productos_con_proveedor(id_usuario, id_proveedor):
 
 # Asociar varios productos a un proveedor
 @app.route('/usuarios/<int:id_usuario>/proveedores/<int:id_proveedor>/productos/varios', methods=['POST'])
-#@token_required
+@token_required
 def asociar_varios_productos_a_proveedor(id_usuario, id_proveedor):
     try:
         data = request.get_json()

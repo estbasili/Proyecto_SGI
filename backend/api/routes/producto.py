@@ -7,7 +7,7 @@ from api.utils.security import token_required
 
 
 @app.route('/usuarios/<int:id_usuario>/productos', methods=['GET'])
-##@token_required
+@token_required
 def get_productos_por_usuario(id_usuario):
     try:
         productos = Producto.get_productos_by_user(id_usuario)
@@ -19,7 +19,7 @@ def get_productos_por_usuario(id_usuario):
     
 
 @app.route('/usuarios/<int:id_usuario>/productos/<int:id_producto>', methods=['GET'])
-##@token_required
+@token_required
 def get_producto_por_id(id_usuario, id_producto):
     try:
         producto = Producto.get_by_id_producto(id_usuario, id_producto)
@@ -30,7 +30,7 @@ def get_producto_por_id(id_usuario, id_producto):
         return jsonify({"message": "Error inesperado"}), 500
     
 @app.route('/usuarios/<int:id_usuario>/productos', methods=['POST'])
-##@token_required
+@token_required
 def create_producto(id_usuario):
     data = request.get_json()
     try:
@@ -43,7 +43,7 @@ def create_producto(id_usuario):
 
 
 @app.route('/usuarios/<int:id_usuario>/productos/<int:id_producto>', methods=['PUT'])
-#@token_required
+@token_required
 def update_producto(id_usuario, id_producto):
     data = request.get_json()
     try:
@@ -55,7 +55,7 @@ def update_producto(id_usuario, id_producto):
         return jsonify({"message": "Error inesperado: " + str(e)}), 500
     
 @app.route('/usuarios/<int:id_usuario>/productos/<int:id_producto>', methods=['DELETE'])
-#@token_required
+@token_required
 def delete_producto(id_usuario, id_producto):
     try:
         productos = Producto.delete_by_user(id_usuario,id_producto)
@@ -68,7 +68,7 @@ def delete_producto(id_usuario, id_producto):
 
     
 @app.route('/usuarios/<int:id_usuario>/proveedores/<int:id_producto>', methods=['GET'])
-#@token_required
+@token_required
 def obtener_proveedores(id_usuario, id_producto):
     try:
         proveedores = Producto.get_proveedores(id_usuario, id_producto)
@@ -84,7 +84,7 @@ def obtener_proveedores(id_usuario, id_producto):
 # [{"id_producto": , "producto_nombre": ,"proveedor_nombre": "stock": }, {...}, ... ] para ser representado en una tabla
 # en la parte de inventario actual del frontend
 @app.route('/productos/<int:id_usuario>/usuario', methods=['GET'])
-#@token_required
+@token_required
 def usuario_productos_proveedores(id_usuario):
     try:
         productos = Producto.get_productos_proveedores(id_usuario)
