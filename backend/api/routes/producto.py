@@ -80,17 +80,10 @@ def obtener_proveedores(id_usuario, id_producto):
 
 
 ##################################################################
-
-
-
-
-
-
-
 # ruta: /productos/id_usuario/proveedores que recibe el id_ usuario_sesion y devuelva un arreglo de dict
 # [{"id_producto": , "producto_nombre": ,"proveedor_nombre": "stock": }, {...}, ... ] para ser representado en una tabla
 # en la parte de inventario actual del frontend
-@app.route('/usuarios/<int:id_usuario>/productos', methods=['GET'])
+@app.route('/productos/<int:id_usuario>/usuario', methods=['GET'])
 #@token_required
 def usuario_productos_proveedores(id_usuario):
     try:

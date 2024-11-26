@@ -1543,6 +1543,8 @@ function showInventarioActual(){
 
   listar(id_usuario_sesion);
 }
+
+/*
 async function listar(id_usuario_sesion) {
   const url = `/productos/${id_usuario_sesion}/usuario`;
   const data = await apiRequest(url);
@@ -1599,7 +1601,80 @@ async function listar(id_usuario_sesion) {
         <td colspan="4">No se encontraron productos.</td>
       </tr>`;
   }
+}*/
+
+async function listar(id_usuario_sesion) {
+  const url = `/productos/${id_usuario_sesion}/usuario`;
+  const data = await apiRequest(url);
+
+  if (data && Array.isArray(data)) {
+    // Agrupar los proveedores por producto
+    const productosAgrupados = {};
+    data.forEach(producto => {
+      if (!productosAgrupados[producto.id_producto]) {
+        productosAgrupados[producto.id_producto] = {
+          id_producto: producto.id_producto,
+          producto_nombre: producto.producto_nombre,
+          stock: producto.stock,
+          proveedores: []
+        };
+      }
+      productosAgrupados[producto.id_producto].proveedores.push(producto.proveedor_nombre);
+    });
+
+    // Generar filas para la tabla con los datos agrupados
+    const rows = Object.values(productosAgrupados).map(producto => `
+      <tr>
+        <td>${producto.id_producto}</td>
+        <td>${producto.producto_nombre}</td>
+        <td>${producto.stock}</td>
+        <td>${producto.proveedores.join(", ")}</td>
+      </tr>
+    `).join("");
+
+    // Insertar filas en el cuerpo de la tabla
+    document.getElementById("tableBody_products").innerHTML = rows;
+
+    // Inicializar DataTable
+    $('#dataTable_products').DataTable({
+      destroy: true, // Reinicia la tabla si ya existe
+      paging: true,
+      searching: true,
+      info: false,
+      responsive: true,
+      footerCallback: function (row, data, start, end, display) {
+        // Calcular la sumatoria del stock visible en la tabla
+        const api = this.api();
+        const sumatoria = api
+          .column(2, { search: 'applied' }) // Columna de "Stock"
+          .data()
+          .reduce((total, stock) => total + parseFloat(stock || 0), 0);
+
+        // Insertar la sumatoria en el pie de la tabla
+        $(api.column(2).footer()).html(`Total de stock: ${sumatoria}`);
+      },
+      language: {
+        search: "Filtrar producto:",
+        lengthMenu: "Mostrar _MENU_ registros por página",
+        zeroRecords: "No se encontraron productos",
+        infoEmpty: "No hay registros disponibles",
+        infoFiltered: "(filtrado de _MAX_ registros totales)",
+        paginate: {
+          first: "Primero",
+          last: "Último",
+          next: "Siguiente",
+          previous: "Anterior"
+        }
+      }
+    });
+  } else {
+    document.getElementById("tableBody_products").innerHTML = `
+      <tr>
+        <td colspan="4">No se encontraron productos.</td>
+      </tr>`;
+  }
 }
+
 //fin para listar Inventario actual
 
 
