@@ -11,6 +11,14 @@ def token_required(func):
         print(kwargs)
         token = None
 
+        ###################################################################################
+        # Verifica si el token está en el encabezado Authorization
+        if 'Authorization' in request.headers:
+            auth_header = request.headers['Authorization']
+            if auth_header.startswith("Bearer "):
+                token = auth_header.split(" ")[1]  # Extrae solo el token después de "Bearer"
+        ####################################################################################
+     
 
         # La solicitud en una ruta protegida debe incluir una cabecera 'x-access-token' con 
         # el valor del token obtenido en el login

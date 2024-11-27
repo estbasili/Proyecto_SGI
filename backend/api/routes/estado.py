@@ -2,7 +2,10 @@ from api import app
 from api.db.db import DBError
 from flask import request, jsonify
 from api.models.estado import Estado
-@app.route('/estados', methods=['GET'])
+
+
+#@app.route('/usuarios/<int:id_usuario>/estados', methods=['GET']) ########################################
+@app.route('/estados', methods=['GET']) 
 def get_estados():
     try:
         estados = Estado.get_all_estados()

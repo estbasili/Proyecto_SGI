@@ -158,7 +158,8 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
   const options = {
       method,
       headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Incluir el token en el encabezado Authorization
       },
       body: data ? JSON.stringify(data) : null
   };
@@ -1126,11 +1127,18 @@ async function loadState() {
 
   try {
       // Llamada a la API utilizando apiRequest
-      const data = await apiRequest(`/estados`, 'GET');
+      const data = await apiRequest('/estados', 'GET');////////////////////////////////////////////////
       console.log(data);
       // Limpiar las opciones anteriores del select
       estadoSelect.innerHTML = '';
 
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      if (data.message == "Error al recuperar los estados desde la base de datos."){
+        alert("no hay estados");
+        return;
+      }
+      ///////////////////////////////////////////////////////////////////////////////////////////////
+      
       // Agregar nuevas opciones al select
       data.forEach(estado => {
           const option = document.createElement('option');
@@ -1234,7 +1242,14 @@ function enviarOrdenCompra(event) {
 
 
 function loadProductos(selectElement,idProveedor) {
-    fetch(`http://127.0.0.1:5001/usuarios/${id_usuario_sesion}/proveedores/${idProveedor}/productos`)
+    fetch(`http://127.0.0.1:5001/usuarios/${id_usuario_sesion}/proveedores/${idProveedor}/productos`,
+      {
+      method: 'GET', // Por defecto, el método GET ya está configurado, pero lo incluyo para mayor claridad
+      headers: {
+          'Authorization': `Bearer ${token}`, // Incluir el token en el encabezado Authorization
+          'Content-Type': 'application/json' // Tipo de contenido
+      }
+    })
     .then(response => response.json())
     .then(data => {
       console.log(data);
@@ -1317,7 +1332,15 @@ function cargarMultipleInput() {
 function loadProveedoresSelect(){
   // Función para cargar los proveedores desde la API
   
-  fetch(`http://127.0.0.1:5001/usuarios/${id_usuario_sesion}/proveedores`)
+  fetch(`http://127.0.0.1:5001/usuarios/${id_usuario_sesion}/proveedores`,
+    {
+      method: 'GET', // Por defecto, el método GET ya está configurado, pero lo incluyo para mayor claridad
+      headers: {
+          'Authorization': `Bearer ${token}`, // Incluir el token en el encabezado Authorization
+          'Content-Type': 'application/json' // Tipo de contenido
+      }
+    }
+  )
     .then(response => response.json())  // Convertir la respuesta en JSON
     .then(data => {
       const selectElement = document.getElementById('proveedores');
