@@ -26,9 +26,6 @@ class DetalleOrden:
 
     @classmethod
     def validar_datos(cls, data, id_usuario):
-        # Validar que data sea una lista
-        print("Validando los datos recibidos...")
-
         if not isinstance(data, list):
             return False, "Error: Los datos no son una lista."
 
@@ -38,9 +35,6 @@ class DetalleOrden:
         # Recorrer cada elemento en la lista
         for i, renglon in enumerate(data):
             try:
-                print(f"Validando renglón {i + 1}...")
-                print(f"Renglón recibido: {renglon}")  # Depuración adicional
-
                 # Verificar si las claves 'id_producto' y 'cantidad' existen en el renglón
                 if not isinstance(renglon, dict):
                     return False, f"Error en el renglón {i + 1}: No es un diccionario."
@@ -51,11 +45,10 @@ class DetalleOrden:
                 id_producto = renglon['id_producto']
                 cantidad = renglon['cantidad']
 
-                print(f"Renglón {i + 1}: id_producto={id_producto}, cantidad={cantidad}")  # Más depuración
-
                 # Validar que id_producto y cantidad sean del tipo esperado
                 if not isinstance(id_producto, str):
                     return False, f"Error en el renglón {i + 1}: 'id_producto' debe ser una cadena."
+
                 if not isinstance(cantidad, int):
                     return False, f"Error en el renglón {i + 1}: 'cantidad' debe ser un número entero."
 
@@ -63,11 +56,7 @@ class DetalleOrden:
                 if cantidad <= 0:
                     return False, f"Error en el renglón {i + 1}: 'cantidad' debe ser un número positivo."
 
-                # Verificar si el producto tiene stock disponible
-                print(f"Verificando stock para el producto {id_producto} con cantidad {cantidad}...")
-                print(id_producto," -- ",cantidad)
                 if not Producto.validarStockProducto(id_producto, cantidad, id_usuario):
-                    print(f"Producto {id_producto} sin stock.")
                     productos_sin_stock.append(id_producto)  # Guardar el id del producto sin stock
 
             except Exception as e:
@@ -77,21 +66,15 @@ class DetalleOrden:
         # Si hay productos sin stock, devolver mensaje con todos los productos sin stock
         if productos_sin_stock:
             productos_sin_stock_str = ", ".join(productos_sin_stock)
-            print(f"Productos sin stock: {productos_sin_stock_str}")
             return False, f"Productos sin stock: {productos_sin_stock_str}"
 
-        print("Todos los renglones son válidos. Validación exitosa.")
         # Si todos los renglones son válidos
         return True, "Validación exitosa. Todos los renglones son válidos."
 
 
     @classmethod
-    def createDetalleOrden(cls, id_orden, productos, id_usuario):
-        # Imprime el ID de la orden recibida
-        print(f"ID de la orden recibida: {id_orden}")
-        
-        # Imprime los productos recibidos
-        print("Productos recibidos:")
+    def createDetalleOrden(cls, id_orden, productos, id_usuario):        
+        # Imprime los productos recibidos        
         for i, producto in enumerate(productos, start=1):
             print(f"  Producto {i}: {producto}")
 
@@ -129,17 +112,14 @@ class DetalleOrden:
                 Producto.updateStock(id_usuario, id_producto, cantidad)
 
                 # Ejecutar la consulta
-                print(f"Ejecutando query: {query} con valores {valores}")
                 cursor.execute(query, valores)
 
             # Confirmar los cambios en la base de datos
             conexion.commit()
-            print("Todos los productos se insertaron correctamente.")
             return True
         except Exception as e:
             # Revertir la transacción en caso de error
             conexion.rollback()
-            print(f"Error al insertar los productos en detalle_orden: {str(e)}")
             raise
         finally:
             # Cerrar cursor y conexión

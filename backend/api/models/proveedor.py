@@ -58,7 +58,6 @@ class Proveedor:
         data = cursor.fetchall()
         cursor.close()
         conexion.close()
-        #print(data)
         #Comprobar si se obtuvo algun registro
         if len(data)>0:
             lista = []
@@ -157,16 +156,22 @@ class Proveedor:
     #Proveedor por id_proveedor
     @classmethod
     def get_proveedor_by_id_proveedor(cls, id_usuario, id_proveedor):
-        conexion = get_db_connection()
-        cursor = conexion.cursor()
-        cursor.execute('SELECT * FROM proveedor WHERE id_usuario = %s AND id_proveedor = %s',
-        (id_usuario, id_proveedor))
-        data = cursor.fetchone()
-        cursor.close()
-        conexion.close()
-        if data:
-            return Proveedor(data).a_json()
-        raise DBError('No existe el recurso solicitado')
+        try:
+            conexion = get_db_connection()
+            cursor = conexion.cursor()
+            cursor.execute(
+                'SELECT * FROM proveedor WHERE id_usuario = %s AND id_proveedor = %s',
+                (id_usuario, id_proveedor)
+            )
+            data = cursor.fetchone()
+            cursor.close()
+            conexion.close()
+            if data:
+                return Proveedor(data).a_json()
+            raise DBError('No existe el recurso solicitado')
+        except Exception as e:
+            raise DBError(f"Error al consultar proveedor: {str(e)}")
+
     
     @classmethod
     def obtener_productos_con_proveedor(cls, id_usuario, id_proveedor):

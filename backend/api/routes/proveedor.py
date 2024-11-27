@@ -69,17 +69,17 @@ def get_all_list_proveedores(id_usuario):
     except Exception as e:
         return jsonify({"message": "Error inesperado: " + str(e)}), 500
 
-# Obtener un proveedor por ID
 @app.route('/usuarios/<int:id_usuario>/proveedores/<int:id_proveedor>', methods=['GET'])
 @token_required
 def get_proveedor_by_id_proveedor(id_usuario, id_proveedor):
     try:
         proveedor = Proveedor.get_proveedor_by_id_proveedor(id_usuario, id_proveedor)
         return jsonify(proveedor), 200
-    except DBError as e:
-        return jsonify({"message": str(e)}), 404
-    except Exception as e:
-        return jsonify({"message": "Error inesperado: " + str(e)}), 500
+    except DBError as db_error:  # Específico para errores de base de datos
+        return jsonify({"message": str(db_error)}), 404
+    except Exception as general_error:  # Maneja otros errores inesperados
+        return jsonify({"message": "Error inesperado: " + str(general_error)}), 500
+
 
 # Obtener productos asociados a un proveedor
 @app.route('/usuarios/<int:id_usuario>/proveedores/<int:id_proveedor>/productos', methods=['GET'])

@@ -985,22 +985,79 @@ async function asociarProductosAlProveedor(idProveedor) {
 }
 // fin para Agregar proveeedor
 
+async function getProvedores(){
+  
+  const data = await apiRequest(`/usuarios/${id_usuario_sesion}/listarProveedores`, 'GET');
+  return data;
+}
 
-//Función para consultar los provedores asociados a productos especificos  (anda 25/11)
-function showConsultarProveedor() {
-    showHeader("Gestor de Proveedores", "Proveedores asociados al producto");
-    clearContent();
-    // Crear formulario para ingresar el ID del producto a buscar
-    generateForm(
-      [
-        { nombre: "codigo", placeholder: "Código del producto", tipo: "number" }
-      ],
-      "buscarProducto",  
-      "buscarProducto3",
-      "Buscar",
-       "btn-primary"
-    );
-    
+function tabla_listado_proveedores(data) {
+  // Obtener el contenedor donde se mostrará la tabla
+  const content = document.getElementById("showSelect");
+  content.innerHTML = ""; // Limpiar contenido previo
+
+  // Crear la tabla
+  const table = document.createElement("table");
+  table.className = "table table-striped table-bordered"; // Clases de Bootstrap para estilo
+
+  // Crear el encabezado de la tabla
+  const thead = document.createElement("thead");
+  thead.innerHTML = `
+    <tr>
+      <th>ID Proveedor</th>
+      <th>Nombre</th>
+      <th>Acción</th>
+    </tr>
+  `;
+  table.appendChild(thead);
+
+  // Crear el cuerpo de la tabla
+  const tbody = document.createElement("tbody");
+  data.forEach(proveedor => {
+    const row = document.createElement("tr");
+
+    // Columna ID
+    const idCol = document.createElement("td");
+    idCol.textContent = proveedor.id_proveedor;
+    row.appendChild(idCol);
+
+    // Columna Nombre
+    const nameCol = document.createElement("td");
+    nameCol.textContent = proveedor.nombre;
+    row.appendChild(nameCol);
+
+    // Columna Acción
+    const actionCol = document.createElement("td");
+    const editButton = document.createElement("button");
+    editButton.className = "btn btn-primary btn-sm";
+    editButton.textContent = "Editar";
+    editButton.onclick = () => editarProveedor(proveedor.id_proveedor); // Asocia función de editar
+    actionCol.appendChild(editButton);
+    row.appendChild(actionCol);
+
+    tbody.appendChild(row);
+  });
+  table.appendChild(tbody);
+
+  // Añadir la tabla al contenedor
+  content.appendChild(table);
+  
+}
+
+// Función para editar proveedor
+async function editarProveedor(id_proveedor) {
+  const content = document.getElementById("showSelect");
+  content.innerHTML = ""; // Limpiar contenido previo
+  showAsociarProductos(id_proveedor);
+}
+
+
+async function showConsultarProveedor() {
+  showHeader("Gestor de Proveedores", "Proveedores asociados al producto");
+  clearContent();
+  // Obtener los proveedores y mostrar la tabla
+  const data = await getProvedores();
+  tabla_listado_proveedores(data);
 }
 // Función para buscar el producto por su código
 async function buscarProducto3() {

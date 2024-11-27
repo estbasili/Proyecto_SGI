@@ -23,7 +23,6 @@ class Usuario:
              return False
         for key in cls.schema:
             if key not in data:
-                print(data)
                 return False
             if type(data[key]) != cls.schema[key]:
                 return False
@@ -53,8 +52,6 @@ class Usuario:
     @classmethod
     def register(cls, data):
 
-        print (type (data))
-
         if not cls.validar_datos(data):
             raise DBError({"message": "Campos/valores inválidos", "code": 400})
         
@@ -77,7 +74,6 @@ class Usuario:
         # Generar el hash de la contraseña
         hashed_password = generate_password_hash(contraseña, method='pbkdf2:sha256')
         
-        print(nombre, email, hashed_password, id_rol)
         # Guardar el usuario en la base de datos con la contraseña hasheada        
         cursor.execute('INSERT INTO usuario (nombre, email, contraseña, id_rol) VALUES (%s, %s, %s, %s)', (nombre, email, hashed_password, id_rol))
         connection.commit()
@@ -90,11 +86,9 @@ class Usuario:
 
 
         # Recuperar el objeto creado
-        print (id)
         cursor.execute('SELECT * FROM usuario WHERE id_usuario = %s', (id, ))
        
         nuevo = cursor.fetchone()
-        print (nuevo)
         cursor.close()
         connection.close()
         

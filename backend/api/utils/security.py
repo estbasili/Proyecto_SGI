@@ -8,16 +8,13 @@ from api.db.db import get_db_connection, DBError
 def token_required(func):
     @wraps(func)
     def decorated(*args, **kwargs):
-        print(kwargs)
         token = None
 
-        ###################################################################################
         # Verifica si el token está en el encabezado Authorization
         if 'Authorization' in request.headers:
             auth_header = request.headers['Authorization']
             if auth_header.startswith("Bearer "):
                 token = auth_header.split(" ")[1]  # Extrae solo el token después de "Bearer"
-        ####################################################################################
      
 
         # La solicitud en una ruta protegida debe incluir una cabecera 'x-access-token' con 
@@ -34,8 +31,6 @@ def token_required(func):
         id_usuario = None
 
 
-        # Primero se verifica si la ruta tiene el id_user
-        print("Argumentos de la solicitud: ", kwargs)
         if 'id_usuario' in kwargs:
             id_usuario = kwargs['id_usuario']
 
@@ -57,13 +52,10 @@ def token_required(func):
         try:
             data = jwt.decode(token , app.config['SECRET_KEY'], algorithms = ['HS256'])
             token_id = data['id_usuario']
-            # Imprime el token decodificado para ver su contenido
-            print("Token decodificado:", data)
 
             if int(id_usuario) != int(token_id):
                 return jsonify({"message": "Error de id"}), 401
         except Exception as e:
-            print(e)
             return jsonify({"message": str(e)}), 401
 
 
