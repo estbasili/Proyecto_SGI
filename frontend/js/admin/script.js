@@ -186,6 +186,16 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
   }
 }
 
+// Funcion manejadora de mensajes para UI
+function showAlert(title, text, icon = 'info', confirmButtonText = 'OK') {
+  Swal.fire({
+    title: title,                  // Título del mensaje
+    text: text,                    // Texto del mensaje
+    icon: icon,                    // Tipo de ícono ('success', 'error', 'warning', 'info', 'question')
+    confirmButtonText: confirmButtonText // Texto del botón
+  });
+}
+
 
 
 
@@ -220,12 +230,12 @@ async function addProduct() {
   
   
   if (isNaN(precio) || isNaN(stock) || isNaN(id_usuario_sesion)) {
-      alert("Por favor, revisa los campos numéricos.");
+      showAlert('Por favor', 'Completa todos los campos', 'info');
       return;
   }
 
   if (!nombre || !descripcion || !categoriaNombre) {
-      alert("Por favor, completa todos los campos.");
+      showAlert('Por favor', 'Revisa los campos', 'info');
       return;
   }
 
@@ -236,12 +246,12 @@ async function addProduct() {
     if (!Array.isArray(categorias))
     {
       console.error("La respuesta de categorías no es un arreglo:", categorias);
-      alert("No se encontraron categorías, por favor cree categoría");
+      showAlert('Ups!', 'No se encontraron Categorías, por favor crea una', 'info');
       return;
     }
     if (!categorias || categorias.length === 0) {
         console.error("No se encontraron categorías en la respuesta de la API.");
-        alert("No se encontraron categorías disponibles.");
+        showAlert('Ups!', 'No se encontraron categorías disponibles', 'info');
         return;
     }
     
@@ -252,7 +262,7 @@ async function addProduct() {
     const categoria = categorias.find(c => c.nombre && c.nombre.toLowerCase() === categoriaNombre.toLowerCase());
 
     if (!categoria) {
-        alert(`La categoría "${categoriaNombre}" no existe en el sistema.`);
+        showAlert('Ups!', `La categoría "${categoriaNombre}" no existe en el sistema`, 'info');
         return;
     }
 
@@ -268,7 +278,7 @@ async function addProduct() {
 
     if (nuevoProducto.id_categoria === undefined) {
         console.error("Error: id_categoria sigue siendo undefined después de la búsqueda.");
-        alert("Error interno: el ID de la categoría no se obtuvo correctamente.");
+        showAlert('Error!', 'El ID de la categoría no se obtuvo correctamente', 'error');
         return;
     }
 
@@ -277,24 +287,27 @@ async function addProduct() {
     // Enviar los datos a la API
     const data = await apiRequest(`/usuarios/${id_usuario_sesion}/productos`, 'POST', nuevoProducto);
     if (data) {
-        alert("Producto agregado correctamente");
-    }
+        showAlert('Bien!', 'Producto guardado correctamente', 'success');
+        showAgregarProducto();
+   }
 
   } catch (error) {
     console.error("Error en el proceso de adición de producto:", error);
-    alert("Hubo un problema al verificar las categorías o al agregar el producto.");
+    showAlert('Error!', 'Hubo un problema al verificar las categorías o al agregar el producto.', 'error');
+    
   }
 
   showAgregarProducto();
 }
 // fin funcion Agregar Producto
 
+
 // Función para Eliminar Producto (anda)
 function showQuitarProducto() {
   showHeader("Gestor de Productos", "Eliminar Producto");
   clearContent();
   generateForm(
-      [{ nombre: "idProduct", placeholder: "ID del producto a eliminar" }],
+      [{ nombre: "idProduct", placeholder: "Código del producto a eliminar" }],
       "deleteProduct",
       "deleteProduct",
       "Eliminar",
@@ -306,7 +319,7 @@ async function deleteProduct() {
 
    // Valida que el código no esté vacío
     if (!codigo) {
-        alert("Por favor, ingresa un ID de producto.");
+        showAlert('Por favor', 'Ingresa un ID de producto', 'warning');
         return;
     }
 
@@ -315,20 +328,21 @@ async function deleteProduct() {
       const producto = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${codigo}`, 'GET');  // Consultar si el producto existe
       console.log (producto);
       if (producto.length === 0) {
-          alert(`No se encontró un producto con el ID ${codigo}.`);
+          showAlert('Advertencia', `No se encontró un producto con el ID ${codigo}.`, 'warning');
           return;  // Detener si el producto no existe
       }
 
       // Si el producto existe, realizar la eliminación
       const data = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${codigo}`, 'DELETE');
       if (data) {
-          alert("Producto eliminado correctamente");
+          showAlert('¡Éxito!', 'Producto eliminado correctamente.', 'success');
           showQuitarProducto(); // Actualizar la interfaz
       }
 
   } catch (error) {
     console.error("Error en el proceso de eliminación:", error);
-    alert("Hubo un problema al eliminar el producto.");      
+    showAlert('Error', 'Hubo un problema al eliminar el producto', 'error');
+          
   }
 }
 // fin Eliminar
@@ -354,7 +368,7 @@ async function buscarProducto() {
   const codigo = document.getElementById("codigo").value.trim();
 
   if (!codigo) {
-      alert("Por favor, ingresa el código del producto.");
+      showAlert('Por favor', 'Ingresa el id del producto', 'warning');
       return;
   }
 
@@ -365,7 +379,7 @@ async function buscarProducto() {
 
        // Verificar si la respuesta es un array vacío
        if (Array.isArray(producto) && producto.length === 0) {
-        alert("Producto no encontrado");
+        showAlert('Ups!', 'Producto no encontrado', 'warning');
         return;  // Detener la ejecución si no se encuentra el producto
     }
           clearContent();
@@ -389,10 +403,11 @@ async function buscarProducto() {
       
   } catch (error) {
       if (error.message === 'Producto no encontrado') {
-          alert("El producto con el código especificado no existe.");
+          showAlert('Ups', 'El producto con el id especificado no existe', 'warning');
+          
       } else {
           console.error("Error al buscar el producto:", error);
-          alert("Hubo un problema al buscar el producto.");
+          showAlert('Error', 'Hubo un Problema al buscar el producto', 'error');
       }
   }
 }
@@ -411,7 +426,7 @@ async function updateProduct() {
 
   // Verificar si el ID del producto existe
   if (!codigo) {
-      alert("Por favor, ingresa el código del producto.");
+      showAlert('Por favor', 'Ingrese el código del producto', 'warning');
       return;
   }
 
@@ -423,18 +438,18 @@ async function updateProduct() {
       precio: parseFloat(document.getElementById("precio").value.trim().replace(",", ".")), // Reemplazar coma por punto y convertir a float
       stock: parseInt(document.getElementById("stock") ? document.getElementById("stock").value : NaN),
       id_categoria: parseInt(document.getElementById("categoria") ? document.getElementById("categoria").value : NaN),
-      id_usuario: id_usuario_sesion //////////////////////////////////// // Este valor debe corresponder al ID del usuario autenticado 
+      id_usuario: id_usuario_sesion // Este valor debe corresponder al ID del usuario autenticado 
   };
 
   // Verificar si los campos numéricos son válidos
   if (isNaN(productoActualizado.precio) || isNaN(productoActualizado.stock) || isNaN(productoActualizado.id_categoria) || isNaN(productoActualizado.id_usuario)) {
-      alert("Por favor, revisa los campos numéricos.");
+      showAlert('Por favor', 'Revisa los campos', 'warning');  
       return;
   }
 
   // Verificar si los campos requeridos están completos
   if (!productoActualizado.nombre || !productoActualizado.descripcion || !productoActualizado.id_categoria || !productoActualizado.id_usuario) {
-      alert("Por favor, completa todos los campos.");
+      showAlert('Por favor', 'Revisa todos los campos', 'warning'); 
       return;
   }
 
@@ -445,12 +460,13 @@ async function updateProduct() {
       // Enviar los datos a la API para actualizar el producto
       const data = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${codigo}`, 'PUT', productoActualizado);
       if (data) {
-          alert("Producto actualizado correctamente");
-      }
+          showAlert('Bien!', 'Producto actualizado!', 'success'); 
+          showActualizarProducto();
+       }
   } catch (error) {
       console.error("Error al actualizar el producto:", error);
-      alert("Hubo un problema al actualizar el producto.");
-  }
+      showAlert('Error', 'Hubo un problema al actualizar el producto ', 'error'); 
+ }
 }
 // fin funcion atualizar producto
 
@@ -481,22 +497,24 @@ async function addCategory() {
 
   // Valida que el campo no esté vacío
   if (!nuevaCategoriaNombre) {
-    alert("El nombre de la categoría no puede estar vacío.");
+    showAlert('Por favor', 'Completa la categoría', 'info');
     return;
   }
 
   try{
        const response = await apiRequest(`/usuarios/${id_usuario_sesion}/categorias`, 'POST', { nombre: nuevaCategoriaNombre });
        if (response.message === "La categoría ya existe") {
-        alert(`La categoría "${nuevaCategoriaNombre}" ya existe.`);
+        showAlert('Ups!',`La categoría "${nuevaCategoriaNombre}" ya existe`, 'info');
+        
         } else {
-            alert("Categoría agregada correctamente.");
+            showAlert('Bien!','La categoría fue agregada.', 'success');
             inputElement.value = ""; // Limpiar el campo de entrada
             showNuevaCategoria();   // Recargar el formulario y categorías
         }
       } catch (error) {
                 console.error("Error al agregar categoría:", error);
-                alert("Hubo un problema al agregar la categoría. Intenta nuevamente.");
+                showAlert('Error!','Hubo un problema al agregar la categoría. Intenta nuevamente.', 'error');
+               
       }
 }
 // fin agregra categoria
@@ -530,7 +548,8 @@ async function showAsociarCategoriaProducto() {
 
       document.getElementById("showSelect").innerHTML = form;
   } catch (error) {
-      alert(error.message);
+      showAlert('Error!',`${error.message}`, 'error');
+     
   }
 }
 // Función auxiliar para generar dropdowns
@@ -571,13 +590,14 @@ async function asociarCategoriaProducto() {
       const data = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${productoId}`, "PUT", nuevaCategoriaProducto);
 
       if (data) {
-          alert("Producto actualizado correctamente.");
+          showAlert('Bien!', 'Producto asociado correctamente', 'success');
           document.getElementById("associateForm").reset(); // Limpia el formulario después de asociar
       } else {
           throw new Error("Error al actualizar el producto.");
       }
   } catch (error) {
-      alert(error.message);
+      showAlert('Error!', `${error.message}`, 'error');
+      
   }
 }
 // fin de Asociacion
@@ -605,7 +625,7 @@ async function buscarProducto1() {
   const codigo = document.getElementById("codigo").value.trim();
 
   if (!codigo) {
-    alert("Por favor, ingresa el código del producto.");
+    showAlert('Por favor', 'Ingrese el código del Producto', 'info');
     return;
   }
 
@@ -616,7 +636,7 @@ async function buscarProducto1() {
 
        // Verificar si la respuesta es un array vacío
        if (Array.isArray(producto) && producto.length === 0) {
-        alert("Producto no encontrado");
+        showAlert('Ups!', 'Producto no encontrado', 'warning');
         return;  // Detener la ejecución si no se encuentra el producto
     }
 
@@ -630,9 +650,11 @@ async function buscarProducto1() {
 
     // Verificar si el error es un 404
     if (error.response && error.response.status === 404) {
-      alert("Producto no encontrado.");
+      showAlert('Ups!', 'Producto no encontrado', 'warning');
+      
     } else {
-      alert("Hubo un problema al buscar el producto.");
+      showAlert('Error!', 'Hubo un problema al buscar el producto', 'error');
+      
     }
   }
 }
@@ -658,7 +680,7 @@ async function updateStock() {
   const stock = parseInt(document.getElementById("stock").value.trim());
 
   if (isNaN(stock)) {
-    alert("Por favor, ingresa una cantidad de stock válida.");
+    showAlert('Por favor', 'Ingresa una cantidad de stock válida', 'info');
     return;
   }
 
@@ -666,12 +688,13 @@ async function updateStock() {
   try {
     const data = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${productoActual.id_producto}`, 'PUT', productoActual);
     if (data) {
-      alert("Stock actualizado correctamente");
+      showAlert('Bien!', 'Stock actualizado', 'success');
       showActualizarStock();
     }
   } catch (error) {
     console.error("Error en PUT /productos:", error);
-    alert("Hubo un problema al actualizar el producto.");
+    showAlert('Error!', 'Hubo un problema al actualizar el producto', 'error');
+    
   }
 }
 // fin de gestir actualizacion stock
@@ -703,6 +726,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     } catch (error) {
       console.error("Error al cargar productos con stock mínimo:", error);
+      showAlert('Error!', 'Hubo un problema al cargar productos con stock mínimo', 'error');
     }
   }
 
@@ -826,7 +850,8 @@ async function addProveedor() {
 
   // Verificar si el nombre está vacío
    if (!nuevoProveedor.nombre || !nuevoProveedor.email || !nuevoProveedor.telefono) {
-      alert(" Todos los campos son obligatorios");
+      showAlert('Por favor!', 'completa todos los campos', 'info');  
+    
       return;  // Detener la ejecución si el nombre está vacío
    }
 
@@ -838,7 +863,7 @@ async function addProveedor() {
            const ultimoProveedor = data[data.length - 1];
           // Extraer el id_proveedor del último objeto
             const idProveedor = ultimoProveedor.id_proveedor;
-            alert("Proveedor agregado correctamente");
+            showAlert('Bien!', 'Proveedor agregado correctamente', 'success');  
             console.log(idProveedor);
         // Ahora que el proveedor ha sido creado, mostrar la tabla para asociar productos
             await showAsociarProductos(idProveedor); // Mostrar productos para asociar
@@ -942,7 +967,7 @@ async function asociarProductosAlProveedor(idProveedor) {
                                   .map(checkbox => parseInt(checkbox.value, 10));
 
   if (selectedProductos.length === 0) {
-    alert("Por favor, selecciona al menos un producto.");
+    showAlert('Por favor!', 'Selecciona al menos un producto', 'info');  
     return;
   }
 
@@ -951,9 +976,11 @@ async function asociarProductosAlProveedor(idProveedor) {
   const data = await apiRequest(`/usuarios/${id_usuario_sesion}/proveedores/${idProveedor}/productos/varios`, 'POST', { productos: selectedProductos });
 
   if (data) {
-    alert("Productos asociados al proveedor correctamente");
+    showAlert('Bien!', 'Productos asociados correctamente', 'success');  
+    
   } else {
-    alert("Hubo un error al asociar los productos al proveedor.");
+    showAlert('Error!', 'Hubo un error al asociar los productos al proveedor', 'error');  
+    
   }
 }
 // fin para Agregar proveeedor
@@ -980,7 +1007,7 @@ async function buscarProducto3() {
   const codigo = document.getElementById("codigo").value.trim();
   
   if (!codigo) {
-    alert("Por favor, ingresa el código del producto.");
+    showAlert('Por favor!', 'Ingrese el código del producto', 'info');
     return;
   }
   
@@ -1021,7 +1048,7 @@ async function buscarProducto3() {
             <table id="dataTable_products" class="table table-head-fixed text-nowrap">
               <thead>
                 <tr>
-                  <th>Id</th>
+                  <th>Código</th>
                   <th>Nombre</th>
                 </tr>
               </thead>
@@ -1049,7 +1076,7 @@ async function buscarProducto3() {
           document.getElementById("tableBody_products").innerHTML = rows;
       } else {
         // Manejar el caso en que no hay proveedores
-        console.warn("No se encontraron proveedores asociados.");
+        showAlert('Ups!', 'No se encontraron Proveedores asociados', 'warning');
       }
    
 }
@@ -1204,13 +1231,8 @@ async function guardarOrdenCompra(ordenCompra) {
 
       if(data){
         console.log(data);
-
-        Swal.fire({
-          title: '¡Éxito!',
-          text: data.message,
-          icon: 'success',
-          confirmButtonText: 'OK'
-        });
+        showAlert('Bien!', `${data.message}`, 'success');
+        
       }
       
 } 
@@ -1239,7 +1261,6 @@ function enviarOrdenCompra(event) {
 
   guardarOrdenCompra(ordenCompra); // Llamar a la función para guardar la orden
 }
-
 
 function loadProductos(selectElement,idProveedor) {
     fetch(`http://127.0.0.1:5001/usuarios/${id_usuario_sesion}/proveedores/${idProveedor}/productos`,
@@ -1411,7 +1432,7 @@ function showProdBS() {
         <table id="dataTable_products" class="table table-head-fixed text-nowrap">
           <thead>
             <tr>
-              <th>Id</th>
+              <th>Código</th>
               <th>Nombre</th>
               <th>Descripcion</th>
               <th>Precio</th>
@@ -1473,8 +1494,7 @@ function showHCompras() {
                         <th>Fecha Pedido</th>
                         <th>Fecha Recepción</th>
                         <th>Estado</th>
-                        <th>ID Proveedor</th>
-                        <th>ID Operador</th>
+                        <th>Proveedor</th>
                         <th>Detalles</th>
                     </tr>
                 </thead>
@@ -1500,9 +1520,8 @@ async function compras() {
                 <td>${orden.id_orden}</td>
                 <td>${orden.fecha_pedido}</td>
                 <td>${orden.fecha_recepcion ? orden.fecha_recepcion : "Sin recepción"}</td>
-                <td>${orden.estado}</td>
-                <td>${orden.id_proveedor}</td>
-                <td>${orden.id_usuario}</td>
+                <td>${orden.estado_descri}</td>
+                <td>${orden.nombre_proveedor}</td>
                 <td>
                     <button class="btn btn-info btn-sm" onclick="detalleProductos(${orden.id_orden})">
                         Ver Detalle
@@ -1557,6 +1576,7 @@ async function detalleProductos(idOrden) {
 }
 async function productosAsociados(idOrden) {
   const data = await apiRequest(`/usuarios/${id_usuario_sesion}/ordenes/${idOrden}`, 'GET');
+  
   if (data && Array.isArray(data)) {
     // Generar la tabla
     const table = `
@@ -1564,7 +1584,7 @@ async function productosAsociados(idOrden) {
         <table id="dataTable_products" class="table table-head-fixed text-nowrap">
           <thead>
             <tr>
-              <th>Id</th>
+              <th>Código del Producto</th>
               <th>Nombre</th>
               <th>Cantidad</th>
             </tr>
@@ -1593,6 +1613,7 @@ async function productosAsociados(idOrden) {
       document.getElementById("tableBody_products").innerHTML = rows;
   } else {
     // Manejar el caso en que no hay proveedores
+    showAlert('Ups!', 'No se encontraron Proveedores asociados', 'warning');
     console.warn("No se encontraron proveedores asociados.");
   }
 }
@@ -1612,7 +1633,7 @@ function showInventarioActual(){
     <table id="dataTable_products" class="table table-head-fixed text-nowrap">
       <thead>
         <tr>
-          <th>ID</th>
+          <th>Código del Producto</th>
           <th>Nombre</th>
           <th>Descripción</th>
           <th>Stock</th>
@@ -1712,14 +1733,6 @@ async function listar(id_usuario_sesion) {
   }
 }
 //fin para listar Inventario actual
-
-
-
-
-
-
-
-
 
 
  /////////////////////////////////////   
