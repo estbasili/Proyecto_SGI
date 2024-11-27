@@ -12,10 +12,8 @@ from api.db.db import DBError
 def get_all_ordenes(id_usuario):
     try:
         ordenes = Orden.get_all_ordenes(id_usuario)
-        print("dwedew")
         return jsonify(ordenes), 200
     except DBError as e:
-        print("Hola")
         return jsonify({"message": str(e)}), 400
     except Exception as e:
         print(str(e))

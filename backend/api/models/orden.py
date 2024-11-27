@@ -34,31 +34,39 @@ class Orden:
 
         return True, "Validación exitosa. Todos los datos son válidos."
 
+
     def __init__(self, data):
-        # Asignación de valores considerando el tipo adecuado
         self.id_orden = data[0]
         self.fecha_pedido = data[1] if isinstance(data[1], (datetime, date)) else datetime.strptime(data[1], '%Y-%m-%d') if data[1] else None
         self.fecha_recepcion = data[2] if isinstance(data[2], (datetime, date)) else datetime.strptime(data[2], '%Y-%m-%d') if data[2] else None
         self.estado = int(data[3])  # Convertir estado a entero
         self.id_proveedor = data[4]
-        self.id_usuario = data[5] if len(data) > 5 else None  # Asegurar que no cause error si no existe
+        self.nombre_proveedor = data[5]  # Almacenar el nombre del proveedor
+        self.id_usuario = data[6] if len(data) > 6 else None  # Asegurar que no cause error si no existe
+        self.descripcion = data[7] if len(data) > 7 else None  # Asignar la descripcion del estado
+
+
 
 
     def a_json(self):
         return {
-            "id_orden": self.id_orden,
-            "fecha_pedido": self.fecha_pedido.strftime('%Y-%m-%d') if self.fecha_pedido else None,
-            "fecha_recepcion": self.fecha_recepcion.strftime('%Y-%m-%d') if self.fecha_recepcion else None,
-            "estado": self.estado,
-            "id_proveedor": self.id_proveedor,
-           # "id_usuario": self.id_usuario
-        }
+        "id_orden": self.id_orden,
+        "fecha_pedido": self.fecha_pedido.strftime('%Y-%m-%d') if self.fecha_pedido else None,
+        "fecha_recepcion": self.fecha_recepcion.strftime('%Y-%m-%d') if self.fecha_recepcion else None,
+        "estado": self.estado,
+        "id_proveedor": self.id_proveedor,
+        "nombre_proveedor": self.nombre_proveedor,  # Agregar el nombre del proveedor
+        "id_usuario": self.id_usuario,
+        "estado_descri": self.descripcion  # Asegurarse de que 'descripcion' esté disponible en la instancia
+    }
+
+
 
     @classmethod
     def get_all_ordenes(cls,id_usuario):
         conexion = get_db_connection()
         cursor = conexion.cursor()
-        cursor.execute('SELECT * FROM orden_compra WHERE id_usuario = %s', (id_usuario,))
+        cursor.execute('SELECT orden_compra.id_orden, orden_compra.fecha_pedido, orden_compra.fecha_recepcion, orden_compra.estado, proveedor.id_proveedor, proveedor.nombre, orden_compra.id_usuario, estados_orden_compra.descripcion FROM orden_compra INNER JOIN proveedor ON proveedor.id_proveedor = orden_compra.id_proveedor INNER JOIN estados_orden_compra ON orden_compra.estado = estados_orden_compra.id_estado WHERE orden_compra.id_usuario = %s', (id_usuario,))
         data = cursor.fetchall()
         cursor.close()
         conexion.close()
