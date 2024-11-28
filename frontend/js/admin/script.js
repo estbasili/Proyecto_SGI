@@ -317,7 +317,7 @@ async function deleteProduct() {
 
    // Valida que el código no esté vacío
     if (!codigo) {
-        showAlert('Por favor', 'Ingresa un ID de producto', 'warning');
+        showAlert('Por favor', 'Ingresa un código de producto', 'warning');
         return;
     }
 
@@ -326,14 +326,14 @@ async function deleteProduct() {
       const producto = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${codigo}`, 'GET');  // Consultar si el producto existe
       //console.log (producto);
       if (producto.length === 0) {
-          showAlert('Advertencia', `No se encontró un producto con el ID ${codigo}.`, 'warning');
+          showAlert('Advertencia', `No se encontró un producto con ese código ${codigo}.`, 'warning');
           return;  // Detener si el producto no existe
       }
 
       // Si el producto existe, realizar la eliminación
       const data = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${codigo}`, 'DELETE');
       if (data) {
-          showAlert('¡Éxito!', 'Producto eliminado correctamente.', 'success');
+          showAlert('Bien!', 'Producto eliminado correctamente.', 'success');
           showQuitarProducto(); // Actualizar la interfaz
       }
 
