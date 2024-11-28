@@ -152,7 +152,6 @@ function generateSelectField(field) {
   `;
 }
 
-
 // Función genérica para hacer peticiones a la API (anda)
 async function apiRequest(endpoint, method = 'GET', data = null) {
   const options = {
@@ -300,7 +299,6 @@ async function addProduct() {
   showAgregarProducto();
 }
 // fin funcion Agregar Producto
-
 
 // Función para Eliminar Producto (anda)
 function showQuitarProducto() {
@@ -985,6 +983,8 @@ async function asociarProductosAlProveedor(idProveedor) {
 }
 // fin para Agregar proveeedor
 
+
+// Función para editar proveedor
 async function getProvedores(){
   
   const data = await apiRequest(`/usuarios/${id_usuario_sesion}/listarProveedores`, 'GET');
@@ -1044,20 +1044,38 @@ function tabla_listado_proveedores(data) {
   
 }
 
-// Función para editar proveedor
 async function editarProveedor(id_proveedor) {
   const content = document.getElementById("showSelect");
   content.innerHTML = ""; // Limpiar contenido previo
   showAsociarProductos(id_proveedor);
 }
 
-
-async function showConsultarProveedor() {
-  showHeader("Gestor de Proveedores", "Proveedores asociados al producto");
+async function showEditarProveedor() {
+  showHeader("Gestor de Proveedores", "Editar Proveedor");
   clearContent();
   // Obtener los proveedores y mostrar la tabla
   const data = await getProvedores();
   tabla_listado_proveedores(data);
+}
+// fin funcion para editar proveedor
+
+
+
+//Función para consultar los provedores asociados a productos especificos  (anda 25/11)
+function showConsultarProveedor() {
+  showHeader("Gestor de Proveedores", "Proveedores asociados al producto");
+  clearContent();
+  // Crear formulario para ingresar el ID del producto a buscar
+  generateForm(
+    [
+      { nombre: "codigo", placeholder: "Código del producto", tipo: "number" }
+    ],
+    "buscarProducto",  
+    "buscarProducto3",
+    "Buscar",
+     "btn-primary"
+  );
+  
 }
 // Función para buscar el producto por su código
 async function buscarProducto3() {
@@ -1137,11 +1155,90 @@ async function buscarProducto3() {
       }
    
 }
-// fin funcion Consultar proveedres de un producto  
 
+// fin funcion consulta proveedore de un producto
+/*
+// Función para buscar el producto por su código
+async function buscarProducto3() {
+const codigo = document.getElementById("codigo").value.trim();
 
+if (!codigo) {
+  alert("Por favor, ingresa el código del producto.");
+  return;
+}
 
+// Solicitar los datos del producto a la API
+const producto = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${codigo}`, 'GET');
+console.log(producto);
+
+   // Verificar si la respuesta es un array vacío
+   if (Array.isArray(producto) && producto.length === 0) {
+    alert("Producto no encontrado");
+    return;  // Detener la ejecución si no se encuentra el producto
+}
+    clearContent();
+    showHeader("Gestor de Proveedores", " Proveedores asociados al producto");
+
+   const div = `
+                <div class="card-body bg-dark rounded p-3 shadow-sm">
+                  <h4>Producto</h4>
+                  <p>Código: ${producto.id_producto}</p>
+                  <p>Nombre: ${producto.nombre}</p>
+                <div class="card-body bg-dark  p-1 text-center">
+                  <h4>Proveedores</h4>
+                </div>
+                </div>
+               
+               `;
+
+    document.getElementById("showSelect").innerHTML = div; 
+    proveedoresAsociados(producto.id_producto);  
   
+} 
+async function proveedoresAsociados(id_producto) {
+    const data = await apiRequest(`/usuarios/${id_usuario_sesion}/proveedores/${id_producto}`, 'GET');
+    if (data && Array.isArray(data)) {
+      // Generar la tabla
+      const table = `
+        <div class="card-body table-responsive p-0 table-blur  style="height: 300px;">
+          <table id="dataTable_products" class="table table-head-fixed text-nowrap">
+            <thead>
+              <tr>
+                <th>Id del Proveedor</th>
+                <th>Nombre</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody_products">
+              <!-- Las filas se generarán aquí dinámicamente -->
+            </tbody>
+          </table>
+        </div>`;
+      
+      // Obtener el segundo hijo div de "showSelect"
+      const firstChildDiv = document.querySelector("#showSelect > div");
+     
+
+         // Insertar la tabla después del primer hijo div
+         firstChildDiv.insertAdjacentHTML('afterend', table);
+
+        // Generar las filas para cada proveedor
+        const rows = data.map(proveedor => `
+          <tr>
+            <td>${proveedor.id_proveedor}</td>
+            <td>${proveedor.nombre_proveedor}</td>
+          </tr>
+        `).join(""); // Unir todas las filas en un solo string
+        // Insertar las filas en el cuerpo de la tabla
+        document.getElementById("tableBody_products").innerHTML = rows;
+    } else {
+      // Manejar el caso en que no hay proveedores
+      console.warn("No se encontraron proveedores asociados.");
+    }
+ 
+}
+// fin funcion Consultar proveedres de un producto 
+*/
+ 
 ////////////////////////////////////////////////////////////////-- Gestor de compras ---------------------------------------------------
   
 
@@ -1536,7 +1633,7 @@ async function Products(stockThreshold) {
 
 
 
-  // Funcion para el historial de orden de compra (anda 26/11 ver problema si no tiene ordenes Error 400)
+  // Funcion para el historial de orden de compra (anda 26/11 )
 function showHCompras() {
     showHeader("Gestor de Reportes", "Historial de Compras");
     clearContent();
@@ -1570,7 +1667,14 @@ function showHCompras() {
 // Petición a la API
 async function compras() {
     const data = await apiRequest(`/usuarios/${id_usuario_sesion}/ordenes`);
-     
+    
+    console.log(data);
+    if (data == null){
+      showAlert('Ups!', 'no hay ordenes','info');
+      return;
+    }
+    
+    
     if (data && Array.isArray(data)) {
         // Generar contenido de la tabla
         const content = data.map(orden => `
