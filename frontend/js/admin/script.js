@@ -23,9 +23,9 @@ const email = localStorage.getItem("email");
 const id_usuario_sesion = parseInt(localStorage.getItem("id"),10);
 
 // Mostrar los datos en la consola para verificarlos 
-// console.log("Token:", token);
-// console.log("Email:", email);
-// console.log("ID", id_usuario_sesion);
+// //console.log("Token:", token);
+// //console.log("Email:", email);
+// //console.log("ID", id_usuario_sesion);
 
 // Agrega el email al contenido al <h4>
 const userInfoElement = document.getElementById("user-info");
@@ -166,7 +166,7 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
   
   try {
       const response = await fetch(`${urlAPI}${endpoint}`, options);
-      console.log(`${urlAPI}${endpoint}`);
+      //console.log(`${urlAPI}${endpoint}`);
      
       // Manejo respuesta no exitosa
       if (!response.ok) {
@@ -256,7 +256,7 @@ async function addProduct() {
     }
     
     // Imprimir las categorías obtenidas para verificar
-    //console.log("Categorías obtenidas:", categorias);
+    ////console.log("Categorías obtenidas:", categorias);
 
     // Buscar la categoría con el nombre ingresado
     const categoria = categorias.find(c => c.nombre && c.nombre.toLowerCase() === categoriaNombre.toLowerCase());
@@ -282,7 +282,7 @@ async function addProduct() {
         return;
     }
 
-    console.log("Datos a enviar:", nuevoProducto);
+    //console.log("Datos a enviar:", nuevoProducto);
 
     // Enviar los datos a la API
     const data = await apiRequest(`/usuarios/${id_usuario_sesion}/productos`, 'POST', nuevoProducto);
@@ -326,7 +326,7 @@ async function deleteProduct() {
   // Verificar si el producto existe antes de intentar eliminarlo
   try {
       const producto = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${codigo}`, 'GET');  // Consultar si el producto existe
-      console.log (producto);
+      //console.log (producto);
       if (producto.length === 0) {
           showAlert('Advertencia', `No se encontró un producto con el ID ${codigo}.`, 'warning');
           return;  // Detener si el producto no existe
@@ -375,7 +375,7 @@ async function buscarProducto() {
   try {
       // Solicitar los datos del producto a la API
       const producto = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${codigo}`, 'GET');
-      console.log(producto);
+      //console.log(producto);
 
        // Verificar si la respuesta es un array vacío
        if (Array.isArray(producto) && producto.length === 0) {
@@ -454,7 +454,7 @@ async function updateProduct() {
   }
 
   // Ver el contenido de productoActualizado en la consola para depurar
-  // console.log("Contenido de productoActualizado:", productoActualizado.precio);
+  // //console.log("Contenido de productoActualizado:", productoActualizado.precio);
 
   try {
       // Enviar los datos a la API para actualizar el producto
@@ -632,7 +632,7 @@ async function buscarProducto1() {
   try {
     // Solicitar los datos del producto a la API
     const producto = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${codigo}`, 'GET');
-    console.log(producto);
+    //console.log(producto);
 
        // Verificar si la respuesta es un array vacío
        if (Array.isArray(producto) && producto.length === 0) {
@@ -864,7 +864,7 @@ async function addProveedor() {
           // Extraer el id_proveedor del último objeto
             const idProveedor = ultimoProveedor.id_proveedor;
             showAlert('Bien!', 'Proveedor agregado correctamente', 'success');  
-            console.log(idProveedor);
+            //console.log(idProveedor);
         // Ahora que el proveedor ha sido creado, mostrar la tabla para asociar productos
             await showAsociarProductos(idProveedor); // Mostrar productos para asociar
             
@@ -1070,7 +1070,7 @@ async function buscarProducto3() {
   
   // Solicitar los datos del producto a la API
   const producto = await apiRequest(`/usuarios/${id_usuario_sesion}/productos/${codigo}`, 'GET');
-  console.log(producto);
+  //console.log(producto);
 
      // Verificar si la respuesta es un array vacío
      if (Array.isArray(producto) && producto.length === 0) {
@@ -1212,7 +1212,7 @@ async function loadState() {
   try {
       // Llamada a la API utilizando apiRequest
       const data = await apiRequest('/estados', 'GET');////////////////////////////////////////////////
-      console.log(data);
+      //console.log(data);
       // Limpiar las opciones anteriores del select
       estadoSelect.innerHTML = '';
 
@@ -1275,21 +1275,22 @@ function capturarProductos() {
     }
   });
 
-  console.log(ordenCompra); // Para verificar el resultado en la consola
+  //console.log(ordenCompra); // Para verificar el resultado en la consola
   return ordenCompra;
 }
 
 
 async function guardarOrdenCompra(ordenCompra) {
-      console.log("Datos enviados a la API:", ordenCompra); // Log de los datos enviados
+      //console.log("Datos enviados a la API:", ordenCompra); // Log de los datos enviados
 
       // Realizar la solicitud a la API
       const data = await apiRequest(`/usuarios/${id_usuario_sesion}/ordenes`, 'POST', ordenCompra);
 
-      if(data){
-        console.log(data);
+      if(!data.error){
+        //console.log(data);
         showAlert('Bien!', `${data.message}`, 'success');
-        
+      }else{
+        showAlert('Error!',`${data.message}`,'error');
       }
       
 } 
@@ -1330,7 +1331,7 @@ function loadProductos(selectElement,idProveedor) {
     })
     .then(response => response.json())
     .then(data => {
-      console.log(data);
+      //console.log(data);
       // Limpiar el select antes de llenarlo
       selectElement.innerHTML = '';
 
@@ -1444,7 +1445,7 @@ function loadProveedoresSelect(){
       // Agregar el evento change para obtener el ID del proveedor seleccionado
       selectElement.addEventListener('change', function() {
         const selectedId = selectElement.value; // El valor del select es el ID del proveedor
-        console.log('Proveedor seleccionado ID:', selectedId);
+        //console.log('Proveedor seleccionado ID:', selectedId);
         document.getElementById('proveedor_seleccionado').value = selectedId;
         // Aquí puedes usar el ID seleccionado, como enviarlo a un servidor o hacer algo más
       });
@@ -1718,7 +1719,7 @@ function showInventarioActual(){
 async function listar(id_usuario_sesion) {
   
   const data = await apiRequest(`/productos/${id_usuario_sesion}/usuario`);
-  console.log(data)
+  //console.log(data)
   
   if (data && Array.isArray(data)) {
     // Agrupar los proveedores por producto
