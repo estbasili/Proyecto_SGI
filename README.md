@@ -125,41 +125,57 @@ Proyecto_SGI/
 ├── backend/
 │   ├── api/
 │   │   ├── db/
-│   │   │   ├── models/
-│   │   │   │   ├── categoria.py
-│   │   │   │   ├── detalle_orden.py
-│   │   │   │   ├── orden.py
-│   │   │   │   ├── producto.py
-│   │   │   │   ├── proveedor.py
-│   │   │   │   ├── usuario.py
+|   |   |    └── bd.py
+│   │   ├── models/
+│   │   │       ├── categoria.py
+│   │   │       ├── detalle_orden.py
+│   │   │       ├── orden.py
+│   │   │       ├── producto.py
+│   │   │       ├── proveedor.py
+│   │   │       └── usuario.py
 │   │   ├── routes/
 │   │   │   ├── categoria.py
 │   │   │   ├── orden.py
 │   │   │   ├── producto.py
 │   │   │   ├── proveedor.py
-│   │   │   ├── usuario.py
-│   │   ├── utils/
-│   │   │   ├── security.py     # Funciones de utilidad para seguridad
-│   ├── app.py                 # Archivo principal del backend
+│   │   │   └── usuario.py
+│   │   ├─── utils/
+│   │   |    └── security.py     # Funciones de utilidad para seguridad
+|   |   └─ __init__.py
+│   └─ app.py                    # Archivo principal del backend
+|
+├── doc/                         # Archivos con las imagenes de los diagramas de clase 
+|
 ├── frontend/
-│   ├── assets/                # Imágenes y recursos estáticos
+│   ├── assets/                  # Imágenes y recursos estáticos
 │   │   ├── favicon.ico
 │   │   ├── imagen_fondo.png
-│   │   ├── usuario.png
-│   ├── css/                   # Archivos CSS personalizados
-│   │   ├── estilo.css
-│   ├── js/                    # Archivos JavaScript personalizados
-│   │   ├── scripts.js
-│   ├── index.html             # Página principal
-│   ├── login.html             # Página de inicio de sesión
+│   │   └── usuario.png
+│   ├── css/                     # Archivos CSS personalizados
+│   │   ├── dist/                # archivos de bootstrap 4
+|   |   ├── plugins/
+|   |   └── personalizado/
+|   |             └─ estilos.css # archivo de estilos propios del proyecto
+│   ├── js/                      # Archivos JavaScript personalizados
+│   |   ├── admin/
+|   |   |      └─ scripts.js     # JavaScript para manejar la pagina principal
+|   |   ├── common/
+|   │   |      └─ common.js
+|   |   └─ user/
+|   |        └─ login_register.js # JavaScript para manejo de loginy registro 
+|   |
+│   ├── index.html                # Página principal
+│   └── login-register.html       # Página de inicio de sesión
+|
 ├── settings/
-│   ├── creacion_usuario.sql   # Scripts SQL para configuración inicial
-│   ├── datos_prueba.sql       # Datos de prueba
-│   ├── gestion.sql            # Tablas y relaciones
-│   ├── requirements.txt       # Dependencias necesarias para el backend
-├── .env                       # Variables de entorno
-├── .gitignore                 # Archivos/carpetas a ignorar en Git
-├── README.md                  # Documentación del proyecto
+│   ├── creacion_usuario.sql      # Scripts SQL para configuración inicial
+│   ├── datos_prueba.sql          # Datos de prueba
+│   ├── gestion.sql               # Tablas y relaciones
+│   └─ requirements.txt           # Dependencias necesarias para el backend
+|
+├── .env                          # Variables de entorno
+├── .gitignore                    # Archivos/carpetas a ignorar en Git
+└── README.md                     # Documentación del proyecto
 
 models/: Contiene las definiciones de los modelos de datos (proveedor.py, categoria.py, etc.).
 routes/: Contiene las rutas para los endpoints de la API (proveedor.py, categoria.py, etc.).
