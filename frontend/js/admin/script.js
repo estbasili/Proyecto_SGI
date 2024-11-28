@@ -181,7 +181,7 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
       
   } catch (error) {
       console.error(`Error en ${method} ${endpoint}:`, error);
-      alert(`Error al procesar la solicitud: ${error.message}`);
+      //alert(`Error al procesar la solicitud: ${error.message}`);
   }
 }
 
